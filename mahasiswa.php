@@ -3,12 +3,10 @@ session_start();
 if (!isset($_SESSION['username'])) {
   header('Location: index.php');
 }
+
 ?>
 <!DOCTYPE html>
-<!--
-This is a starter template page. Use this page to start your new project from
-scratch. This page gets rid of all links and provides the needed markup only.
--->
+
 <html lang="en">
 
 <head>
@@ -26,7 +24,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <body class="hold-transition sidebar-mini">
   <div class="wrapper">
-
     <?php include 'navbar.php' ?>
     <?php include 'sidebar.php' ?>
     <!-- Content Wrapper. Contains page content -->
@@ -36,29 +33,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <div class="container-fluid">
           <!-- Info boxes -->
           <div class="row pt-3">
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
               <div class="info-box">
-                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
+                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-book"></i></span>
 
                 <div class="info-box-content">
-                  <span class="info-box-text">CPU Traffic</span>
-                  <span class="info-box-number">
+                  <span class="info-box-text">Jumlah MK Dipilih</span>
+                  <h4 class="info-box-number">
                     10
-                    <small>%</small>
-                  </span>
+                  </h4>
                 </div>
                 <!-- /.info-box-content -->
               </div>
               <!-- /.info-box -->
             </div>
             <!-- /.col -->
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
               <div class="info-box mb-3">
                 <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
 
                 <div class="info-box-content">
-                  <span class="info-box-text">Likes</span>
-                  <span class="info-box-number">41,410</span>
+                  <span class="info-box-text">Kuliah hari ini</span>
+                  <h4 class="info-box-number">2</h4>
                 </div>
                 <!-- /.info-box-content -->
               </div>
@@ -69,33 +65,38 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
 
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
               <div class="info-box mb-3">
                 <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
 
                 <div class="info-box-content">
-                  <span class="info-box-text">Sales</span>
-                  <span class="info-box-number">760</span>
+                  <span class="info-box-text">Penugasan Minggu Ini</span>
+                  <h4 class="info-box-number">0</h4>
                 </div>
                 <!-- /.info-box-content -->
               </div>
               <!-- /.info-box -->
             </div>
-            <!-- /.col -->
-            <div class="col-12 col-sm-6 col-md-3">
-              <div class="info-box mb-3">
-                <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
-
-                <div class="info-box-content">
-                  <span class="info-box-text">New Members</span>
-                  <span class="info-box-number">2,000</span>
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
           </div>
+          <!-- /.row -->
+          <div class="row">
+            <div class="col-lg-12 mt-3">
+              <div class="card card-primary card-outline">
+                <div class="card-header">
+                  <h2 class="card-title text-bold">Data Mahasiswa</h2>
+                </div>
+                <div class="card-body">
+                  <div class="list-group">
+                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
+                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
+                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
+                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
+                  </div>
+                </div>
+              </div><!-- /.card -->
+            </div>
+          </div>
+          <!-- /.row -->
           <!-- /.row -->
           <div class="row">
             <div class="col-lg-12 mt-3">
@@ -117,9 +118,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <div class="list-group-item list-group-item-action">
                       Pengumuman Diberitahukan kepada seluruh mahasiswa STMIK Widya Utama berdasarkan surat edaran dari LLDIKTI Wilayah VI Jawa tengah bahwa Pusat Layanan Pembiayaan Pendidikan akan melakukan penyaluran dan bantuan Bidikmisi/KIP Kuliah Semester Gasal Tahun 2022/2023 sehingga untuk memperlancar penilaian hasil UAS dimohon setiap mahasiswa pada saat mengerjakan Ujian Akhir Semester (UAS) sesuai dengan jadwal dihari tersebut , waktu pengerjakan UAS hanya satu hari dimulai hari jam 00.00 -23.59 WIB
                     </div>
+                    <a href="#" class="list-group-item list-group-item-action text-primary">Handling class through mySWU</a>
+                    <a href="#" class="list-group-item list-group-item-action text-primary">SOP Perkuliahan</a>
                   </div>
-                  <a href="#" class="list-group-item list-group-item-action text-info">Handling class through mySWU</a>
-                  <a href="#" class="list-group-item list-group-item-action text-info">SOP Perkuliahan</a>
                 </div>
               </div><!-- /.card -->
             </div>
