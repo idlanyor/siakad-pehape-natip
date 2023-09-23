@@ -4,6 +4,17 @@ if (!isset($_SESSION['username'])) {
   header('Location: index.php');
 }
 
+include 'config/koneksi.php';
+$stmt = $koneksi->prepare("SELECT * FROM mahasiswa WHERE id_user=?");
+$stmt->bind_param('s', $_SESSION['id_user']);
+$stmt->execute();
+$mhs = $stmt->get_result();
+
+if ($mhs->num_rows > 0) {
+  var_dump($mhs->fetch_assoc());
+}
+
+
 ?>
 <!DOCTYPE html>
 
@@ -31,69 +42,83 @@ if (!isset($_SESSION['username'])) {
       <!-- Main content -->
       <div class="content">
         <div class="container-fluid">
-          <!-- Info boxes -->
-          <div class="row pt-3">
-            <div class="col-12 col-sm-6 col-md-4">
-              <div class="info-box">
-                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-book"></i></span>
 
-                <div class="info-box-content">
-                  <span class="info-box-text">Jumlah MK Dipilih</span>
-                  <h4 class="info-box-number">
-                    10
-                  </h4>
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
-            <div class="col-12 col-sm-6 col-md-4">
-              <div class="info-box mb-3">
-                <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
-
-                <div class="info-box-content">
-                  <span class="info-box-text">Kuliah hari ini</span>
-                  <h4 class="info-box-number">2</h4>
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
-
-            <!-- fix for small devices only -->
-            <div class="clearfix hidden-md-up"></div>
-
-            <div class="col-12 col-sm-6 col-md-4">
-              <div class="info-box mb-3">
-                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
-
-                <div class="info-box-content">
-                  <span class="info-box-text">Penugasan Minggu Ini</span>
-                  <h4 class="info-box-number">0</h4>
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-          </div>
           <!-- /.row -->
-          <div class="row">
-            <div class="col-lg-12 mt-3">
-              <div class="card card-primary card-outline">
-                <div class="card-header">
-                  <h2 class="card-title text-bold">Data Mahasiswa</h2>
-                </div>
-                <div class="card-body">
-                  <div class="list-group">
-                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
-                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
-                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
-                    <div class="list-group-item list-group-item-action">Nama :<strong><?= "Roynaldi" ?></strong></div>
+          <div class="row pt-3">
+            <div class="col-md-4">
+              <!-- Widget: user widget style 2 -->
+              <div class="card card-widget widget-user-2">
+                <!-- Add the bg color to the header using any of the bg-* classes -->
+                <div class="widget-user-header bg-warning">
+                  <div class="widget-user-image">
+                    <img class="img-circle elevation-2" src="../dist/img/user7-128x128.jpg" alt="User Avatar">
                   </div>
+                  <!-- /.widget-user-image -->
+                  <h3 class="widget-user-username">Roynaldi</h3>
+                  <h5 class="widget-user-desc">SSI202203088</h5>
                 </div>
-              </div><!-- /.card -->
+                <div class="card-footer p-0">
+                  <ul class="nav flex-column">
+                    <li class="nav-item">
+                      <a href="#" class="nav-link">
+                        Kelas <span class="float-right badge bg-primary">C3.4</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#" class="nav-link">
+                        Prodi <span class="float-right badge bg-info">S1 Sistem Informasi</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#" class="nav-link">
+                        Tahun Masuk <span class="float-right badge bg-success">2022</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#" class="nav-link">
+                        Jumlah Mata Kuliah <span class="float-right badge bg-danger">10</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- /.widget-user -->
+            </div>
+            <!-- /.col -->
+            <div class="col-md-8">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title text-bold">Kuliah hari ini</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body p-0">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th style="width: 10px">Kode</th>
+                        <th>Mata Kuliah</th>
+                        <th>Waktu</th>
+                        <th>#</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>#43</td>
+                        <td>Sistem Basis Data</td>
+                        <td>19.30 - 20.30 WIB</td>
+                        <td><a class="badge bg-success">Link Zoom</a></td>
+                      </tr>
+                      <tr>
+                        <td>#33</td>
+                        <td>Struktur Data</td>
+                        <td>20.30 - 21.30 WIB</td>
+                        <td><span class="badge bg-danger">Link Zoom</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- /.card-body -->
+              </div>
             </div>
           </div>
           <!-- /.row -->
