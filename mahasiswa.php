@@ -6,12 +6,16 @@ if (!isset($_SESSION['username'])) {
 
 include 'config/koneksi.php';
 $stmt = $koneksi->prepare("SELECT * FROM mahasiswa WHERE id_user=?");
-$stmt->bind_param('s', $_SESSION['id_user']);
+$stmt->bind_param('i', $_SESSION['id_user']);
 $stmt->execute();
-$mhs = $stmt->get_result();
-
-if ($mhs->num_rows > 0) {
-  var_dump($mhs->fetch_assoc());
+$mahasiswa = $stmt->get_result();
+$stmt->close();
+$stmt = $koneksi->prepare("SELECT nama_prodi FROM nama_tabel_prodi WHERE id_prodi = ?");
+$stmt->bind_param('i',$mahasiswa['id_prodi']);
+$stmt->execute();
+$prodi = $stmt->get_result();
+if ($mahasiswa->num_rows > 0) {
+  var_dump($mahasiswa->fetch_assoc());
 }
 
 
@@ -46,6 +50,7 @@ if ($mhs->num_rows > 0) {
           <!-- /.row -->
           <div class="row pt-3">
             <div class="col-md-4">
+              <?php foreach($mahasiswa as $mhs): ?>
               <!-- Widget: user widget style 2 -->
               <div class="card card-widget widget-user-2">
                 <!-- Add the bg color to the header using any of the bg-* classes -->
@@ -54,8 +59,8 @@ if ($mhs->num_rows > 0) {
                     <img class="img-circle elevation-2" src="../dist/img/user7-128x128.jpg" alt="User Avatar">
                   </div>
                   <!-- /.widget-user-image -->
-                  <h3 class="widget-user-username">Roynaldi</h3>
-                  <h5 class="widget-user-desc">SSI202203088</h5>
+                  <h3 class="widget-user-username"><?= $mhs['nama'] ?></h3>
+                  <h5 class="widget-user-desc"><?= $mhs['nim'] ?></h5>
                 </div>
                 <div class="card-footer p-0">
                   <ul class="nav flex-column">
@@ -66,7 +71,7 @@ if ($mhs->num_rows > 0) {
                     </li>
                     <li class="nav-item">
                       <a href="#" class="nav-link">
-                        Prodi <span class="float-right badge bg-info">S1 Sistem Informasi</span>
+                        Prodi <span class="float-right badge bg-info"><?= $mhs['prodi'] ?></span>
                       </a>
                     </li>
                     <li class="nav-item">
@@ -82,6 +87,7 @@ if ($mhs->num_rows > 0) {
                   </ul>
                 </div>
               </div>
+              <?php endforeach ?>
               <!-- /.widget-user -->
             </div>
             <!-- /.col -->

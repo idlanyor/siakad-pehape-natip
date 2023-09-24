@@ -16,6 +16,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['role
 
   if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
+    $_SESSION['id_user'] = $user['id_user'];
     $_SESSION['username'] = $user['username'];
     $_SESSION['role']     = $user['role'];
 
