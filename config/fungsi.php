@@ -1,7 +1,7 @@
 <?php
 function dbGetQuery($query, $tipeParam, ...$params): mysqli_result|bool
 {
-  include 'config/koneksi.php';
+  include 'koneksi.php';
   try {
     $stmt = $koneksi->prepare($query);
     if ($stmt === false) {

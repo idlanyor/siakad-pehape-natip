@@ -4,7 +4,7 @@ if (!isset($_SESSION['id_user']) || $_SESSION['id_user'] === NULL || $_SESSION['
   header('Location: index.php');
 }
 
-include 'fungsi.php';
+include '../config/fungsi.php';
 $query = "SELECT 
 m.nama, m.nim, m.tanggal_lahir, p.nama_prodi
 FROM mahasiswa m
@@ -14,7 +14,7 @@ WHERE m.id_user = ?;";
 $mahasiswa = dbGetQuery($query, 'i', $_SESSION['id_user']);
 
 ?>
-<?php include_once 'head.php' ?>
+<?php include_once '../template/head.php' ?>
 
 <!-- /.row -->
 <div class="row pt-3">
@@ -25,7 +25,7 @@ $mahasiswa = dbGetQuery($query, 'i', $_SESSION['id_user']);
         <!-- Add the bg color to the header using any of the bg-* classes -->
         <div class="widget-user-header bg-info">
           <div class="widget-user-image">
-            <img class="img-circle bg-white img-thumbnail elevation-2" src="../dist/img/user7-128x128.png" alt="User Avatar">
+            <img class="img-circle bg-white img-thumbnail elevation-2" src="/dist/img/user7-128x128.png" alt="User Avatar">
           </div>
           <!-- /.widget-user-image -->
           <h3 class="widget-user-username"><?= $mhs['nama'] ?></h3>
@@ -128,4 +128,4 @@ $mahasiswa = dbGetQuery($query, 'i', $_SESSION['id_user']);
 <!-- /.row -->
 
 
-<?php include_once 'foot.php' ?>
+<?php include_once '../template/foot.php' ?>
