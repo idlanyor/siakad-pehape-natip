@@ -1,92 +1,62 @@
 <?php
 session_start();
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['id_user']) || $_SESSION['id_user'] === NULL) {
   header('Location: index.php');
 }
 
 include 'config/koneksi.php';
-$stmt = $koneksi->prepare("SELECT * FROM mahasiswa WHERE id_user=?");
+$stmt = $koneksi->prepare("SELECT m.nama, m.nim, m.tanggal_lahir, p.nama_prodi
+FROM mahasiswa m
+INNER JOIN prodi p ON m.id_prodi = p.id_prodi
+WHERE m.id_user = ?;");
 $stmt->bind_param('i', $_SESSION['id_user']);
 $stmt->execute();
 $mahasiswa = $stmt->get_result();
 $stmt->close();
-$stmt = $koneksi->prepare("SELECT nama_prodi FROM nama_tabel_prodi WHERE id_prodi = ?");
-$stmt->bind_param('i',$mahasiswa['id_prodi']);
-$stmt->execute();
-$prodi = $stmt->get_result();
-if ($mahasiswa->num_rows > 0) {
-  var_dump($mahasiswa->fetch_assoc());
-}
-
 
 ?>
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard <?= $_SESSION['username']; ?> | Simakad</title>
-
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="dist/css/adminlte.min.css">
-</head>
-
-<body class="hold-transition sidebar-mini">
-  <div class="wrapper">
-    <?php include 'navbar.php' ?>
-    <?php include 'sidebar.php' ?>
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-      <!-- Main content -->
-      <div class="content">
-        <div class="container-fluid">
+<?php include_once 'head.php' ?>
 
           <!-- /.row -->
           <div class="row pt-3">
             <div class="col-md-4">
-              <?php foreach($mahasiswa as $mhs): ?>
-              <!-- Widget: user widget style 2 -->
-              <div class="card card-widget widget-user-2">
-                <!-- Add the bg color to the header using any of the bg-* classes -->
-                <div class="widget-user-header bg-warning">
-                  <div class="widget-user-image">
-                    <img class="img-circle elevation-2" src="../dist/img/user7-128x128.jpg" alt="User Avatar">
+              <?php foreach ($mahasiswa as $mhs) : ?>
+                <!-- Widget: user widget style 2 -->
+                <div class="card card-widget widget-user-2">
+                  <!-- Add the bg color to the header using any of the bg-* classes -->
+                  <div class="widget-user-header bg-info">
+                    <div class="widget-user-image">
+                      <img class="img-circle bg-white img-thumbnail elevation-2" src="../dist/img/user7-128x128.png" alt="User Avatar">
+                    </div>
+                    <!-- /.widget-user-image -->
+                    <h3 class="widget-user-username"><?= $mhs['nama'] ?></h3>
+                    <h5 class="widget-user-desc"><?= $mhs['nim'] ?></h5>
                   </div>
-                  <!-- /.widget-user-image -->
-                  <h3 class="widget-user-username"><?= $mhs['nama'] ?></h3>
-                  <h5 class="widget-user-desc"><?= $mhs['nim'] ?></h5>
+                  <div class="card-footer p-0">
+                    <ul class="nav flex-column">
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          Kelas <span class="float-right badge bg-primary">C3.4</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          Prodi <span class="float-right badge bg-info"><?= $mhs['nama_prodi'] ?></span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          Tanggal Lahir <span class="float-right badge bg-success"><?= date('d M Y',strtotime($mhs['tanggal_lahir'])) ?></span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          Jumlah Mata Kuliah <span class="float-right badge bg-danger">10</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-                <div class="card-footer p-0">
-                  <ul class="nav flex-column">
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        Kelas <span class="float-right badge bg-primary">C3.4</span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        Prodi <span class="float-right badge bg-info"><?= $mhs['prodi'] ?></span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        Tahun Masuk <span class="float-right badge bg-success">2022</span>
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="#" class="nav-link">
-                        Jumlah Mata Kuliah <span class="float-right badge bg-danger">10</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
               <?php endforeach ?>
               <!-- /.widget-user -->
             </div>
@@ -112,13 +82,13 @@ if ($mahasiswa->num_rows > 0) {
                         <td>#43</td>
                         <td>Sistem Basis Data</td>
                         <td>19.30 - 20.30 WIB</td>
-                        <td><a class="badge bg-success">Link Zoom</a></td>
+                        <td><a href="#" class="badge bg-success">Link Zoom</a></td>
                       </tr>
                       <tr>
                         <td>#33</td>
                         <td>Struktur Data</td>
                         <td>20.30 - 21.30 WIB</td>
-                        <td><span class="badge bg-danger">Link Zoom</span></td>
+                        <td><a href="#" class="badge bg-danger">Link Zoom</a></td>
                       </tr>
                     </tbody>
                   </table>
@@ -157,42 +127,6 @@ if ($mahasiswa->num_rows > 0) {
             </div>
           </div>
           <!-- /.row -->
-        </div><!-- /.container-fluid -->
-      </div>
-      <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
 
-    <!-- Control Sidebar -->
-    <aside class="control-sidebar control-sidebar-dark">
-      <!-- Control sidebar content goes here -->
-      <div class="p-3">
-        <h5>Title</h5>
-        <p>Sidebar content</p>
-      </div>
-    </aside>
-    <!-- /.control-sidebar -->
 
-    <!-- Main Footer -->
-    <footer class="main-footer">
-      <!-- To the right -->
-      <div class="float-right d-none d-sm-inline">
-        Anything you want
-      </div>
-      <!-- Default to the left -->
-      <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
-    </footer>
-  </div>
-  <!-- ./wrapper -->
-
-  <!-- REQUIRED SCRIPTS -->
-
-  <!-- jQuery -->
-  <script src="plugins/jquery/jquery.min.js"></script>
-  <!-- Bootstrap 4 -->
-  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- AdminLTE App -->
-  <script src="dist/js/adminlte.min.js"></script>
-</body>
-
-</html>
+<?php include_once 'foot.php' ?>
