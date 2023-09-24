@@ -1,3 +1,9 @@
+<?php 
+session_start();
+if (!session_unset()) {
+  header('Location: mahasiswa.php');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +15,7 @@
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <!-- icheck bootstrap -->
   <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- Toastr -->
@@ -21,7 +27,7 @@
 <body class="hold-transition login-page">
   <div class="login-box">
     <div class="login-logo">
-      <a href="index2.html"><b>Simakad</b> SWU</a>
+      <a href="/"><b>Simakad</b> SWU</a>
     </div>
     <!-- /.login-logo -->
     <div class="card">
@@ -61,7 +67,7 @@
           </div>
         </form>
         <p class="mt-3">
-          <a href="forgot-password.html">Lupa Password</a>
+          <a href="#">Lupa Password</a>
         </p>
       </div>
       <!-- /.login-card-body -->
