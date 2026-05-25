@@ -30,6 +30,26 @@ class User extends Authenticatable
         return $this->hasOne(Siswa::class);
     }
 
+    public function guru()
+    {
+        return $this->hasOne(Guru::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role == 0;
+    }
+
+    public function isGuru(): bool
+    {
+        return $this->role == 1;
+    }
+
+    public function isSiswa(): bool
+    {
+        return $this->role == 2;
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

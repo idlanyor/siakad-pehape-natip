@@ -37,7 +37,7 @@
     }
   </style>
 </head>
-<body style="font-family: Quicksand;" class="hold-transition sidebar-mini">
+<body style="font-family: Quicksand;" class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
 
   @include('layouts.partials.navbar')
@@ -60,6 +60,7 @@
     <!-- Main content -->
     <div class="content">
       <div class="container-fluid">
+        @include('layouts.partials.flash')
         @yield('content')
       </div><!-- /.container-fluid -->
     </div>

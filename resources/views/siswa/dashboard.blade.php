@@ -21,7 +21,7 @@
         <ul class="nav flex-column">
           <li class="nav-item">
             <a href="#" class="nav-link">
-              Kelas <span class="float-right badge bg-primary">X TKJ 1</span>
+              Kelas <span class="float-right badge bg-primary">{{ $siswa->kelas?->nama_kelas ?? '-' }}</span>
             </a>
           </li>
           <li class="nav-item">
@@ -62,12 +62,19 @@
             </tr>
           </thead>
           <tbody>
+            @forelse($jadwalHariIni as $j)
             <tr>
-              <td>#43</td>
-              <td>Simulasi Digital</td>
-              <td>07.30 - 09.30 WIB</td>
-              <td><span class="badge bg-success">Ruang 1</span></td>
+              <td>{{ $j->matkul->kode ?? '-' }}</td>
+              <td>{{ $j->matkul->nama_matkul }}</td>
+              <td>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</td>
+              <td>
+                @if($j->ruangan)<span class="badge bg-secondary">{{ $j->ruangan }}</span>@endif
+                @if($j->link_zoom)<a href="{{ $j->link_zoom }}" target="_blank" class="badge bg-info ml-1"><i class="fas fa-video"></i> Zoom</a>@endif
+              </td>
             </tr>
+            @empty
+            <tr><td colspan="4" class="text-center text-muted">Tidak ada jadwal hari ini.</td></tr>
+            @endforelse
           </tbody>
         </table>
       </div>

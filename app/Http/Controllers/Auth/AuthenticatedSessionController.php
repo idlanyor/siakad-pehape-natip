@@ -28,11 +28,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->role == 1) {
-            return redirect()->route('dosen.dashboard');
-        }
-
-        return redirect()->route('siswa.dashboard');
+        return redirect()->route('dashboard');
     }
 
     /**
