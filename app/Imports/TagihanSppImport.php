@@ -51,6 +51,11 @@ class TagihanSppImport implements ToCollection, WithHeadingRow
                 ->first();
 
             if ($existing) {
+                // Jangan update nominal jika sudah ada pembayaran — bisa bikin inkonsisten
+                if ($existing->pembayarans()->exists()) {
+                    $this->skipped[] = "Baris {$baris}: Tagihan NISN {$nisn} bulan {$parsedBulan} sudah ada pembayaran, nominal tidak diubah.";
+                    continue;
+                }
                 $existing->update([
                     'nominal'    => $nominal,
                     'keterangan' => trim($row['keterangan'] ?? '') ?: $existing->keterangan,

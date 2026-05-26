@@ -249,7 +249,7 @@
                 {{ $p->tingkat }}
               </span>
               <div class="fw-semibold small lh-sm">{{ $p->nama_prestasi }}</div>
-              <div class="text-muted" style="font-size:.78rem">{{ $p->siswa->nama ?? '-' }} · {{ $p->tanggal->format('M Y') }}</div>
+              <div class="text-muted" style="font-size:.78rem">{{ $p->siswa->nama ?? '-' }} · {{ \Carbon\Carbon::parse($p->tanggal)->format('M Y') }}</div>
             </div>
           </div>
         </div>

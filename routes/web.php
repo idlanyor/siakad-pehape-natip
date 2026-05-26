@@ -76,7 +76,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/pkl', [\App\Http\Controllers\Admin\PklController::class, 'index'])->name('pkl.index');
     Route::get('/pkl/{penempatan}', [\App\Http\Controllers\Admin\PklController::class, 'detail'])->name('pkl.detail');
 
-    // --- Fase 6: Kesiswaan ---
+    // --- Kesiswaan ---
     Route::resource('pelanggaran', \App\Http\Controllers\Admin\PelanggaranController::class);
     Route::resource('prestasi', \App\Http\Controllers\Admin\PrestasiController::class);
     Route::resource('ekskul', \App\Http\Controllers\Admin\EkskulController::class);
@@ -90,25 +90,26 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::post('tahun-ajaran/{tahunAjaran}/aktif', [\App\Http\Controllers\Admin\TahunAjaranController::class, 'setAktif'])->name('tahun-ajaran.aktif');
     Route::post('semester/{semester}/aktif', [\App\Http\Controllers\Admin\TahunAjaranController::class, 'setSemesterAktif'])->name('semester.aktif');
 
-    // --- Fase 13: Import Excel ---
+    // --- Import Excel ---
     Route::prefix('import')->name('import.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ImportController::class, 'index'])->name('index');
         Route::get('/template/{type}', [\App\Http\Controllers\Admin\ImportController::class, 'template'])->name('template');
         Route::post('/', [\App\Http\Controllers\Admin\ImportController::class, 'store'])->name('store');
     });
 
-    // --- Fase 7: Keuangan / SPP ---
+    // --- Keuangan / SPP ---
     Route::prefix('keuangan')->name('keuangan.')->group(function () {
         Route::resource('tarif', \App\Http\Controllers\Admin\TarifSppController::class)->parameters(['tarif' => 'tarif']);
+        Route::get('tagihan/export', [\App\Http\Controllers\Admin\TagihanSppController::class, 'export'])->name('tagihan.export');
         Route::resource('tagihan', \App\Http\Controllers\Admin\TagihanSppController::class)->except(['edit', 'update'])->parameters(['tagihan' => 'tagihan']);
         Route::post('tagihan/{tagihan}/bayar', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'store'])->name('tagihan.bayar');
         Route::delete('pembayaran/{pembayaran}', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'destroy'])->name('pembayaran.destroy');
         Route::get('laporan', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'index'])->name('laporan');
         Route::get('tunggakan', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'tunggakan'])->name('tunggakan');
-        Route::get('tagihan/export', [\App\Http\Controllers\Admin\TagihanSppController::class, 'export'])->name('tagihan.export');
+        Route::get('kwitansi/{pembayaran}', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'kwitansi'])->name('kwitansi');
     });
 
-    // --- Fase 11: CMS Website ---
+    // --- CMS Website ---
     Route::prefix('cms')->name('cms.')->group(function () {
         Route::get('/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'index'])->name('pengaturan');
         Route::put('/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'update'])->name('pengaturan.update');

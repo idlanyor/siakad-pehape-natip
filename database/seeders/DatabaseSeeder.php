@@ -16,5 +16,8 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call(DummyDataSeeder::class);
+        $this->call(PengaturanSeeder::class);
+        $this->call(StrukturOrganisasiSeeder::class);
+        $this->call(LengkapSeeder::class);
     }
 }

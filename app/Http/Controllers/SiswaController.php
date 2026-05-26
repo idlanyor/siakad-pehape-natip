@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Mapel;
-use App\Models\Siswa;
+use App\Models\Absensi;
 use App\Models\Jadwal;
+use App\Models\Mapel;
+use App\Models\Pengumuman;
 use App\Models\Semester;
+use App\Models\Siswa;
+use App\Models\TagihanSpp;
 use Illuminate\Http\Request;
 
 class SiswaController extends Controller
@@ -16,17 +19,59 @@ class SiswaController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        $hariIni = now()->locale('id')->isoFormat('dddd');
         $hariMap = ['Monday'=>'Senin','Tuesday'=>'Selasa','Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu','Sunday'=>'Minggu'];
         $hariIni = $hariMap[now()->englishDayOfWeek] ?? now()->englishDayOfWeek;
 
+        $semester = Semester::where('aktif', true)->first();
+
+        // Jadwal hari ini
         $jadwalHariIni = Jadwal::with(['mapel', 'guru'])
             ->where('kelas_id', $siswa->kelas_id)
+            ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
             ->where('hari', $hariIni)
             ->orderBy('jam_mulai')
             ->get();
 
-        return view('siswa.dashboard', compact('siswa', 'jadwalHariIni'));
+        // Jumlah mapel semester aktif
+        $jumlahMapel = Jadwal::where('kelas_id', $siswa->kelas_id)
+            ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
+            ->distinct('mapel_id')
+            ->count('mapel_id');
+
+        // Rekap absensi semester ini
+        $jadwalIds = Jadwal::where('kelas_id', $siswa->kelas_id)
+            ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
+            ->pluck('id');
+
+        $absensiRekap = Absensi::where('siswa_id', $siswa->id)
+            ->whereIn('jadwal_id', $jadwalIds)
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        // Tagihan SPP belum lunas
+        $tagihanBelumLunas = TagihanSpp::where('siswa_id', $siswa->id)
+            ->whereIn('status', ['belum', 'cicil'])
+            ->orderBy('bulan')
+            ->get();
+
+        // Pengumuman untuk siswa
+        $pengumumans = Pengumuman::where(function ($q) use ($siswa) {
+                $q->whereNull('target_role')
+                  ->orWhere('target_role', 2)
+                  ->orWhere(fn($q2) => $q2->where('target_role', 2)->where('target_kelas_id', $siswa->kelas_id));
+            })
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderByDesc('published_at')
+            ->limit(5)
+            ->get();
+
+        return view('siswa.dashboard', compact(
+            'siswa', 'jadwalHariIni', 'jumlahMapel',
+            'absensiRekap', 'tagihanBelumLunas', 'pengumumans',
+            'hariIni', 'semester'
+        ));
     }
 
     public function jadwal()

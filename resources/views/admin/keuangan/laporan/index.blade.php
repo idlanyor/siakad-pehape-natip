@@ -4,24 +4,57 @@
 
 @section('content')
 
-{{-- Filter Bulan --}}
+{{-- Filter --}}
 <div class="card card-outline card-primary">
   <div class="card-header">
     <h3 class="card-title"><i class="fas fa-filter mr-2"></i>Filter Laporan</h3>
   </div>
   <div class="card-body">
-    <form method="GET" action="{{ route('admin.keuangan.laporan') }}" class="form-inline">
-      <div class="form-group mr-3">
-        <label class="mr-2">Bulan</label>
-        <input type="month" name="bulan" class="form-control" value="{{ $bulanFilter }}">
+    <form method="GET" action="{{ route('admin.keuangan.laporan') }}">
+      <div class="row align-items-end">
+        <div class="col-md-2">
+          <div class="form-group mb-md-0">
+            <label class="small">Mode</label>
+            <select name="mode" id="filterMode" class="form-control form-control-sm">
+              <option value="bulan" {{ ($mode ?? 'bulan') === 'bulan' ? 'selected' : '' }}>Per Bulan</option>
+              <option value="range" {{ ($mode ?? '') === 'range' ? 'selected' : '' }}>Rentang Bulan</option>
+              <option value="tahun" {{ ($mode ?? '') === 'tahun' ? 'selected' : '' }}>Per Tahun</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3 filter-field" id="f-bulan">
+          <div class="form-group mb-md-0">
+            <label class="small">Bulan</label>
+            <input type="month" name="bulan" class="form-control form-control-sm" value="{{ $bulanFilter }}">
+          </div>
+        </div>
+        <div class="col-md-3 filter-field d-none" id="f-bulan-mulai">
+          <div class="form-group mb-md-0">
+            <label class="small">Dari</label>
+            <input type="month" name="bulan_mulai" class="form-control form-control-sm" value="{{ request('bulan_mulai', now()->subMonths(5)->format('Y-m')) }}">
+          </div>
+        </div>
+        <div class="col-md-3 filter-field d-none" id="f-bulan-selesai">
+          <div class="form-group mb-md-0">
+            <label class="small">Sampai</label>
+            <input type="month" name="bulan_selesai" class="form-control form-control-sm" value="{{ request('bulan_selesai', now()->format('Y-m')) }}">
+          </div>
+        </div>
+        <div class="col-md-2 filter-field d-none" id="f-tahun">
+          <div class="form-group mb-md-0">
+            <label class="small">Tahun</label>
+            <input type="number" name="tahun" class="form-control form-control-sm" value="{{ request('tahun', now()->year) }}" min="2020" max="2040">
+          </div>
+        </div>
+        <div class="col-md-auto">
+          <button type="submit" class="btn btn-primary btn-sm mr-2">
+            <i class="fas fa-search mr-1"></i> Lihat
+          </button>
+          <a href="{{ route('admin.keuangan.tunggakan', ['bulan' => $bulanFilter]) }}" class="btn btn-warning btn-sm">
+            <i class="fas fa-exclamation-circle mr-1"></i> Tunggakan
+          </a>
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary mr-2">
-        <i class="fas fa-search mr-1"></i> Lihat
-      </button>
-      <a href="{{ route('admin.keuangan.tunggakan', ['bulan' => $bulanFilter]) }}"
-         class="btn btn-warning">
-        <i class="fas fa-exclamation-circle mr-1"></i> Lihat Tunggakan
-      </a>
     </form>
   </div>
 </div>
@@ -78,7 +111,7 @@
   <div class="card-header">
     <h3 class="card-title">
       <i class="fas fa-table mr-2"></i>Rekap per Kelas —
-      <span class="text-muted">{{ \Carbon\Carbon::createFromFormat('Y-m', $bulanFilter)->translatedFormat('F Y') }}</span>
+      <span class="text-muted">{{ $filterLabel ?? '' }}</span>
     </h3>
   </div>
   <div class="card-body p-0">
@@ -139,3 +172,21 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+  const mode = document.getElementById('filterMode');
+  function toggleFields() {
+    document.querySelectorAll('.filter-field').forEach(el => el.classList.add('d-none'));
+    const m = mode.value;
+    if (m === 'bulan')  document.getElementById('f-bulan').classList.remove('d-none');
+    if (m === 'range') {
+      document.getElementById('f-bulan-mulai').classList.remove('d-none');
+      document.getElementById('f-bulan-selesai').classList.remove('d-none');
+    }
+    if (m === 'tahun')  document.getElementById('f-tahun').classList.remove('d-none');
+  }
+  mode.addEventListener('change', toggleFields);
+  toggleFields();
+</script>
+@endpush

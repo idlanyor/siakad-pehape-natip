@@ -217,7 +217,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('ppdb.*') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">PPDB</a>
+          <a class="nav-link {{ request()->routeIs('ppdb.*') ? 'active' : '' }}" href="{{ route('ppdb.landing') }}">PPDB</a>
         </li>
 
         @if(setting('ppdb_aktif') == '1')

@@ -169,7 +169,10 @@
                 </td>
                 <td class="text-muted small">{{ $p->pencatat?->name ?? '-' }}</td>
                 <td>
-                  <form action="{{ route('admin.keuangan.pembayaran.destroy', $p) }}" method="POST">
+                  <a href="{{ route('admin.keuangan.kwitansi', $p) }}" target="_blank" class="btn btn-xs btn-outline-success mr-1" title="Cetak Kwitansi">
+                    <i class="fas fa-print"></i>
+                  </a>
+                  <form action="{{ route('admin.keuangan.pembayaran.destroy', $p) }}" method="POST" class="d-inline">
                     @csrf @method('DELETE')
                     <button type="submit" class="btn btn-xs btn-danger"
                             onclick="return confirm('Hapus catatan pembayaran ini?')">

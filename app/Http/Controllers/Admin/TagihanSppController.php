@@ -60,19 +60,55 @@ class TagihanSppController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kelas_id' => 'required|exists:kelas,id',
-            'bulan'    => 'required|date_format:Y-m',
-            'nominal'  => 'required|numeric|min:1000',
+            'kelas_ids'       => 'required|array|min:1',
+            'kelas_ids.*'     => 'exists:kelas,id',
+            'bulan_mulai'     => 'required|date_format:Y-m',
+            'bulan_selesai'   => 'required|date_format:Y-m|after_or_equal:bulan_mulai',
+            'nominal_override'=> 'nullable|numeric|min:1000',
         ]);
 
-        $kelas   = Kelas::findOrFail($request->kelas_id);
-        $dibuat  = TagihanSpp::generateBatch($kelas, $request->bulan, (float) $request->nominal);
-        $total   = $kelas->siswas()->count();
-        $dilewati = $total - $dibuat;
+        $totalDibuat  = 0;
+        $totalDilewati = 0;
+        $nominalOverride = $request->nominal_override ? (float) $request->nominal_override : null;
 
-        $msg = "Generate tagihan selesai: {$dibuat} tagihan baru dibuat";
-        if ($dilewati > 0) {
-            $msg .= ", {$dilewati} sudah ada (dilewati)";
+        // Build list of months
+        $mulai   = \Carbon\Carbon::createFromFormat('Y-m', $request->bulan_mulai)->startOfMonth();
+        $selesai = \Carbon\Carbon::createFromFormat('Y-m', $request->bulan_selesai)->startOfMonth();
+        $bulanList = [];
+        $current = $mulai->copy();
+        while ($current->lte($selesai)) {
+            $bulanList[] = $current->format('Y-m');
+            $current->addMonth();
+        }
+
+        foreach ($request->kelas_ids as $kelasId) {
+            $kelas = Kelas::find($kelasId);
+            if (!$kelas) continue;
+
+            // Tentukan nominal: override > tarif > error
+            $nominal = $nominalOverride;
+            if (!$nominal) {
+                $tarif = TarifSpp::where('kelas_id', $kelas->id)
+                    ->whereHas('tahunAjaran', fn($q) => $q->where('aktif', true))
+                    ->first();
+                $nominal = $tarif ? (float) $tarif->nominal : 0;
+            }
+
+            if ($nominal < 1000) continue; // skip kelas tanpa tarif
+
+            foreach ($bulanList as $bulan) {
+                $dibuat = TagihanSpp::generateBatch($kelas, $bulan, $nominal);
+                $total  = $kelas->siswas()->count();
+                $totalDibuat   += $dibuat;
+                $totalDilewati += ($total - $dibuat);
+            }
+        }
+
+        $jumlahBulan = count($bulanList);
+        $jumlahKelas = count($request->kelas_ids);
+        $msg = "Generate selesai: {$totalDibuat} tagihan baru ({$jumlahKelas} kelas × {$jumlahBulan} bulan)";
+        if ($totalDilewati > 0) {
+            $msg .= ", {$totalDilewati} sudah ada (dilewati)";
         }
         $msg .= '.';
 
