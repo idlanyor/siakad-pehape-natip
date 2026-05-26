@@ -13,8 +13,14 @@ class TahunAjaran extends Model
         return $this->hasMany(Semester::class);
     }
 
+    public function tarifSpps()
+    {
+        return $this->hasMany(TarifSpp::class);
+    }
+
     public static function aktif()
     {
         return static::where('aktif', true)->first();
     }
 }
+

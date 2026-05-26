@@ -64,8 +64,8 @@
           <tbody>
             @forelse($jadwalHariIni as $j)
             <tr>
-              <td>{{ $j->matkul->kode ?? '-' }}</td>
-              <td>{{ $j->matkul->nama_matkul }}</td>
+              <td>{{ $j->mapel->kode ?? '-' }}</td>
+              <td>{{ $j->mapel->nama_mapel }}</td>
               <td>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</td>
               <td>
                 @if($j->ruangan)<span class="badge bg-secondary">{{ $j->ruangan }}</span>@endif

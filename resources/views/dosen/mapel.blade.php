@@ -27,10 +27,10 @@
             </tr>
           </thead>
           <tbody>
-            @foreach($matkuls as $mapel)
+            @foreach($mapels as $mapel)
             <tr>
               <td>{{ $mapel->kode }}</td>
-              <td>{{ $mapel->nama_matkul }}</td>
+              <td>{{ $mapel->nama_mapel }}</td>
               <td>{{ $mapel->dosen_pengampu }}</td>
               <td>
                 @foreach($mapel->jadwals as $jadwal)

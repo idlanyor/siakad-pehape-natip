@@ -17,4 +17,19 @@ class Guru extends Model
     {
         return $this->hasMany(Kelas::class, 'wali_kelas_id');
     }
+
+    public function ekskuls()
+    {
+        return $this->hasMany(Ekskul::class, 'pembina_id');
+    }
+
+    public function permission()
+    {
+        return $this->hasOne(GuruPermission::class);
+    }
+
+    public function canAccess(string $menu): bool
+    {
+        return $this->permission?->$menu ?? true;
+    }
 }

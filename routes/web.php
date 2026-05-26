@@ -3,11 +3,34 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-    return view('welcome');
+// --- Fase 15: Sitemap (Public) ---
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
+// --- Fase 15: Form Kontak (Public, POST only) ---
+Route::post('/kontak', [\App\Http\Controllers\KontakController::class, 'store'])->name('kontak.store');
+
+// --- Fase 12: Landing Page (Public) ---
+Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing.index');
+Route::get('/tentang', [\App\Http\Controllers\LandingController::class, 'tentang'])->name('landing.tentang');
+Route::get('/program', [\App\Http\Controllers\LandingController::class, 'program'])->name('landing.program');
+Route::get('/organisasi', [\App\Http\Controllers\LandingController::class, 'organisasi'])->name('landing.organisasi');
+Route::get('/halaman/{halaman:slug}', [\App\Http\Controllers\LandingController::class, 'halaman'])->name('landing.halaman');
+
+// --- Fase 13: Berita & Galeri (Public) ---
+Route::get('/berita', [\App\Http\Controllers\BeritaController::class, 'index'])->name('berita.index');
+Route::get('/berita/{artikel:slug}', [\App\Http\Controllers\BeritaController::class, 'show'])->name('berita.show');
+Route::get('/galeri', [\App\Http\Controllers\GaleriPublikController::class, 'index'])->name('galeri.index');
+Route::get('/galeri/{galeri}', [\App\Http\Controllers\GaleriPublikController::class, 'show'])->name('galeri.show');
+
+// --- Fase 9 + 14: PPDB (Public — tanpa login) ---
+Route::prefix('ppdb')->name('ppdb.')->group(function () {
+    Route::get('/',          [\App\Http\Controllers\PpdbController::class, 'landing'])->name('landing');
+    Route::get('/daftar',    [\App\Http\Controllers\PpdbController::class, 'index'])->name('index');
+    Route::post('/daftar',   [\App\Http\Controllers\PpdbController::class, 'store'])->name('store');
+    Route::get('/sukses/{pendaftar}', [\App\Http\Controllers\PpdbController::class, 'sukses'])->name('sukses');
+    Route::get('/cek',       [\App\Http\Controllers\PpdbController::class, 'cekForm'])->name('cek');
+    Route::post('/cek',      [\App\Http\Controllers\PpdbController::class, 'cekStatus'])->name('cek.status');
+    Route::get('/syarat',    [\App\Http\Controllers\PpdbController::class, 'syarat'])->name('syarat');
 });
 
 Route::get('/dashboard', function () {
@@ -27,25 +50,205 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::resource('kelas', \App\Http\Controllers\Admin\KelasController::class)->parameters(['kelas' => 'kela']);
     Route::resource('mapel', \App\Http\Controllers\Admin\MapelController::class);
     Route::resource('guru', \App\Http\Controllers\Admin\GuruController::class);
+    Route::get('guru/{guru}/permission', [\App\Http\Controllers\Admin\GuruPermissionController::class, 'edit'])->name('guru.permission.edit');
+    Route::put('guru/{guru}/permission', [\App\Http\Controllers\Admin\GuruPermissionController::class, 'update'])->name('guru.permission.update');
     Route::resource('siswa', \App\Http\Controllers\Admin\SiswaAdminController::class);
 
     Route::resource('jadwal', \App\Http\Controllers\Admin\JadwalController::class);
+    Route::get('/absensi', [\App\Http\Controllers\Admin\AbsensiController::class, 'index'])->name('absensi.index');
+    Route::get('/absensi/{jadwal}', [\App\Http\Controllers\Admin\AbsensiController::class, 'detail'])->name('absensi.detail');
+    Route::get('/absensi/{jadwal}/export', [\App\Http\Controllers\Admin\AbsensiController::class, 'exportAbsensi'])->name('absensi.export');
+
+    Route::get('/nilai', [\App\Http\Controllers\Admin\NilaiController::class, 'index'])->name('nilai.index');
+    Route::get('/nilai/{jadwal}', [\App\Http\Controllers\Admin\NilaiController::class, 'detail'])->name('nilai.detail');
+    Route::get('/nilai/{jadwal}/export', [\App\Http\Controllers\Admin\NilaiController::class, 'exportNilai'])->name('nilai.export');
+    Route::get('/raport', [\App\Http\Controllers\Admin\NilaiController::class, 'raport'])->name('raport');
+    Route::get('/raport/pdf', [\App\Http\Controllers\Admin\NilaiController::class, 'raportPdf'])->name('raport.pdf');
+
+    Route::resource('pkl/tempat', \App\Http\Controllers\Admin\TempatPklController::class)->parameters(['tempat' => 'pklTempat'])->names([
+        'index' => 'pkl-tempat.index', 'create' => 'pkl-tempat.create', 'store' => 'pkl-tempat.store',
+        'edit' => 'pkl-tempat.edit', 'update' => 'pkl-tempat.update', 'destroy' => 'pkl-tempat.destroy',
+    ]);
+    Route::resource('pkl/penempatan', \App\Http\Controllers\Admin\PenempatanPklController::class)->parameters(['penempatan' => 'pklPenempatan'])->names([
+        'index' => 'pkl-penempatan.index', 'create' => 'pkl-penempatan.create', 'store' => 'pkl-penempatan.store',
+        'edit' => 'pkl-penempatan.edit', 'update' => 'pkl-penempatan.update', 'destroy' => 'pkl-penempatan.destroy',
+    ]);
+    Route::get('/pkl', [\App\Http\Controllers\Admin\PklController::class, 'index'])->name('pkl.index');
+    Route::get('/pkl/{penempatan}', [\App\Http\Controllers\Admin\PklController::class, 'detail'])->name('pkl.detail');
+
+    // --- Fase 6: Kesiswaan ---
+    Route::resource('pelanggaran', \App\Http\Controllers\Admin\PelanggaranController::class);
+    Route::resource('prestasi', \App\Http\Controllers\Admin\PrestasiController::class);
+    Route::resource('ekskul', \App\Http\Controllers\Admin\EkskulController::class);
+    Route::get('ekskul/{ekskul}/anggota', [\App\Http\Controllers\Admin\EkskulController::class, 'anggota'])->name('ekskul.anggota');
+    Route::post('ekskul/{ekskul}/anggota', [\App\Http\Controllers\Admin\EkskulController::class, 'anggotaStore'])->name('ekskul.anggota.store');
+    Route::delete('ekskul/{ekskul}/anggota/{anggota}', [\App\Http\Controllers\Admin\EkskulController::class, 'anggotaDestroy'])->name('ekskul.anggota.destroy');
+    Route::resource('surat', \App\Http\Controllers\Admin\SuratController::class);
+    Route::get('surat/{surat}/print', [\App\Http\Controllers\Admin\SuratController::class, 'print'])->name('surat.print');
 
     Route::resource('tahun-ajaran', \App\Http\Controllers\Admin\TahunAjaranController::class)->parameters(['tahun-ajaran' => 'tahunAjaran']);
     Route::post('tahun-ajaran/{tahunAjaran}/aktif', [\App\Http\Controllers\Admin\TahunAjaranController::class, 'setAktif'])->name('tahun-ajaran.aktif');
     Route::post('semester/{semester}/aktif', [\App\Http\Controllers\Admin\TahunAjaranController::class, 'setSemesterAktif'])->name('semester.aktif');
+
+    // --- Fase 13: Import Excel ---
+    Route::prefix('import')->name('import.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ImportController::class, 'index'])->name('index');
+        Route::get('/template/{type}', [\App\Http\Controllers\Admin\ImportController::class, 'template'])->name('template');
+        Route::post('/', [\App\Http\Controllers\Admin\ImportController::class, 'store'])->name('store');
+    });
+
+    // --- Fase 7: Keuangan / SPP ---
+    Route::prefix('keuangan')->name('keuangan.')->group(function () {
+        Route::resource('tarif', \App\Http\Controllers\Admin\TarifSppController::class)->parameters(['tarif' => 'tarif']);
+        Route::resource('tagihan', \App\Http\Controllers\Admin\TagihanSppController::class)->except(['edit', 'update'])->parameters(['tagihan' => 'tagihan']);
+        Route::post('tagihan/{tagihan}/bayar', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'store'])->name('tagihan.bayar');
+        Route::delete('pembayaran/{pembayaran}', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'destroy'])->name('pembayaran.destroy');
+        Route::get('laporan', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'index'])->name('laporan');
+        Route::get('tunggakan', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'tunggakan'])->name('tunggakan');
+        Route::get('tagihan/export', [\App\Http\Controllers\Admin\TagihanSppController::class, 'export'])->name('tagihan.export');
+    });
+
+    // --- Fase 11: CMS Website ---
+    Route::prefix('cms')->name('cms.')->group(function () {
+        Route::get('/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'index'])->name('pengaturan');
+        Route::put('/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'update'])->name('pengaturan.update');
+        Route::resource('halaman', \App\Http\Controllers\Admin\HalamanStatisController::class)->names([
+            'index'   => 'halaman.index',
+            'create'  => 'halaman.create',
+            'store'   => 'halaman.store',
+            'edit'    => 'halaman.edit',
+            'update'  => 'halaman.update',
+            'destroy' => 'halaman.destroy',
+        ]);
+    });
+
+    // --- Fase 13: CMS Artikel & Galeri ---
+    Route::prefix('cms')->name('cms.')->group(function () {
+        Route::resource('artikel', \App\Http\Controllers\Admin\ArtikelController::class);
+        Route::resource('galeri', \App\Http\Controllers\Admin\GaleriController::class);
+        Route::delete('galeri-item/{item}', [\App\Http\Controllers\Admin\GaleriController::class, 'destroyItem'])->name('galeri-item.destroy');
+    });
+
+    // --- Fase 12 (tambahan): Struktur Organisasi ---
+    Route::prefix('organisasi')->name('organisasi.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'store'])->name('store');
+        Route::get('/{organisasi}/edit', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'edit'])->name('edit');
+        Route::put('/{organisasi}', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'update'])->name('update');
+        Route::delete('/{organisasi}', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'destroy'])->name('destroy');
+        Route::get('/{organisasi}/anggota', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'anggota'])->name('anggota');
+        Route::post('/{organisasi}/anggota', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'anggotaStore'])->name('anggota.store');
+        Route::delete('/{organisasi}/anggota/{anggota}', [\App\Http\Controllers\Admin\StrukturOrganisasiController::class, 'anggotaDestroy'])->name('anggota.destroy');
+    });
+
+    // --- Fase 14: PPDB Plus (Gelombang, Persyaratan, FAQ) ---
+    Route::prefix('ppdb')->name('ppdb.')->group(function () {
+        Route::resource('gelombang', \App\Http\Controllers\Admin\GelombangPpdbController::class)->names([
+            'index' => 'gelombang.index', 'create' => 'gelombang.create', 'store' => 'gelombang.store',
+            'edit' => 'gelombang.edit', 'update' => 'gelombang.update', 'destroy' => 'gelombang.destroy',
+        ]);
+        Route::resource('persyaratan', \App\Http\Controllers\Admin\PersyaratanPpdbController::class)
+            ->only(['index', 'store', 'update', 'destroy'])->names([
+                'index' => 'persyaratan.index', 'store' => 'persyaratan.store',
+                'update' => 'persyaratan.update', 'destroy' => 'persyaratan.destroy',
+            ]);
+        Route::resource('faq', \App\Http\Controllers\Admin\FaqPpdbController::class)
+            ->only(['index', 'store', 'update', 'destroy'])->names([
+                'index' => 'faq.index', 'store' => 'faq.store',
+                'update' => 'faq.update', 'destroy' => 'faq.destroy',
+            ]);
+    });
+
+    // --- Fase 9: PPDB (Data Pendaftar) ---
+    Route::prefix('ppdb')->name('ppdb.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PpdbController::class, 'index'])->name('index');
+        Route::get('/laporan', [\App\Http\Controllers\Admin\PpdbController::class, 'laporan'])->name('laporan');
+        Route::get('/{pendaftar}', [\App\Http\Controllers\Admin\PpdbController::class, 'show'])->name('show');
+        Route::post('/{pendaftar}/verifikasi', [\App\Http\Controllers\Admin\PpdbController::class, 'verifikasi'])->name('verifikasi');
+        Route::post('/{pendaftar}/terima', [\App\Http\Controllers\Admin\PpdbController::class, 'terima'])->name('terima');
+        Route::post('/{pendaftar}/tolak', [\App\Http\Controllers\Admin\PpdbController::class, 'tolak'])->name('tolak');
+    });
+
+    // --- Fase 15: Pesan Kontak ---
+    Route::prefix('kontak')->name('kontak.')->group(function () {
+        Route::get('/',             [\App\Http\Controllers\Admin\KontakController::class, 'index'])->name('index');
+        Route::get('/{kontak}',     [\App\Http\Controllers\Admin\KontakController::class, 'show'])->name('show');
+        Route::delete('/{kontak}',  [\App\Http\Controllers\Admin\KontakController::class, 'destroy'])->name('destroy');
+        Route::post('/read-all',    [\App\Http\Controllers\Admin\KontakController::class, 'markAllRead'])->name('readAll');
+    });
 });
 
 Route::middleware(['auth', 'role:2'])->prefix('siswa')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\SiswaController::class, 'dashboard'])->name('siswa.dashboard');
     Route::get('/jadwal', [\App\Http\Controllers\SiswaController::class, 'jadwal'])->name('siswa.jadwal');
-    Route::get('/matkul', [\App\Http\Controllers\SiswaController::class, 'matkul'])->name('siswa.matkul');
+    Route::get('/mapel', [\App\Http\Controllers\SiswaController::class, 'mapel'])->name('siswa.mapel');
+    Route::get('/absensi', [\App\Http\Controllers\Siswa\AbsensiController::class, 'index'])->name('siswa.absensi');
+    Route::get('/nilai', [\App\Http\Controllers\Siswa\NilaiController::class, 'index'])->name('siswa.nilai');
+    Route::get('/raport', [\App\Http\Controllers\Siswa\NilaiController::class, 'raport'])->name('siswa.raport');
+    Route::get('/pkl', [\App\Http\Controllers\Siswa\PklController::class, 'index'])->name('siswa.pkl');
+    Route::get('/pkl/jurnal', [\App\Http\Controllers\Siswa\PklController::class, 'jurnal'])->name('siswa.pkl.jurnal');
+    Route::post('/pkl/jurnal', [\App\Http\Controllers\Siswa\PklController::class, 'jurnalStore'])->name('siswa.pkl.jurnal.store');
+    Route::get('/pkl/absensi', [\App\Http\Controllers\Siswa\PklController::class, 'absensi'])->name('siswa.pkl.absensi');
+    Route::post('/pkl/absensi/masuk', [\App\Http\Controllers\Siswa\PklController::class, 'absensiMasuk'])->name('siswa.pkl.absensi.masuk');
+    Route::post('/pkl/absensi/pulang', [\App\Http\Controllers\Siswa\PklController::class, 'absensiPulang'])->name('siswa.pkl.absensi.pulang');
+    // --- Fase 6: Kesiswaan ---
+    Route::get('/kesiswaan', [\App\Http\Controllers\Siswa\KesiswaanController::class, 'index'])->name('siswa.kesiswaan');
+    // --- Fase 7: SPP ---
+    Route::get('/spp', [\App\Http\Controllers\Siswa\SppController::class, 'index'])->name('siswa.spp');
+    Route::get('/spp/{tagihan}', [\App\Http\Controllers\Siswa\SppController::class, 'show'])->name('siswa.spp.show');
 });
 
 Route::middleware(['auth', 'role:1'])->prefix('dosen')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\DosenController::class, 'index'])->name('dosen.dashboard');
-    Route::get('/jadwal', [\App\Http\Controllers\DosenController::class, 'jadwal'])->name('dosen.jadwal');
-    Route::get('/matkul', [\App\Http\Controllers\DosenController::class, 'matkul'])->name('dosen.matkul');
+    Route::get('/jadwal', [\App\Http\Controllers\DosenController::class, 'jadwal'])->name('dosen.jadwal')->middleware('guru.can:menu_jadwal');
+    Route::get('/mapel', [\App\Http\Controllers\DosenController::class, 'mapel'])->name('dosen.mapel')->middleware('guru.can:menu_mapel');
+
+    Route::middleware('guru.can:menu_absensi')->group(function () {
+        Route::get('/absensi', [\App\Http\Controllers\Guru\AbsensiController::class, 'index'])->name('guru.absensi.index');
+        Route::get('/absensi/{jadwal}', [\App\Http\Controllers\Guru\AbsensiController::class, 'form'])->name('guru.absensi.form');
+        Route::post('/absensi/{jadwal}', [\App\Http\Controllers\Guru\AbsensiController::class, 'simpan'])->name('guru.absensi.simpan');
+        Route::get('/absensi/{jadwal}/rekap', [\App\Http\Controllers\Guru\AbsensiController::class, 'rekap'])->name('guru.absensi.rekap');
+    });
+
+    Route::middleware('guru.can:menu_nilai')->group(function () {
+        Route::get('/nilai', [\App\Http\Controllers\Guru\NilaiController::class, 'index'])->name('guru.nilai.index');
+        Route::get('/nilai/{jadwal}', [\App\Http\Controllers\Guru\NilaiController::class, 'form'])->name('guru.nilai.form');
+        Route::post('/nilai/{jadwal}', [\App\Http\Controllers\Guru\NilaiController::class, 'simpan'])->name('guru.nilai.simpan');
+        Route::get('/nilai/{jadwal}/rekap', [\App\Http\Controllers\Guru\NilaiController::class, 'rekap'])->name('guru.nilai.rekap');
+    });
+
+    Route::middleware('guru.can:menu_pkl')->group(function () {
+        Route::get('/pkl', [\App\Http\Controllers\Guru\PklController::class, 'index'])->name('guru.pkl.index');
+        Route::get('/pkl/{penempatan}', [\App\Http\Controllers\Guru\PklController::class, 'detail'])->name('guru.pkl.detail');
+        Route::get('/pkl/{penempatan}/nilai', [\App\Http\Controllers\Guru\PklController::class, 'nilaiForm'])->name('guru.pkl.nilai');
+        Route::post('/pkl/{penempatan}/nilai', [\App\Http\Controllers\Guru\PklController::class, 'nilaiSimpan'])->name('guru.pkl.nilai.simpan');
+    });
+
+    // --- Fase 6: Ekskul Bimbingan ---
+    Route::middleware('guru.can:menu_ekskul')->group(function () {
+        Route::get('/ekskul', [\App\Http\Controllers\Guru\EkskulController::class, 'index'])->name('guru.ekskul.index');
+        Route::get('/ekskul/{ekskul}', [\App\Http\Controllers\Guru\EkskulController::class, 'detail'])->name('guru.ekskul.detail');
+        Route::get('/ekskul/{ekskul}/absensi', [\App\Http\Controllers\Guru\EkskulController::class, 'absensiForm'])->name('guru.ekskul.absensi');
+        Route::post('/ekskul/{ekskul}/absensi', [\App\Http\Controllers\Guru\EkskulController::class, 'absensiStore'])->name('guru.ekskul.absensi.store');
+        Route::get('/ekskul/{ekskul}/rekap', [\App\Http\Controllers\Guru\EkskulController::class, 'absensiRekap'])->name('guru.ekskul.rekap');
+    });
+});
+
+// --- Fase 8: Pengumuman & Notifikasi (admin CRUD) ---
+Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('pengumuman', \App\Http\Controllers\Admin\PengumumanController::class);
+    Route::post('pengumuman/{pengumuman}/publish', [\App\Http\Controllers\Admin\PengumumanController::class, 'publish'])->name('pengumuman.publish');
+});
+
+// --- Fase 8: Pengumuman & Notifikasi (semua role) ---
+Route::middleware('auth')->group(function () {
+    Route::get('/pengumuman', [\App\Http\Controllers\PengumumanController::class, 'index'])->name('pengumuman.index');
+    Route::get('/pengumuman/{pengumuman}', [\App\Http\Controllers\PengumumanController::class, 'show'])->name('pengumuman.show');
+
+    Route::get('/notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/{notifikasi}/read', [\App\Http\Controllers\NotifikasiController::class, 'markRead'])->name('notifikasi.read');
+    Route::post('/notifikasi/read-all', [\App\Http\Controllers\NotifikasiController::class, 'markAllRead'])->name('notifikasi.readAll');
 });
 
 Route::middleware('auth')->group(function () {

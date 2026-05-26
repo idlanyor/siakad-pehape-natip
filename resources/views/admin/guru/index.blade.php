@@ -40,6 +40,9 @@
               <td>{{ $g->bidang_studi ?? '-' }}</td>
               <td>{{ $g->no_hp ?? '-' }}</td>
               <td>
+                <a href="{{ route('admin.guru.permission.edit', $g) }}" class="btn btn-info btn-xs" title="Hak Akses Menu">
+                  <i class="fas fa-user-shield"></i> Hak Akses
+                </a>
                 <a href="{{ route('admin.guru.edit', $g) }}" class="btn btn-warning btn-xs">
                   <i class="fas fa-edit"></i> Edit
                 </a>

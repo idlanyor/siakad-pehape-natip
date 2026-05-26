@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('jadwals', function (Blueprint $table) {
-            $table->foreignId('kelas_id')->nullable()->after('matkul_id')->constrained('kelas')->nullOnDelete();
+            $table->foreignId('kelas_id')->nullable()->after('mapel_id')->constrained('kelas')->nullOnDelete();
             $table->foreignId('guru_id')->nullable()->after('kelas_id')->constrained('gurus')->nullOnDelete();
             $table->foreignId('semester_id')->nullable()->after('guru_id')->constrained('semesters')->nullOnDelete();
             $table->string('jam_mulai', 5)->after('hari')->nullable();

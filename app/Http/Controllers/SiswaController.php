@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Mapel;
 use App\Models\Siswa;
 use App\Models\Jadwal;
 use App\Models\Semester;
@@ -19,7 +20,7 @@ class SiswaController extends Controller
         $hariMap = ['Monday'=>'Senin','Tuesday'=>'Selasa','Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu','Sunday'=>'Minggu'];
         $hariIni = $hariMap[now()->englishDayOfWeek] ?? now()->englishDayOfWeek;
 
-        $jadwalHariIni = Jadwal::with(['matkul', 'guru'])
+        $jadwalHariIni = Jadwal::with(['mapel', 'guru'])
             ->where('kelas_id', $siswa->kelas_id)
             ->where('hari', $hariIni)
             ->orderBy('jam_mulai')
@@ -33,7 +34,7 @@ class SiswaController extends Controller
         $siswa = Siswa::where('user_id', auth()->id())->firstOrFail();
         $semester = Semester::aktif();
 
-        $jadwals = Jadwal::with(['matkul', 'guru'])
+        $jadwals = Jadwal::with(['mapel', 'guru'])
             ->where('kelas_id', $siswa->kelas_id)
             ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
             ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
@@ -43,5 +44,21 @@ class SiswaController extends Controller
         $grouped = $jadwals->groupBy('hari');
 
         return view('siswa.jadwal', compact('jadwals', 'grouped', 'siswa', 'semester'));
+    }
+
+    public function mapel()
+    {
+        $siswa = Siswa::where('user_id', auth()->id())->firstOrFail();
+        $semester = Semester::aktif();
+
+        $mapels = Mapel::whereHas('jadwals', function ($q) use ($siswa, $semester) {
+            $q->where('kelas_id', $siswa->kelas_id);
+            if ($semester) $q->where('semester_id', $semester->id);
+        })->with(['jadwals' => function ($q) use ($siswa, $semester) {
+            $q->where('kelas_id', $siswa->kelas_id);
+            if ($semester) $q->where('semester_id', $semester->id);
+        }])->get();
+
+        return view('siswa.mapel', compact('mapels', 'siswa', 'semester'));
     }
 }

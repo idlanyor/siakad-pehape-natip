@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('jadwals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('matkul_id')->constrained()->onDelete('cascade');
+            $table->foreignId('mapel_id')->constrained()->onDelete('cascade');
             $table->string('hari');
             $table->string('waktu');
             $table->string('link_zoom')->nullable();

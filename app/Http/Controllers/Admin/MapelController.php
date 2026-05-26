@@ -3,54 +3,54 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Matkul;
+use App\Models\Mapel;
 use Illuminate\Http\Request;
 
 class MapelController extends Controller
 {
     public function index()
     {
-        $matkuls = Matkul::with('jadwals')->get();
-        return view('admin.mapel.index', compact('matkuls'));
+        $mapels = Mapel::with('jadwals')->get();
+        return view('admin.mapel.index', compact('mapels'));
     }
 
     public function create()
     {
-        return view('admin.mapel.form', ['matkul' => null]);
+        return view('admin.mapel.form', ['mapel' => null]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'kode'          => 'required|string|max:20|unique:matkuls,kode',
-            'nama_matkul'   => 'required|string|max:100',
+            'kode'          => 'required|string|max:20|unique:mapels,kode',
+            'nama_mapel'   => 'required|string|max:100',
             'dosen_pengampu'=> 'required|string|max:100',
         ]);
 
-        Matkul::create($request->only('kode', 'nama_matkul', 'dosen_pengampu'));
+        Mapel::create($request->only('kode', 'nama_mapel', 'dosen_pengampu'));
 
         return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran berhasil ditambahkan.');
     }
 
-    public function edit(Matkul $mapel)
+    public function edit(Mapel $mapel)
     {
-        return view('admin.mapel.form', ['matkul' => $mapel]);
+        return view('admin.mapel.form', ['mapel' => $mapel]);
     }
 
-    public function update(Request $request, Matkul $mapel)
+    public function update(Request $request, Mapel $mapel)
     {
         $request->validate([
-            'kode'          => 'required|string|max:20|unique:matkuls,kode,' . $mapel->id,
-            'nama_matkul'   => 'required|string|max:100',
+            'kode'          => 'required|string|max:20|unique:mapels,kode,' . $mapel->id,
+            'nama_mapel'   => 'required|string|max:100',
             'dosen_pengampu'=> 'required|string|max:100',
         ]);
 
-        $mapel->update($request->only('kode', 'nama_matkul', 'dosen_pengampu'));
+        $mapel->update($request->only('kode', 'nama_mapel', 'dosen_pengampu'));
 
         return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran berhasil diperbarui.');
     }
 
-    public function destroy(Matkul $mapel)
+    public function destroy(Mapel $mapel)
     {
         $mapel->delete();
         return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran berhasil dihapus.');

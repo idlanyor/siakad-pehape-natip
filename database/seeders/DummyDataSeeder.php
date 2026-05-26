@@ -10,7 +10,7 @@ use App\Models\Siswa;
 use App\Models\Guru;
 use App\Models\Jurusan;
 use App\Models\Kelas;
-use App\Models\Matkul;
+use App\Models\Mapel;
 use App\Models\Jadwal;
 use App\Models\TahunAjaran;
 use App\Models\Semester;
@@ -136,15 +136,15 @@ class DummyDataSeeder extends Seeder
         $semesterAktif = Semester::where('aktif', true)->first();
 
         // ==================== MATA PELAJARAN & JADWAL ====================
-        $matkul1 = Matkul::create(['kode' => 'BD-44', 'nama_matkul' => 'Basis Data',         'dosen_pengampu' => 'Siti Delimasari, S.Kom']);
-        $matkul2 = Matkul::create(['kode' => 'SD-33', 'nama_matkul' => 'Struktur Data',      'dosen_pengampu' => 'Rahman Manto, S.Kom']);
-        $matkul3 = Matkul::create(['kode' => 'PW-55', 'nama_matkul' => 'Pemrograman Web',    'dosen_pengampu' => 'Rahman Manto, S.Kom']);
-        $matkul4 = Matkul::create(['kode' => 'JK-66', 'nama_matkul' => 'Jaringan Komputer',  'dosen_pengampu' => 'Siti Delimasari, S.Kom']);
+        $mapel1 = Mapel::create(['kode' => 'BD-44', 'nama_mapel' => 'Basis Data',         'dosen_pengampu' => 'Siti Delimasari, S.Kom']);
+        $mapel2 = Mapel::create(['kode' => 'SD-33', 'nama_mapel' => 'Struktur Data',      'dosen_pengampu' => 'Rahman Manto, S.Kom']);
+        $mapel3 = Mapel::create(['kode' => 'PW-55', 'nama_mapel' => 'Pemrograman Web',    'dosen_pengampu' => 'Rahman Manto, S.Kom']);
+        $mapel4 = Mapel::create(['kode' => 'JK-66', 'nama_mapel' => 'Jaringan Komputer',  'dosen_pengampu' => 'Siti Delimasari, S.Kom']);
 
-        Jadwal::create(['matkul_id' => $matkul1->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Selasa',  'jam_mulai' => '08:00', 'jam_selesai' => '09:30', 'ruangan' => 'Lab Komputer 1', 'link_zoom' => 'https://zoom.us/j/123']);
-        Jadwal::create(['matkul_id' => $matkul2->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru2->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Rabu',    'jam_mulai' => '10:00', 'jam_selesai' => '11:30', 'ruangan' => 'Ruang 3', 'link_zoom' => 'https://zoom.us/j/456']);
-        Jadwal::create(['matkul_id' => $matkul3->id, 'kelas_id' => $kelasTkj2->id, 'guru_id' => $guru2->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Kamis',   'jam_mulai' => '13:00', 'jam_selesai' => '14:30', 'ruangan' => 'Lab Komputer 2']);
-        Jadwal::create(['matkul_id' => $matkul4->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Jumat',   'jam_mulai' => '07:30', 'jam_selesai' => '09:00', 'ruangan' => 'Lab Komputer 1']);
-        Jadwal::create(['matkul_id' => $matkul1->id, 'kelas_id' => $kelasRpl1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Senin',   'jam_mulai' => '08:00', 'jam_selesai' => '09:30', 'ruangan' => 'Ruang 5']);
+        Jadwal::create(['mapel_id' => $mapel1->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Selasa',  'jam_mulai' => '08:00', 'jam_selesai' => '09:30', 'ruangan' => 'Lab Komputer 1', 'link_zoom' => 'https://zoom.us/j/123']);
+        Jadwal::create(['mapel_id' => $mapel2->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru2->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Rabu',    'jam_mulai' => '10:00', 'jam_selesai' => '11:30', 'ruangan' => 'Ruang 3', 'link_zoom' => 'https://zoom.us/j/456']);
+        Jadwal::create(['mapel_id' => $mapel3->id, 'kelas_id' => $kelasTkj2->id, 'guru_id' => $guru2->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Kamis',   'jam_mulai' => '13:00', 'jam_selesai' => '14:30', 'ruangan' => 'Lab Komputer 2']);
+        Jadwal::create(['mapel_id' => $mapel4->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Jumat',   'jam_mulai' => '07:30', 'jam_selesai' => '09:00', 'ruangan' => 'Lab Komputer 1']);
+        Jadwal::create(['mapel_id' => $mapel1->id, 'kelas_id' => $kelasRpl1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Senin',   'jam_mulai' => '08:00', 'jam_selesai' => '09:30', 'ruangan' => 'Ruang 5']);
     }
 }

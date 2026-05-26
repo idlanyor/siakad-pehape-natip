@@ -39,7 +39,7 @@
               @forelse($grouped->get($hari, collect()) as $j)
               <div class="jadwal-card">
                 <strong>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</strong>
-                {{ $j->matkul->nama_matkul }}<br>
+                {{ $j->mapel->nama_mapel }}<br>
                 <small class="text-muted"><i class="fas fa-chalkboard-teacher fa-xs"></i> {{ $j->guru?->nama ?? '-' }}</small><br>
                 @if($j->ruangan)<small class="text-muted"><i class="fas fa-door-open fa-xs"></i> {{ $j->ruangan }}</small>@endif
                 @if($j->link_zoom)
@@ -71,7 +71,7 @@
         <tr>
           <td><span class="badge badge-secondary">{{ $j->hari }}</span></td>
           <td>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</td>
-          <td>{{ $j->matkul->nama_matkul }}</td>
+          <td>{{ $j->mapel->nama_mapel }}</td>
           <td>{{ $j->guru?->nama ?? '-' }}</td>
           <td>{{ $j->ruangan ?? '-' }}</td>
           <td>

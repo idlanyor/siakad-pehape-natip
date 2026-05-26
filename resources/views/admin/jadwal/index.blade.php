@@ -78,7 +78,7 @@
                   @php $colorIdx = $j->guru_id % 5; @endphp
                   <div class="jadwal-card guru-{{ $colorIdx }}">
                     <strong>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</strong>
-                    {{ $j->matkul->nama_matkul }}<br>
+                    {{ $j->mapel->nama_mapel }}<br>
                     <span class="text-muted">{{ $j->kelas?->nama_kelas ?? '-' }}</span><br>
                     <small class="text-muted">{{ $j->guru?->nama ?? '-' }}</small><br>
                     @if($j->ruangan)<small><i class="fas fa-door-open fa-xs"></i> {{ $j->ruangan }}</small>@endif
@@ -119,7 +119,7 @@
               <td>{{ $i + 1 }}</td>
               <td><span class="badge badge-secondary">{{ $j->hari }}</span></td>
               <td>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</td>
-              <td>{{ $j->matkul->nama_matkul }}</td>
+              <td>{{ $j->mapel->nama_mapel }}</td>
               <td>{{ $j->kelas?->nama_kelas ?? '-' }}</td>
               <td>{{ $j->guru?->nama ?? '-' }}</td>
               <td>{{ $j->ruangan ?? '-' }}</td>

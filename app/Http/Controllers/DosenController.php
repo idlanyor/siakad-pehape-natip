@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Guru;
 use App\Models\Jadwal;
-use App\Models\Matkul;
+use App\Models\Mapel;
 use App\Models\Semester;
 use App\Models\Siswa;
 use App\Models\Jurusan;
@@ -20,7 +20,7 @@ class DosenController extends Controller
 
         $stats = [
             'total_siswa'   => Siswa::count(),
-            'total_mapel'   => Matkul::count(),
+            'total_mapel'   => Mapel::count(),
             'total_jurusan' => Jurusan::count(),
             'total_jadwal'  => $guru ? Jadwal::where('guru_id', $guru->id)->count() : 0,
         ];
@@ -33,7 +33,7 @@ class DosenController extends Controller
         $guru = Guru::where('user_id', auth()->id())->firstOrFail();
         $semester = Semester::aktif();
 
-        $jadwals = Jadwal::with(['matkul', 'kelas'])
+        $jadwals = Jadwal::with(['mapel', 'kelas'])
             ->where('guru_id', $guru->id)
             ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
             ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
@@ -43,5 +43,21 @@ class DosenController extends Controller
         $grouped = $jadwals->groupBy('hari');
 
         return view('dosen.jadwal', compact('jadwals', 'grouped', 'guru', 'semester'));
+    }
+
+    public function mapel()
+    {
+        $guru = Guru::where('user_id', auth()->id())->firstOrFail();
+        $semester = Semester::aktif();
+
+        $mapels = Mapel::whereHas('jadwals', function ($q) use ($guru, $semester) {
+            $q->where('guru_id', $guru->id);
+            if ($semester) $q->where('semester_id', $semester->id);
+        })->with(['jadwals' => function ($q) use ($guru, $semester) {
+            $q->where('guru_id', $guru->id);
+            if ($semester) $q->where('semester_id', $semester->id);
+        }])->get();
+
+        return view('dosen.mapel', compact('mapels', 'guru', 'semester'));
     }
 }

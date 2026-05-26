@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Matkul extends Model
+class Mapel extends Model
 {
-    protected $fillable = ['kode', 'nama_matkul', 'dosen_pengampu'];
+    protected $fillable = ['kode', 'nama_mapel', 'dosen_pengampu'];
 
     public function jadwals()
     {

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Guru;
 use App\Models\Jadwal;
 use App\Models\Kelas;
-use App\Models\Matkul;
+use App\Models\Mapel;
 use App\Models\Semester;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,7 @@ class JadwalController extends Controller
     public function index()
     {
         $semester = Semester::aktif();
-        $jadwals  = Jadwal::with(['matkul', 'kelas', 'guru', 'semester'])
+        $jadwals  = Jadwal::with(['mapel', 'kelas', 'guru', 'semester'])
             ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
             ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
             ->orderBy('jam_mulai')
@@ -33,7 +33,7 @@ class JadwalController extends Controller
     {
         return view('admin.jadwal.form', [
             'jadwal'   => null,
-            'matkuls'  => Matkul::orderBy('nama_matkul')->get(),
+            'mapels'  => Mapel::orderBy('nama_mapel')->get(),
             'kelas'    => Kelas::with('jurusan')->get(),
             'gurus'    => Guru::orderBy('nama')->get(),
             'semesters'=> Semester::with('tahunAjaran')->get(),
@@ -44,7 +44,7 @@ class JadwalController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'matkul_id'   => 'required|exists:matkuls,id',
+            'mapel_id'   => 'required|exists:mapels,id',
             'kelas_id'    => 'required|exists:kelas,id',
             'guru_id'     => 'required|exists:gurus,id',
             'semester_id' => 'required|exists:semesters,id',
@@ -61,7 +61,7 @@ class JadwalController extends Controller
         }
 
         Jadwal::create($request->only([
-            'matkul_id', 'kelas_id', 'guru_id', 'semester_id',
+            'mapel_id', 'kelas_id', 'guru_id', 'semester_id',
             'hari', 'jam_mulai', 'jam_selesai', 'ruangan', 'link_zoom',
         ]));
 
@@ -72,7 +72,7 @@ class JadwalController extends Controller
     {
         return view('admin.jadwal.form', [
             'jadwal'   => $jadwal,
-            'matkuls'  => Matkul::orderBy('nama_matkul')->get(),
+            'mapels'  => Mapel::orderBy('nama_mapel')->get(),
             'kelas'    => Kelas::with('jurusan')->get(),
             'gurus'    => Guru::orderBy('nama')->get(),
             'semesters'=> Semester::with('tahunAjaran')->get(),
@@ -83,7 +83,7 @@ class JadwalController extends Controller
     public function update(Request $request, Jadwal $jadwal)
     {
         $request->validate([
-            'matkul_id'   => 'required|exists:matkuls,id',
+            'mapel_id'   => 'required|exists:mapels,id',
             'kelas_id'    => 'required|exists:kelas,id',
             'guru_id'     => 'required|exists:gurus,id',
             'semester_id' => 'required|exists:semesters,id',
@@ -100,7 +100,7 @@ class JadwalController extends Controller
         }
 
         $jadwal->update($request->only([
-            'matkul_id', 'kelas_id', 'guru_id', 'semester_id',
+            'mapel_id', 'kelas_id', 'guru_id', 'semester_id',
             'hari', 'jam_mulai', 'jam_selesai', 'ruangan', 'link_zoom',
         ]));
 

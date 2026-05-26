@@ -19,7 +19,7 @@
       </div>
       <!-- /.card-header -->
       <div class="card-body">
-        <table id="tabel-matkul" class="table table-bordered table-striped">
+        <table id="tabel-mapel" class="table table-bordered table-striped">
           <thead>
             <tr>
               <th>Kode</th>
@@ -30,13 +30,13 @@
             </tr>
           </thead>
           <tbody>
-            @foreach($matkuls as $matkul)
-                @foreach($matkul->jadwals as $jadwal)
+            @foreach($mapels as $mapel)
+                @foreach($mapel->jadwals as $jadwal)
                 <tr>
-                  <td>{{ $matkul->kode }}</td>
-                  <td>{{ $matkul->nama_matkul }}</td>
-                  <td>{{ $matkul->dosen_pengampu }}</td>
-                  <td>{{ $jadwal->waktu }}</td>
+                  <td>{{ $mapel->kode }}</td>
+                  <td>{{ $mapel->nama_mapel }}</td>
+                  <td>{{ $mapel->dosen_pengampu }}</td>
+                  <td>{{ $jadwal->jam_mulai }}-{{ $jadwal->jam_selesai }}</td>
                   <td>{{ $jadwal->hari }}</td>
                 </tr>
                 @endforeach
@@ -58,7 +58,7 @@
 <script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
   $(function () {
-    $('#tabel-matkul').DataTable({
+    $('#tabel-mapel').DataTable({
       "paging": true,
       "lengthChange": true,
       "searching": true,

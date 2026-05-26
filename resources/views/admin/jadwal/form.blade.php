@@ -40,15 +40,15 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label>Mata Pelajaran <span class="text-danger">*</span></label>
-                <select name="matkul_id" class="form-control @error('matkul_id') is-invalid @enderror">
+                <select name="mapel_id" class="form-control @error('mapel_id') is-invalid @enderror">
                   <option value="">-- Pilih Mapel --</option>
-                  @foreach($matkuls as $m)
-                    <option value="{{ $m->id }}" {{ old('matkul_id', $jadwal?->matkul_id) == $m->id ? 'selected' : '' }}>
-                      {{ $m->nama_matkul }} ({{ $m->kode }})
+                  @foreach($mapels as $m)
+                    <option value="{{ $m->id }}" {{ old('mapel_id', $jadwal?->mapel_id) == $m->id ? 'selected' : '' }}>
+                      {{ $m->nama_mapel }} ({{ $m->kode }})
                     </option>
                   @endforeach
                 </select>
-                @error('matkul_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                @error('mapel_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
               </div>
             </div>
           </div>

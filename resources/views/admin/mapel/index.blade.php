@@ -30,11 +30,11 @@
             </tr>
           </thead>
           <tbody>
-            @foreach($matkuls as $i => $m)
+            @foreach($mapels as $i => $m)
             <tr>
               <td>{{ $i + 1 }}</td>
               <td><span class="badge badge-secondary">{{ $m->kode }}</span></td>
-              <td>{{ $m->nama_matkul }}</td>
+              <td>{{ $m->nama_mapel }}</td>
               <td>{{ $m->dosen_pengampu }}</td>
               <td>
                 @foreach($m->jadwals as $j)
