@@ -10,6 +10,7 @@ class PembayaranSpp extends Model
         'tagihan_spp_id', 'tanggal_bayar', 'nominal_bayar',
         'metode', 'bukti', 'catatan', 'dicatat_oleh',
         'status_konfirmasi', 'dikonfirmasi_oleh', 'dikonfirmasi_at',
+        'midtrans_order_id', 'midtrans_transaction_id', 'payment_type',
     ];
 
     protected $casts = [

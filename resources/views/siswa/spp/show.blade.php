@@ -48,7 +48,6 @@
         </div>
 
         @if($tagihan->sisa_tagihan > 0)
-          {{-- Cek apakah ada pending yang belum dikonfirmasi --}}
           @php $adaPending = $tagihan->pembayarans->where('status_konfirmasi','pending')->count() > 0; @endphp
           @if($adaPending)
             <div class="alert alert-info mb-0">
@@ -56,10 +55,25 @@
               Bukti transfer sudah dikirim dan sedang menunggu konfirmasi dari petugas TU.
             </div>
           @else
-            <div class="alert alert-warning mb-0">
+            <div class="alert alert-warning mb-2">
               <i class="fas fa-exclamation-triangle mr-1"></i>
               Masih ada tunggakan <strong>Rp {{ number_format($tagihan->sisa_tagihan, 0, ',', '.') }}</strong>.
-              Bayar via transfer/QRIS lalu upload bukti di bawah, atau langsung ke TU.
+            </div>
+            {{-- Tombol Bayar Online (Midtrans) --}}
+            @if(config('midtrans.client_key'))
+            <div class="text-center mb-2">
+              <button id="btn-bayar-online" class="btn btn-success btn-lg px-5"
+                      data-snap-url="{{ route('siswa.spp.snap-token', $tagihan) }}">
+                <i class="fas fa-credit-card mr-2"></i> Bayar Online Sekarang
+              </button>
+              <p class="text-muted small mt-1 mb-0">
+                <i class="fas fa-lock mr-1"></i> Transfer Bank, QRIS, GoPay, ShopeePay, dll — dikonfirmasi otomatis
+              </p>
+            </div>
+            <div class="text-center text-muted small mb-2">— atau —</div>
+            @endif
+            <div class="text-muted small text-center">
+              Upload bukti transfer manual di bawah, atau bayar langsung ke TU.
             </div>
           @endif
         @else
@@ -209,3 +223,57 @@
   </div>
 </div>
 @endsection
+
+@if(config('midtrans.client_key'))
+@push('scripts')
+<script src="https://app.{{ config('midtrans.is_production') ? '' : 'sandbox.' }}midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script>
+document.getElementById('btn-bayar-online')?.addEventListener('click', function () {
+  const btn = this;
+  const url  = btn.dataset.snapUrl;
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memuat...';
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}',
+      'Accept': 'application/json',
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert('Error: ' + data.error);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Online Sekarang';
+      return;
+    }
+    snap.pay(data.snap_token, {
+      onSuccess: function (result) {
+        window.location.reload();
+      },
+      onPending: function (result) {
+        window.location.reload();
+      },
+      onError: function (result) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Online Sekarang';
+      },
+      onClose: function () {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Online Sekarang';
+      },
+    });
+  })
+  .catch(() => {
+    alert('Gagal menghubungi server. Coba lagi.');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Online Sekarang';
+  });
+});
+</script>
+@endpush
+@endif

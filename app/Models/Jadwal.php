@@ -15,8 +15,10 @@ class Jadwal extends Model
     public function kelas()    { return $this->belongsTo(Kelas::class); }
     public function guru()     { return $this->belongsTo(Guru::class); }
     public function semester() { return $this->belongsTo(Semester::class); }
-    public function absensi()  { return $this->hasMany(Absensi::class); }
-    public function nilais()   { return $this->hasMany(Nilai::class); }
+    public function absensi()       { return $this->hasMany(Absensi::class); }
+    public function nilais()        { return $this->hasMany(Nilai::class); }
+    public function materis()       { return $this->hasMany(Materi::class); }
+    public function tugas()         { return $this->hasMany(Tugas::class); }
 
     public function getWaktuLengkapAttribute(): string
     {

@@ -3,6 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// --- Fase A: Midtrans Webhook (bypass CSRF) ---
+Route::post('/webhook/midtrans', [\App\Http\Controllers\MidtransWebhookController::class, 'handle'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('webhook.midtrans');
+
 // --- Fase 15: Sitemap (Public) ---
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
@@ -213,6 +218,18 @@ Route::middleware(['auth', 'role:2'])->prefix('siswa')->group(function () {
     Route::get('/spp', [\App\Http\Controllers\Siswa\SppController::class, 'index'])->name('siswa.spp');
     Route::get('/spp/{tagihan}', [\App\Http\Controllers\Siswa\SppController::class, 'show'])->name('siswa.spp.show');
     Route::post('/spp/{tagihan}/upload', [\App\Http\Controllers\Siswa\SppController::class, 'uploadBukti'])->name('siswa.spp.upload');
+    Route::post('/spp/{tagihan}/snap-token', [\App\Http\Controllers\Siswa\SppController::class, 'getSnapToken'])->name('siswa.spp.snap-token');
+
+    // --- E-Learning: Materi ---
+    Route::get('/materi', [\App\Http\Controllers\Siswa\MateriController::class, 'index'])->name('siswa.materi.index');
+    Route::get('/materi/jadwal/{jadwal}', [\App\Http\Controllers\Siswa\MateriController::class, 'showByJadwal'])->name('siswa.materi.jadwal');
+    Route::get('/materi/detail/{materi}', [\App\Http\Controllers\Siswa\MateriController::class, 'detail'])->name('siswa.materi.detail');
+
+    // --- E-Learning: Tugas ---
+    Route::get('/tugas', [\App\Http\Controllers\Siswa\TugasController::class, 'index'])->name('siswa.tugas.index');
+    Route::get('/tugas/{tugas}', [\App\Http\Controllers\Siswa\TugasController::class, 'show'])->name('siswa.tugas.show');
+    Route::post('/tugas/{tugas}/kumpul', [\App\Http\Controllers\Siswa\TugasController::class, 'kumpul'])->name('siswa.tugas.kumpul');
+    Route::delete('/tugas/kumpulan/{pengumpulan}', [\App\Http\Controllers\Siswa\TugasController::class, 'hapusKumpulan'])->name('siswa.tugas.hapus');
 });
 
 Route::middleware(['auth', 'role:1'])->prefix('dosen')->group(function () {
@@ -248,6 +265,30 @@ Route::middleware(['auth', 'role:1'])->prefix('dosen')->group(function () {
         Route::get('/ekskul/{ekskul}/absensi', [\App\Http\Controllers\Guru\EkskulController::class, 'absensiForm'])->name('guru.ekskul.absensi');
         Route::post('/ekskul/{ekskul}/absensi', [\App\Http\Controllers\Guru\EkskulController::class, 'absensiStore'])->name('guru.ekskul.absensi.store');
         Route::get('/ekskul/{ekskul}/rekap', [\App\Http\Controllers\Guru\EkskulController::class, 'absensiRekap'])->name('guru.ekskul.rekap');
+    });
+
+    // --- E-Learning: Materi ---
+    Route::middleware('guru.can:menu_mapel')->group(function () {
+        Route::get('/materi', [\App\Http\Controllers\Guru\MateriController::class, 'index'])->name('guru.materi.index');
+        Route::get('/materi/{jadwal}/daftar', [\App\Http\Controllers\Guru\MateriController::class, 'show'])->name('guru.materi.show');
+        Route::get('/materi/{jadwal}/create', [\App\Http\Controllers\Guru\MateriController::class, 'create'])->name('guru.materi.create');
+        Route::post('/materi/{jadwal}', [\App\Http\Controllers\Guru\MateriController::class, 'store'])->name('guru.materi.store');
+        Route::get('/materi/edit/{materi}', [\App\Http\Controllers\Guru\MateriController::class, 'edit'])->name('guru.materi.edit');
+        Route::put('/materi/edit/{materi}', [\App\Http\Controllers\Guru\MateriController::class, 'update'])->name('guru.materi.update');
+        Route::delete('/materi/{materi}', [\App\Http\Controllers\Guru\MateriController::class, 'destroy'])->name('guru.materi.destroy');
+    });
+
+    // --- E-Learning: Tugas ---
+    Route::middleware('guru.can:menu_nilai')->group(function () {
+        Route::get('/tugas', [\App\Http\Controllers\Guru\TugasController::class, 'index'])->name('guru.tugas.index');
+        Route::get('/tugas/{jadwal}/daftar', [\App\Http\Controllers\Guru\TugasController::class, 'show'])->name('guru.tugas.show');
+        Route::get('/tugas/{jadwal}/create', [\App\Http\Controllers\Guru\TugasController::class, 'create'])->name('guru.tugas.create');
+        Route::post('/tugas/{jadwal}', [\App\Http\Controllers\Guru\TugasController::class, 'store'])->name('guru.tugas.store');
+        Route::get('/tugas/edit/{tugas}', [\App\Http\Controllers\Guru\TugasController::class, 'edit'])->name('guru.tugas.edit');
+        Route::put('/tugas/edit/{tugas}', [\App\Http\Controllers\Guru\TugasController::class, 'update'])->name('guru.tugas.update');
+        Route::delete('/tugas/{tugas}', [\App\Http\Controllers\Guru\TugasController::class, 'destroy'])->name('guru.tugas.destroy');
+        Route::get('/tugas/{tugas}/pengumpulan', [\App\Http\Controllers\Guru\TugasController::class, 'pengumpulan'])->name('guru.tugas.pengumpulan');
+        Route::post('/tugas/nilai/{pengumpulan}', [\App\Http\Controllers\Guru\TugasController::class, 'beriNilai'])->name('guru.tugas.nilai');
     });
 });
 

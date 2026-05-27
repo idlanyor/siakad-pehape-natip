@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PembayaranSpp;
 use App\Models\Siswa;
 use App\Models\TagihanSpp;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
 
 class SppController extends Controller
@@ -44,6 +45,25 @@ class SppController extends Controller
         $tagihan->load('pembayarans.pencatat');
 
         return view('siswa.spp.show', compact('tagihan', 'siswa'));
+    }
+
+    /**
+     * Generate Midtrans Snap token dan kirim ke view.
+     * Dipanggil via POST dari tombol "Bayar Online".
+     */
+    public function getSnapToken(TagihanSpp $tagihan, MidtransService $midtrans)
+    {
+        $siswa = $this->getSiswa();
+        abort_if($tagihan->siswa_id !== $siswa->id, 403, 'Akses ditolak.');
+        abort_if($tagihan->status === 'lunas', 422, 'Tagihan sudah lunas.');
+        abort_if($tagihan->sisa_tagihan <= 0, 422, 'Tidak ada sisa tagihan.');
+
+        try {
+            $result = $midtrans->createSnapToken($tagihan);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menghubungi Midtrans: ' . $e->getMessage()], 500);
+        }
     }
 
     public function uploadBukti(Request $request, TagihanSpp $tagihan)

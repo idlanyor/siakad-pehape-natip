@@ -468,6 +468,26 @@
         </li>
         @endif
 
+        <li class="nav-header">E-LEARNING</li>
+
+        @if($guruPerms?->canAccess('menu_mapel'))
+        <li class="nav-item {{ request()->routeIs('guru.materi.*') ? 'menu-open' : '' }}">
+          <a href="{{ route('guru.materi.index') }}" class="nav-link {{ request()->routeIs('guru.materi.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-book-open"></i>
+            <p>Materi Pelajaran</p>
+          </a>
+        </li>
+        @endif
+
+        @if($guruPerms?->canAccess('menu_nilai'))
+        <li class="nav-item {{ request()->routeIs('guru.tugas.*') ? 'menu-open' : '' }}">
+          <a href="{{ route('guru.tugas.index') }}" class="nav-link {{ request()->routeIs('guru.tugas.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>Tugas Online</p>
+          </a>
+        </li>
+        @endif
+
         @endif
         {{-- ===== END GURU ===== --}}
 
@@ -523,6 +543,22 @@
           <a href="{{ route('siswa.kesiswaan') }}" class="nav-link {{ request()->routeIs('siswa.kesiswaan') ? 'active' : '' }}">
             <i class="nav-icon fas fa-id-card"></i>
             <p>Kesiswaan Saya</p>
+          </a>
+        </li>
+
+        <li class="nav-header">E-LEARNING</li>
+
+        <li class="nav-item">
+          <a href="{{ route('siswa.materi.index') }}" class="nav-link {{ request()->routeIs('siswa.materi.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-book-open"></i>
+            <p>Materi Pelajaran</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('siswa.tugas.index') }}" class="nav-link {{ request()->routeIs('siswa.tugas.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>Tugas Online</p>
           </a>
         </li>
 
