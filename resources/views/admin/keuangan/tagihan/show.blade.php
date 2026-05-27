@@ -147,6 +147,7 @@
                 <th>Tanggal</th>
                 <th>Nominal</th>
                 <th>Metode</th>
+                <th>Status</th>
                 <th>Bukti</th>
                 <th>Dicatat</th>
                 <th></th>
@@ -154,10 +155,17 @@
             </thead>
             <tbody>
               @foreach($tagihan->pembayarans->sortBy('tanggal_bayar') as $p)
-              <tr>
+              <tr class="{{ $p->isPending() ? 'table-warning' : '' }}">
                 <td>{{ $p->tanggal_bayar->format('d/m/Y') }}</td>
-                <td class="font-weight-bold text-success">{{ $p->nominal_rp }}</td>
+                <td class="font-weight-bold {{ $p->isPending() ? 'text-muted' : 'text-success' }}">{{ $p->nominal_rp }}</td>
                 <td><span class="badge badge-secondary">{{ $p->metode_label }}</span></td>
+                <td>
+                  @if($p->isPending())
+                    <span class="badge badge-warning"><i class="fas fa-clock mr-1"></i>Menunggu</span>
+                  @else
+                    <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Konfirmasi</span>
+                  @endif
+                </td>
                 <td>
                   @if($p->bukti_url)
                     <a href="{{ $p->bukti_url }}" target="_blank" class="btn btn-xs btn-outline-info">
@@ -174,11 +182,36 @@
                   </a>
                   <form action="{{ route('admin.keuangan.pembayaran.destroy', $p) }}" method="POST" class="d-inline">
                     @csrf @method('DELETE')
-                    <button type="submit" class="btn btn-xs btn-danger"
-                            onclick="return confirm('Hapus catatan pembayaran ini?')">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </form>
+                  @if($p->isPending())
+                    {{-- Tombol Terima / Tolak untuk pembayaran pending dari siswa --}}
+                    <form action="{{ route('admin.keuangan.pembayaran.konfirmasi', $p) }}" method="POST" class="d-inline">
+                      @csrf
+                      <input type="hidden" name="aksi" value="terima">
+                      <button type="submit" class="btn btn-xs btn-success mr-1" title="Konfirmasi Pembayaran"
+                              onclick="return confirm('Konfirmasi pembayaran ini?')">
+                        <i class="fas fa-check"></i> Terima
+                      </button>
+                    </form>
+                    <form action="{{ route('admin.keuangan.pembayaran.konfirmasi', $p) }}" method="POST" class="d-inline">
+                      @csrf
+                      <input type="hidden" name="aksi" value="tolak">
+                      <button type="submit" class="btn btn-xs btn-danger" title="Tolak & Hapus"
+                              onclick="return confirm('Tolak dan hapus bukti pembayaran ini?')">
+                        <i class="fas fa-times"></i> Tolak
+                      </button>
+                    </form>
+                  @else
+                    <a href="{{ route('admin.keuangan.kwitansi', $p) }}" target="_blank" class="btn btn-xs btn-outline-success mr-1" title="Cetak Kwitansi">
+                      <i class="fas fa-print"></i>
+                    </a>
+                    <form action="{{ route('admin.keuangan.pembayaran.destroy', $p) }}" method="POST" class="d-inline">
+                      @csrf @method('DELETE')
+                      <button type="submit" class="btn btn-xs btn-danger"
+                              onclick="return confirm('Hapus catatan pembayaran ini?')">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  @endif
                 </td>
               </tr>
               @endforeach
@@ -187,7 +220,7 @@
               <tr>
                 <th colspan="1">Total</th>
                 <th class="text-success">Rp {{ number_format($tagihan->total_dibayar, 0, ',', '.') }}</th>
-                <th colspan="4"></th>
+                <th colspan="5"></th>
               </tr>
             </tfoot>
           </table>

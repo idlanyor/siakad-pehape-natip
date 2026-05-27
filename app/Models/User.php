@@ -35,6 +35,11 @@ class User extends Authenticatable
         return $this->hasOne(Guru::class);
     }
 
+    public function pendaftarPpdb()
+    {
+        return $this->hasOne(\App\Models\PendaftarPpdb::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role == 0;
@@ -48,6 +53,11 @@ class User extends Authenticatable
     public function isSiswa(): bool
     {
         return $this->role == 2;
+    }
+
+    public function isPendaftar(): bool
+    {
+        return $this->role == 3;
     }
 
     /**

@@ -57,10 +57,16 @@ class GelombangPpdb extends Model
         };
     }
 
+    public function pendaftars()
+    {
+        return $this->hasMany(PendaftarPpdb::class, 'gelombang_id');
+    }
+
     public function getSisaKuotaAttribute(): ?int
     {
         if ($this->kuota === 0) return null; // tidak terbatas
-        $terpakai = PendaftarPpdb::where('tahun_ajaran', $this->tahun_ajaran)
+        // Filter by gelombang_id (FK baru) untuk presisi per gelombang
+        $terpakai = PendaftarPpdb::where('gelombang_id', $this->id)
             ->whereIn('status', ['verifikasi', 'diterima'])
             ->count();
         return max(0, $this->kuota - $terpakai);

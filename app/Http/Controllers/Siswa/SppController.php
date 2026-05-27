@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\PembayaranSpp;
 use App\Models\Siswa;
 use App\Models\TagihanSpp;
+use Illuminate\Http\Request;
 
 class SppController extends Controller
 {
@@ -38,12 +40,38 @@ class SppController extends Controller
     public function show(TagihanSpp $tagihan)
     {
         $siswa = $this->getSiswa();
-
-        // Pastikan tagihan ini milik siswa yang login
         abort_if($tagihan->siswa_id !== $siswa->id, 403, 'Akses ditolak.');
-
         $tagihan->load('pembayarans.pencatat');
 
         return view('siswa.spp.show', compact('tagihan', 'siswa'));
+    }
+
+    public function uploadBukti(Request $request, TagihanSpp $tagihan)
+    {
+        $siswa = $this->getSiswa();
+        abort_if($tagihan->siswa_id !== $siswa->id, 403, 'Akses ditolak.');
+        abort_if($tagihan->status === 'lunas', 422, 'Tagihan sudah lunas.');
+
+        $request->validate([
+            'nominal_bayar' => 'required|numeric|min:1000|max:' . $tagihan->sisa_tagihan,
+            'metode'        => 'required|in:transfer,qris',
+            'bukti'         => 'required|image|max:2048',
+            'catatan'       => 'nullable|string|max:255',
+        ]);
+
+        $buktiPath = $request->file('bukti')->store('spp/bukti', 'public');
+
+        PembayaranSpp::create([
+            'tagihan_spp_id'   => $tagihan->id,
+            'tanggal_bayar'    => now()->toDateString(),
+            'nominal_bayar'    => $request->nominal_bayar,
+            'metode'           => $request->metode,
+            'bukti'            => $buktiPath,
+            'catatan'          => $request->catatan,
+            'dicatat_oleh'     => auth()->id(),
+            'status_konfirmasi'=> 'pending', // menunggu konfirmasi admin
+        ]);
+
+        return back()->with('success', 'Bukti transfer berhasil dikirim. Menunggu konfirmasi dari petugas TU.');
     }
 }

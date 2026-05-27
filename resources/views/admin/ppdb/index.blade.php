@@ -59,8 +59,17 @@
           <option value="{{ $j->id }}" {{ request('jurusan_id') == $j->id ? 'selected' : '' }}>{{ $j->nama_jurusan }}</option>
         @endforeach
       </select>
+      <select name="gelombang_id" class="form-control mr-2 mb-2">
+        <option value="">Semua Gelombang</option>
+        @foreach($gelombangList as $g)
+          <option value="{{ $g->id }}" {{ request('gelombang_id') == $g->id ? 'selected' : '' }}>{{ $g->nama }} ({{ $g->tahun_ajaran }})</option>
+        @endforeach
+      </select>
       <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-search mr-1"></i>Filter</button>
       <a href="{{ route('admin.ppdb.index') }}" class="btn btn-secondary mb-2 ml-1">Reset</a>
+      <a href="{{ route('admin.ppdb.export', ['status' => request('status', 'all')]) }}" class="btn btn-success mb-2 ml-2">
+        <i class="fas fa-file-excel mr-1"></i>Export Excel
+      </a>
     </form>
   </div>
 </div>

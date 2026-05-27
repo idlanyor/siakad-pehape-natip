@@ -7,6 +7,16 @@
 @endpush
 
 @section('content')
+{{-- Alert bukti pending --}}
+@if(($jumlahPending ?? 0) > 0)
+<div class="alert alert-warning alert-dismissible">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <i class="fas fa-exclamation-circle mr-1"></i>
+  Ada <strong>{{ $jumlahPending }} bukti pembayaran</strong> dari siswa yang menunggu konfirmasi.
+  Buka detail tagihan untuk menerima atau menolak.
+</div>
+@endif
+
 {{-- Summary Cards --}}
 <div class="row">
   <div class="col-md-3">

@@ -9,11 +9,13 @@ class PembayaranSpp extends Model
     protected $fillable = [
         'tagihan_spp_id', 'tanggal_bayar', 'nominal_bayar',
         'metode', 'bukti', 'catatan', 'dicatat_oleh',
+        'status_konfirmasi', 'dikonfirmasi_oleh', 'dikonfirmasi_at',
     ];
 
     protected $casts = [
-        'tanggal_bayar' => 'date',
-        'nominal_bayar' => 'decimal:2',
+        'tanggal_bayar'   => 'date',
+        'nominal_bayar'   => 'decimal:2',
+        'dikonfirmasi_at' => 'datetime',
     ];
 
     const METODE_LIST = [
@@ -32,6 +34,16 @@ class PembayaranSpp extends Model
     public function pencatat()
     {
         return $this->belongsTo(User::class, 'dicatat_oleh');
+    }
+
+    public function pengkonfirmasi()
+    {
+        return $this->belongsTo(User::class, 'dikonfirmasi_oleh');
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status_konfirmasi === 'pending';
     }
 
     // ─── Accessors ─────────────────────────────────────────────────────────────

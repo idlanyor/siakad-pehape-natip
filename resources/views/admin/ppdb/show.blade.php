@@ -3,6 +3,35 @@
 @section('page_title', 'Review Pendaftar PPDB')
 
 @section('content')
+
+{{-- Flash credentials setelah terima --}}
+@if(session('terima_result'))
+@php $r = session('terima_result'); @endphp
+<div class="alert alert-success alert-dismissible">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <h5><i class="fas fa-check-circle mr-1"></i> {{ $r['nama'] }} berhasil diterima!</h5>
+  <p class="mb-1">Akun siswa telah dibuat secara otomatis:</p>
+  <table class="table table-sm table-bordered mb-2" style="max-width:350px;background:#fff">
+    <tr><th>Username</th><td class="font-weight-bold">{{ $r['username'] }}</td></tr>
+    <tr><th>Password</th><td class="font-weight-bold">{{ $r['password'] }}</td></tr>
+  </table>
+  <small class="text-muted">Informasi ini juga tersimpan di tab "Akun Siswa" di bawah. Sampaikan ke siswa untuk login pertama.</small>
+</div>
+@endif
+
+@if(session('success'))
+<div class="alert alert-success alert-dismissible">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div class="alert alert-danger alert-dismissible">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ session('error') }}
+</div>
+@endif
+
 <div class="row">
 
   {{-- Kolom kiri: Data pendaftar --}}
@@ -19,6 +48,10 @@
       <div class="card-body p-0">
         <table class="table table-sm mb-0">
           <tr><th class="pl-3" style="width:35%">No. Pendaftaran</th><td class="font-weight-bold">{{ $pendaftar->no_pendaftaran }}</td></tr>
+          @if($pendaftar->akun_username)
+          <tr class="table-success"><th class="pl-3">Akun Username</th><td class="font-weight-bold">{{ $pendaftar->akun_username }}</td></tr>
+          <tr class="table-success"><th class="pl-3">Password Awal</th><td><code>{{ $pendaftar->akun_password_plain ?? '(tersembunyi)' }}</code></td></tr>
+          @endif
           <tr><th class="pl-3">Jenis Kelamin</th><td>{{ $pendaftar->jk_label }}</td></tr>
           <tr><th class="pl-3">TTL</th><td>{{ $pendaftar->tempat_lahir }}, {{ $pendaftar->tanggal_lahir->format('d F Y') }}</td></tr>
           <tr><th class="pl-3">NISN</th><td>{{ $pendaftar->nisn ?? '—' }}</td></tr>

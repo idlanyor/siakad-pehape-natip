@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class PendaftarPpdb extends Model
 {
     protected $fillable = [
+        'user_id',
         'no_pendaftaran', 'nama', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir',
         'nisn', 'alamat', 'email', 'no_hp', 'asal_sekolah',
         'nama_ayah', 'nama_ibu', 'no_hp_ortu', 'pekerjaan_ortu',
@@ -15,7 +17,8 @@ class PendaftarPpdb extends Model
         'foto', 'dok_ijazah', 'dok_rapor', 'dok_kk', 'dok_akta',
         'status', 'catatan_admin', 'kelas_diterima_id',
         'diproses_oleh', 'diproses_at',
-        'gelombang', 'tahun_ajaran',
+        'gelombang', 'gelombang_id', 'tahun_ajaran',
+        'akun_username', 'akun_password_plain',
     ];
 
     protected $casts = [
@@ -70,6 +73,16 @@ class PendaftarPpdb extends Model
         return $this->belongsTo(User::class, 'diproses_oleh');
     }
 
+    public function gelombangPpdb()
+    {
+        return $this->belongsTo(GelombangPpdb::class, 'gelombang_id');
+    }
+
+    public function userAkun()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     // ─── Accessors ─────────────────────────────────────────────────────────────
 
     public function getStatusLabelAttribute(): string
@@ -118,19 +131,40 @@ class PendaftarPpdb extends Model
      */
     public function terima(?int $kelasId = null): array
     {
-        // Buat user account
-        $username = 'siswa' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
-        $password = strtolower(str_replace(' ', '', $this->nama)) . date('Y');
+        // Cek NISN tidak duplikat
+        if ($this->nisn && Siswa::where('nisn', $this->nisn)->exists()) {
+            throw new \RuntimeException("NISN {$this->nisn} sudah terdaftar sebagai siswa.");
+        }
 
-        $user = User::create([
-            'name'     => $this->nama,
-            'username' => $username,
-            'email'    => $this->email ?? $username . '@smk48.sch.id',
-            'password' => Hash::make($password),
-            'role'     => 2, // Siswa
-        ]);
+        // Jika sudah punya akun pendaftar (role=3), upgrade role-nya ke siswa (role=2)
+        if ($this->user_id && $existingUser = User::find($this->user_id)) {
+            $user     = $existingUser;
+            $username = $user->username;
+            $password = $this->akun_password_plain; // password sudah tersimpan saat daftar
 
-        // Buat siswa
+            $user->update(['role' => 2]);
+        } else {
+            // Fallback: buat user baru (untuk data lama sebelum fitur pendaftar login)
+            $base     = 'siswa' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+            $username = $base;
+            $suffix   = 1;
+            while (User::where('username', $username)->exists()) {
+                $username = $base . $suffix++;
+            }
+
+            $password = $this->nisn
+                ? $this->nisn
+                : substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 8);
+
+            $user = User::create([
+                'name'     => $this->nama,
+                'username' => $username,
+                'email'    => $this->email,
+                'password' => Hash::make($password),
+                'role'     => 2,
+            ]);
+        }
+
         $siswa = Siswa::create([
             'user_id'       => $user->id,
             'nama'          => $this->nama,
@@ -140,20 +174,16 @@ class PendaftarPpdb extends Model
             'kelas_id'      => $kelasId ?? $this->kelas_diterima_id,
         ]);
 
-        // Update status pendaftar
         $this->update([
-            'status'           => 'diterima',
-            'kelas_diterima_id' => $kelasId ?? $this->kelas_diterima_id,
-            'diproses_oleh'    => auth()->id(),
-            'diproses_at'      => now(),
+            'status'              => 'diterima',
+            'kelas_diterima_id'   => $kelasId ?? $this->kelas_diterima_id,
+            'diproses_oleh'       => auth()->id(),
+            'diproses_at'         => now(),
+            'akun_username'       => $username,
+            'akun_password_plain' => $password,
         ]);
 
-        return [
-            'user'     => $user,
-            'siswa'    => $siswa,
-            'username' => $username,
-            'password' => $password,
-        ];
+        return compact('user', 'siswa', 'username', 'password');
     }
 
     /**
@@ -167,5 +197,17 @@ class PendaftarPpdb extends Model
             'diproses_oleh' => auth()->id(),
             'diproses_at'   => now(),
         ]);
+    }
+
+    /**
+     * Hapus semua file dokumen dari storage.
+     */
+    public function hapusDokumen(): void
+    {
+        foreach (array_keys(self::DOKUMEN_FIELDS) as $field) {
+            if ($this->$field) {
+                Storage::disk('public')->delete($this->$field);
+            }
+        }
     }
 }

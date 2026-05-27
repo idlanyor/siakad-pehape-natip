@@ -27,7 +27,8 @@ Route::prefix('ppdb')->name('ppdb.')->group(function () {
     Route::get('/',          [\App\Http\Controllers\PpdbController::class, 'landing'])->name('landing');
     Route::get('/daftar',    [\App\Http\Controllers\PpdbController::class, 'index'])->name('index');
     Route::post('/daftar',   [\App\Http\Controllers\PpdbController::class, 'store'])->name('store');
-    Route::get('/sukses/{pendaftar}', [\App\Http\Controllers\PpdbController::class, 'sukses'])->name('sukses');
+    Route::get('/sukses/{pendaftar}',       [\App\Http\Controllers\PpdbController::class, 'sukses'])->name('sukses');
+    Route::get('/sukses/{pendaftar}/cetak', [\App\Http\Controllers\PpdbController::class, 'cetakBukti'])->name('cetak');
     Route::get('/cek',       [\App\Http\Controllers\PpdbController::class, 'cekForm'])->name('cek');
     Route::post('/cek',      [\App\Http\Controllers\PpdbController::class, 'cekStatus'])->name('cek.status');
     Route::get('/syarat',    [\App\Http\Controllers\PpdbController::class, 'syarat'])->name('syarat');
@@ -40,8 +41,19 @@ Route::get('/dashboard', function () {
     if (auth()->user()->role == 1) {
         return redirect()->route('dosen.dashboard');
     }
+    if (auth()->user()->role == 3) {
+        return redirect()->route('pendaftar.dashboard');
+    }
     return redirect()->route('siswa.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// --- PPDB: Dashboard Pendaftar (role=3) ---
+Route::middleware(['auth', 'role:3'])->prefix('pendaftar')->name('pendaftar.')->group(function () {
+    Route::get('/dashboard',          [\App\Http\Controllers\PendaftarController::class, 'dashboard'])->name('dashboard');
+    Route::post('/dokumen/{field}',   [\App\Http\Controllers\PendaftarController::class, 'uploadDokumen'])->name('dokumen.upload');
+    Route::delete('/dokumen/{field}', [\App\Http\Controllers\PendaftarController::class, 'hapusDokumen'])->name('dokumen.hapus');
+    Route::get('/cetak',              [\App\Http\Controllers\PendaftarController::class, 'cetakBukti'])->name('cetak');
+});
 
 Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
@@ -104,6 +116,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
         Route::resource('tagihan', \App\Http\Controllers\Admin\TagihanSppController::class)->except(['edit', 'update'])->parameters(['tagihan' => 'tagihan']);
         Route::post('tagihan/{tagihan}/bayar', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'store'])->name('tagihan.bayar');
         Route::delete('pembayaran/{pembayaran}', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'destroy'])->name('pembayaran.destroy');
+        Route::post('pembayaran/{pembayaran}/konfirmasi', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'konfirmasi'])->name('pembayaran.konfirmasi');
         Route::get('laporan', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'index'])->name('laporan');
         Route::get('tunggakan', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'tunggakan'])->name('tunggakan');
         Route::get('kwitansi/{pembayaran}', [\App\Http\Controllers\Admin\LaporanKeuanganController::class, 'kwitansi'])->name('kwitansi');
@@ -165,6 +178,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::prefix('ppdb')->name('ppdb.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PpdbController::class, 'index'])->name('index');
         Route::get('/laporan', [\App\Http\Controllers\Admin\PpdbController::class, 'laporan'])->name('laporan');
+        Route::get('/export', [\App\Http\Controllers\Admin\PpdbController::class, 'export'])->name('export');
         Route::get('/{pendaftar}', [\App\Http\Controllers\Admin\PpdbController::class, 'show'])->name('show');
         Route::post('/{pendaftar}/verifikasi', [\App\Http\Controllers\Admin\PpdbController::class, 'verifikasi'])->name('verifikasi');
         Route::post('/{pendaftar}/terima', [\App\Http\Controllers\Admin\PpdbController::class, 'terima'])->name('terima');
@@ -198,6 +212,7 @@ Route::middleware(['auth', 'role:2'])->prefix('siswa')->group(function () {
     // --- Fase 7: SPP ---
     Route::get('/spp', [\App\Http\Controllers\Siswa\SppController::class, 'index'])->name('siswa.spp');
     Route::get('/spp/{tagihan}', [\App\Http\Controllers\Siswa\SppController::class, 'show'])->name('siswa.spp.show');
+    Route::post('/spp/{tagihan}/upload', [\App\Http\Controllers\Siswa\SppController::class, 'uploadBukti'])->name('siswa.spp.upload');
 });
 
 Route::middleware(['auth', 'role:1'])->prefix('dosen')->group(function () {

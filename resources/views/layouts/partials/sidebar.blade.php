@@ -529,6 +529,28 @@
         @endif
         {{-- ===== END SISWA ===== --}}
 
+        {{-- ===== PENDAFTAR (role=3) ===== --}}
+        @if(auth()->user()->role == 3)
+
+        <li class="nav-header">PENDAFTARAN SAYA</li>
+
+        <li class="nav-item">
+          <a href="{{ route('pendaftar.dashboard') }}" class="nav-link {{ request()->routeIs('pendaftar.dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-clipboard-list"></i>
+            <p>Status Pendaftaran</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('pendaftar.cetak') }}" target="_blank" class="nav-link">
+            <i class="nav-icon fas fa-print"></i>
+            <p>Cetak Bukti</p>
+          </a>
+        </li>
+
+        @endif
+        {{-- ===== END PENDAFTAR ===== --}}
+
       </ul>
     </nav>
   </div>

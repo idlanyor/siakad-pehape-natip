@@ -28,7 +28,7 @@
       </div>
       @endif
 
-      <form action="{{ route('ppdb.store') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('ppdb.store') }}" method="POST">
         @csrf
         <div class="card-body px-4 py-4">
 
@@ -156,19 +156,13 @@
             </div>
           </div>
 
-          {{-- ── Upload Dokumen ── --}}
-          <h5 class="section-title mt-4"><i class="fas fa-file-upload mr-2"></i>Upload Dokumen</h5>
-          <p class="text-muted small mb-3">Format: JPG, PNG, atau PDF. Maks 4MB per file. Dokumen bisa dilengkapi nanti.</p>
-          <div class="row">
-            @foreach(\App\Models\PendaftarPpdb::DOKUMEN_FIELDS as $field => $label)
-            <div class="col-md-6 form-group">
-              <label>{{ $label }}</label>
-              <input type="file" name="{{ $field }}"
-                     class="form-control-file @error($field) is-invalid @enderror"
-                     accept="image/*,.pdf">
-              @error($field) <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-            </div>
-            @endforeach
+          {{-- ── Info Berkas ── --}}
+          <div class="alert alert-info mt-4 mb-0">
+            <h6 class="font-weight-bold mb-1"><i class="fas fa-info-circle mr-2"></i>Upload Berkas Dilakukan Setelah Pendaftaran</h6>
+            <p class="mb-0 small">
+              Setelah pendaftaran berhasil, kamu akan mendapatkan akun untuk login ke <strong>Portal Pendaftar</strong>.
+              Upload foto dan dokumen persyaratan (ijazah, rapor, KK, akta) dilakukan melalui portal tersebut.
+            </p>
           </div>
 
         </div>

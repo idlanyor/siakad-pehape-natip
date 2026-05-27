@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\SppExport;
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
+use App\Models\PembayaranSpp;
 use App\Models\TagihanSpp;
 use App\Models\TahunAjaran;
 use App\Models\TarifSpp;
@@ -42,7 +43,10 @@ class TagihanSppController extends Controller
             'jumlah_belum'     => $tagihans->where('status', 'belum')->count(),
         ];
 
-        return view('admin.keuangan.tagihan.index', compact('tagihans', 'kelas', 'statusList', 'summary'));
+        // Jumlah bukti upload siswa yang menunggu konfirmasi
+        $jumlahPending = PembayaranSpp::where('status_konfirmasi', 'pending')->count();
+
+        return view('admin.keuangan.tagihan.index', compact('tagihans', 'kelas', 'statusList', 'summary', 'jumlahPending'));
     }
 
     public function create()

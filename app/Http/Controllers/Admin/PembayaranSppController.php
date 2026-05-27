@@ -39,13 +39,16 @@ class PembayaranSppController extends Controller
         }
 
         PembayaranSpp::create([
-            'tagihan_spp_id' => $tagihan->id,
-            'tanggal_bayar'  => $request->tanggal_bayar,
-            'nominal_bayar'  => $request->nominal_bayar,
-            'metode'         => $request->metode,
-            'bukti'          => $buktiPath,
-            'catatan'        => $request->catatan,
-            'dicatat_oleh'   => auth()->id(),
+            'tagihan_spp_id'   => $tagihan->id,
+            'tanggal_bayar'    => $request->tanggal_bayar,
+            'nominal_bayar'    => $request->nominal_bayar,
+            'metode'           => $request->metode,
+            'bukti'            => $buktiPath,
+            'catatan'          => $request->catatan,
+            'dicatat_oleh'     => auth()->id(),
+            'status_konfirmasi'=> 'confirmed',
+            'dikonfirmasi_oleh'=> auth()->id(),
+            'dikonfirmasi_at'  => now(),
         ]);
 
         // Recalculate status tagihan
@@ -53,6 +56,32 @@ class PembayaranSppController extends Controller
         $tagihan->recalculateStatus();
 
         return back()->with('success', 'Pembayaran berhasil dicatat. Status tagihan diperbarui.');
+    }
+
+    public function konfirmasi(Request $request, PembayaranSpp $pembayaran)
+    {
+        $aksi = $request->aksi; // 'terima' atau 'tolak'
+
+        if ($aksi === 'terima') {
+            $pembayaran->update([
+                'status_konfirmasi'=> 'confirmed',
+                'dikonfirmasi_oleh'=> auth()->id(),
+                'dikonfirmasi_at'  => now(),
+            ]);
+            // Recalculate status tagihan
+            $pembayaran->tagihan->refresh()->recalculateStatus();
+            return back()->with('success', 'Pembayaran dikonfirmasi. Status tagihan diperbarui.');
+        }
+
+        if ($aksi === 'tolak') {
+            if ($pembayaran->bukti) {
+                Storage::disk('public')->delete($pembayaran->bukti);
+            }
+            $pembayaran->delete();
+            return back()->with('success', 'Bukti pembayaran ditolak dan dihapus.');
+        }
+
+        return back()->with('error', 'Aksi tidak valid.');
     }
 
     public function destroy(PembayaranSpp $pembayaran)

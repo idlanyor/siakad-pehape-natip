@@ -7,7 +7,9 @@ use App\Models\GelombangPpdb;
 use App\Models\Jurusan;
 use App\Models\PendaftarPpdb;
 use App\Models\PersyaratanPpdb;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class PpdbController extends Controller
 {
@@ -42,6 +44,7 @@ class PpdbController extends Controller
 
     /**
      * Simpan pendaftaran baru.
+     * Berkas dokumen TIDAK diupload di sini — dilakukan via dashboard pendaftar.
      */
     public function store(Request $request)
     {
@@ -62,27 +65,74 @@ class PpdbController extends Controller
             'jurusan_pilihan_id'   => 'required|exists:jurusans,id',
             'jurusan_pilihan_2_id' => 'nullable|exists:jurusans,id|different:jurusan_pilihan_id',
             'nilai_rata_rata'      => 'nullable|numeric|min:0|max:100',
-            'foto'                 => 'nullable|image|max:2048',
-            'dok_ijazah'           => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-            'dok_rapor'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-            'dok_kk'               => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-            'dok_akta'             => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
         ]);
 
-        $data = $request->except(array_keys(PendaftarPpdb::DOKUMEN_FIELDS));
-        $data['no_pendaftaran'] = PendaftarPpdb::generateNoPendaftaran($request->tahun_ajaran ?? setting('ppdb_tahun_ajaran'));
-        $data['status']         = 'pending';
+        // Ambil gelombang yang sedang buka
+        $gelombang = GelombangPpdb::buka()->first();
 
-        foreach (array_keys(PendaftarPpdb::DOKUMEN_FIELDS) as $field) {
-            if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('ppdb/' . $field, 'public');
-            }
+        if (!$gelombang) {
+            return back()->withInput()
+                ->with('error', 'Saat ini tidak ada gelombang pendaftaran yang dibuka. Silakan cek jadwal PPDB.');
         }
+
+        // Cek kuota
+        $sisa = $gelombang->sisa_kuota;
+        if ($sisa !== null && $sisa <= 0) {
+            return back()->withInput()
+                ->with('error', 'Kuota pendaftaran gelombang ini sudah penuh. Tunggu gelombang berikutnya.');
+        }
+
+        $data                   = $request->all();
+        $data['no_pendaftaran'] = PendaftarPpdb::generateNoPendaftaran($gelombang->tahun_ajaran);
+        $data['status']         = 'pending';
+        $data['gelombang_id']   = $gelombang->id;
+        $data['gelombang']      = $gelombang->id;
+        $data['tahun_ajaran']   = $gelombang->tahun_ajaran;
 
         $pendaftar = PendaftarPpdb::create($data);
 
+        // Buat akun login untuk pendaftar (role=3)
+        [$username, $password] = $this->buatAkunPendaftar($pendaftar);
+
         return redirect()->route('ppdb.sukses', $pendaftar)
+            ->with('akun_username', $username)
+            ->with('akun_password', $password)
             ->with('success', 'Pendaftaran berhasil!');
+    }
+
+    /**
+     * Buat User role=3 untuk pendaftar baru, simpan ke pendaftar_ppdbs.
+     */
+    private function buatAkunPendaftar(PendaftarPpdb $pendaftar): array
+    {
+        // Generate username: ppdb + 5 digit id
+        $base     = 'ppdb' . str_pad($pendaftar->id, 5, '0', STR_PAD_LEFT);
+        $username = $base;
+        $suffix   = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $base . $suffix++;
+        }
+
+        // Password: NISN jika ada, fallback ke 8 char random
+        $password = $pendaftar->nisn
+            ? $pendaftar->nisn
+            : substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 8);
+
+        $user = User::create([
+            'name'     => $pendaftar->nama,
+            'username' => $username,
+            'email'    => $pendaftar->email,
+            'password' => Hash::make($password),
+            'role'     => 3,
+        ]);
+
+        $pendaftar->update([
+            'user_id'             => $user->id,
+            'akun_username'       => $username,
+            'akun_password_plain' => $password,
+        ]);
+
+        return [$username, $password];
     }
 
     /**
@@ -90,7 +140,19 @@ class PpdbController extends Controller
      */
     public function sukses(PendaftarPpdb $pendaftar)
     {
-        return view('ppdb.sukses', compact('pendaftar'));
+        // Ambil dari session (baru daftar) atau dari model (akses ulang)
+        $akunUsername = session('akun_username', $pendaftar->akun_username);
+        $akunPassword = session('akun_password', $pendaftar->akun_password_plain);
+
+        return view('ppdb.sukses', compact('pendaftar', 'akunUsername', 'akunPassword'));
+    }
+
+    /**
+     * Cetak bukti pendaftaran (print-friendly, tanpa layout).
+     */
+    public function cetakBukti(PendaftarPpdb $pendaftar)
+    {
+        return view('ppdb.cetak', compact('pendaftar'));
     }
 
     /**
@@ -106,15 +168,32 @@ class PpdbController extends Controller
      */
     public function cekStatus(Request $request)
     {
-        $request->validate(['no_pendaftaran' => 'required|string']);
+        $request->validate([
+            'no_pendaftaran' => 'nullable|string',
+            'nisn'           => 'nullable|string',
+            'tanggal_lahir'  => 'nullable|date',
+        ]);
 
-        $pendaftar = PendaftarPpdb::with(['jurusanPilihan', 'kelasDiterima'])
-            ->where('no_pendaftaran', $request->no_pendaftaran)
-            ->first();
+        $pendaftar = null;
+
+        // Cara 1: via nomor pendaftaran
+        if ($request->filled('no_pendaftaran')) {
+            $pendaftar = PendaftarPpdb::with(['jurusanPilihan', 'kelasDiterima'])
+                ->where('no_pendaftaran', $request->no_pendaftaran)
+                ->first();
+        }
+
+        // Cara 2: via NISN + tanggal lahir
+        if (!$pendaftar && $request->filled('nisn') && $request->filled('tanggal_lahir')) {
+            $pendaftar = PendaftarPpdb::with(['jurusanPilihan', 'kelasDiterima'])
+                ->where('nisn', $request->nisn)
+                ->whereDate('tanggal_lahir', $request->tanggal_lahir)
+                ->first();
+        }
 
         if (!$pendaftar) {
             return back()->withInput()
-                ->with('error', 'Nomor pendaftaran tidak ditemukan.');
+                ->with('error', 'Data tidak ditemukan. Periksa kembali nomor pendaftaran atau NISN dan tanggal lahir.');
         }
 
         return view('ppdb.cek', compact('pendaftar'));
