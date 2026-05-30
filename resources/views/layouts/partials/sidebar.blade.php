@@ -8,6 +8,17 @@
 
   <!-- Sidebar -->
   <div class="sidebar">
+
+    {{-- User Panel: avatar + nama, link ke profil --}}
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="image">
+        <img src="{{ auth()->user()->avatar_url }}" class="img-circle elevation-2" alt="Foto Profil" style="width:34px;height:34px;object-fit:cover">
+      </div>
+      <div class="info">
+        <a href="{{ route('profile.edit') }}" class="d-block">{{ auth()->user()->name }}</a>
+      </div>
+    </div>
+
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
@@ -76,6 +87,27 @@
               </a>
             </li>
           </ul>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('admin.orangtua.index') }}" class="nav-link {{ request()->routeIs('admin.orangtua.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user-friends"></i>
+            <p>Orang Tua / Wali</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('admin.audit-log.index') }}" class="nav-link {{ request()->routeIs('admin.audit-log.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-history"></i>
+            <p>Audit Log</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('admin.laporan.index') }}" class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-contract"></i>
+            <p>Laporan</p>
+          </a>
         </li>
 
         <li class="nav-header">AKADEMIK</li>
@@ -401,7 +433,7 @@
 
         @if($guruPerms?->canAccess('menu_jadwal'))
         <li class="nav-item">
-          <a href="{{ route('dosen.jadwal') }}" class="nav-link {{ request()->routeIs('dosen.jadwal') ? 'active' : '' }}">
+          <a href="{{ route('guru.jadwal') }}" class="nav-link {{ request()->routeIs('guru.jadwal') ? 'active' : '' }}">
             <i class="nav-icon fas fa-calendar-week"></i>
             <p>Jadwal Mengajar</p>
           </a>
@@ -410,7 +442,7 @@
 
         @if($guruPerms?->canAccess('menu_mapel'))
         <li class="nav-item">
-          <a href="{{ route('dosen.mapel') }}" class="nav-link {{ request()->routeIs('dosen.mapel') ? 'active' : '' }}">
+          <a href="{{ route('guru.mapel') }}" class="nav-link {{ request()->routeIs('guru.mapel') ? 'active' : '' }}">
             <i class="nav-icon fas fa-book"></i>
             <p>Mata Pelajaran</p>
           </a>
@@ -586,6 +618,49 @@
 
         @endif
         {{-- ===== END PENDAFTAR ===== --}}
+
+        {{-- ===== ORANG TUA / WALI (role=4) ===== --}}
+        @if(auth()->user()->role == 4)
+
+        <li class="nav-header">PORTAL ORANG TUA</li>
+
+        <li class="nav-item">
+          <a href="{{ route('orangtua.dashboard') }}" class="nav-link {{ request()->routeIs('orangtua.dashboard') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-home"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('orangtua.nilai') }}" class="nav-link {{ request()->routeIs('orangtua.nilai') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-star-half-alt"></i>
+            <p>Nilai Anak</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('orangtua.absensi') }}" class="nav-link {{ request()->routeIs('orangtua.absensi') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-clipboard-check"></i>
+            <p>Absensi Anak</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('orangtua.kesiswaan') }}" class="nav-link {{ request()->routeIs('orangtua.kesiswaan') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-id-card"></i>
+            <p>Kesiswaan Anak</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('orangtua.spp') }}" class="nav-link {{ request()->routeIs('orangtua.spp*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-money-bill-wave"></i>
+            <p>Pembayaran SPP</p>
+          </a>
+        </li>
+
+        @endif
+        {{-- ===== END ORANG TUA ===== --}}
 
       </ul>
     </nav>

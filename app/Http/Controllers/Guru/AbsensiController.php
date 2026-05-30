@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWaNotification;
 use App\Models\Absensi;
 use App\Models\Guru;
 use App\Models\Jadwal;
 use App\Models\Siswa;
+use App\Services\WaTemplates;
 use Illuminate\Http\Request;
 
 class AbsensiController extends Controller
@@ -71,6 +73,28 @@ class AbsensiController extends Controller
                     'dicatat_oleh' => auth()->id(),
                 ]
             );
+
+            // Kirim WA ke orangtua jika siswa alpa
+            if ($status === 'Alpa') {
+                $siswa = Siswa::find($siswaId);
+                if ($siswa) {
+                    $phone = $siswa->no_wa ?? $siswa->no_hp ?? null;
+                    if ($phone) {
+                        $absensi = Absensi::where('jadwal_id', $jadwal->id)
+                            ->where('siswa_id', $siswaId)
+                            ->where('tanggal', $request->tanggal)
+                            ->first();
+                        if ($absensi) {
+                            $absensi->load('jadwal.mapel');
+                            SendWaNotification::dispatch(
+                                $phone,
+                                WaTemplates::siswaAlpa($siswa, $absensi),
+                                'siswa_alpa'
+                            );
+                        }
+                    }
+                }
+            }
         }
 
         return redirect()->route('guru.absensi.index')

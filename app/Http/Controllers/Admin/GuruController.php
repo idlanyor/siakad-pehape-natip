@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\GuruRequest;
 use App\Models\Guru;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -21,18 +22,8 @@ class GuruController extends Controller
         return view('admin.guru.form', ['guru' => null]);
     }
 
-    public function store(Request $request)
+    public function store(GuruRequest $request)
     {
-        $request->validate([
-            'name'          => 'required|string|max:100',
-            'username'      => 'required|string|max:50|unique:users,username',
-            'email'         => 'nullable|email|unique:users,email',
-            'password'      => 'required|string|min:6',
-            'nip'           => 'nullable|string|max:30|unique:gurus,nip',
-            'bidang_studi'  => 'nullable|string|max:100',
-            'no_hp'         => 'nullable|string|max:20',
-        ]);
-
         $user = User::create([
             'name'     => $request->name,
             'username' => $request->username,
@@ -57,18 +48,8 @@ class GuruController extends Controller
         return view('admin.guru.form', compact('guru'));
     }
 
-    public function update(Request $request, Guru $guru)
+    public function update(GuruRequest $request, Guru $guru)
     {
-        $request->validate([
-            'name'          => 'required|string|max:100',
-            'username'      => 'required|string|max:50|unique:users,username,' . $guru->user_id,
-            'email'         => 'nullable|email|unique:users,email,' . $guru->user_id,
-            'password'      => 'nullable|string|min:6',
-            'nip'           => 'nullable|string|max:30|unique:gurus,nip,' . $guru->id,
-            'bidang_studi'  => 'nullable|string|max:100',
-            'no_hp'         => 'nullable|string|max:20',
-        ]);
-
         $userData = [
             'name'     => $request->name,
             'username' => $request->username,
@@ -93,5 +74,19 @@ class GuruController extends Controller
     {
         $guru->user->delete(); // cascade deletes guru too
         return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil dihapus.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids'   => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:gurus,id'],
+        ]);
+
+        $userIds = Guru::whereIn('id', $data['ids'])->pluck('user_id');
+        User::whereIn('id', $userIds)->each(fn ($u) => $u->delete());
+
+        $jumlah = $userIds->count();
+        return redirect()->route('admin.guru.index')->with('success', "$jumlah guru berhasil dihapus.");
     }
 }

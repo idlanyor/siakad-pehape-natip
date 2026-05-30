@@ -16,6 +16,16 @@ class PengumpulanTugas extends Model
         'dinilai_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        // Notifikasi ke siswa saat tugasnya baru dinilai (nilai diisi).
+        static::updated(function (PengumpulanTugas $p) {
+            if ($p->wasChanged('nilai') && $p->nilai !== null) {
+                \App\Services\ELearningNotifier::tugasDinilai($p);
+            }
+        });
+    }
+
     public function tugas()    { return $this->belongsTo(Tugas::class); }
     public function siswa()    { return $this->belongsTo(Siswa::class); }
     public function penilai()  { return $this->belongsTo(User::class, 'dinilai_oleh'); }

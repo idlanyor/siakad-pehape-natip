@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Jurusan;
 use App\Models\Mapel;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -25,18 +26,26 @@ class MapelImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
+            // Resolve jurusan_id dari nama jurusan (opsional)
+            $jurusanId = null;
+            $jurusanNama = trim($row['jurusan'] ?? '');
+            if ($jurusanNama) {
+                $jurusan = Jurusan::where('nama_jurusan', $jurusanNama)->first();
+                $jurusanId = $jurusan?->id;
+            }
+
             $existing = Mapel::where('kode', $kode)->first();
             if ($existing) {
                 $existing->update([
-                    'nama_mapel'     => $nama,
-                    'dosen_pengampu' => trim($row['deskripsi'] ?? $row['dosen_pengampu'] ?? '') ?: $existing->dosen_pengampu,
+                    'nama_mapel'  => $nama,
+                    'jurusan_id'  => $jurusanId ?? $existing->jurusan_id,
                 ]);
                 $this->updated++;
             } else {
                 Mapel::create([
-                    'kode'           => $kode,
-                    'nama_mapel'     => $nama,
-                    'dosen_pengampu' => trim($row['deskripsi'] ?? $row['dosen_pengampu'] ?? '') ?: null,
+                    'kode'        => $kode,
+                    'nama_mapel'  => $nama,
+                    'jurusan_id'  => $jurusanId,
                 ]);
                 $this->imported++;
             }

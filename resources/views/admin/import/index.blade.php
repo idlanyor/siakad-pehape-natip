@@ -6,12 +6,6 @@
 <div class="row">
   <div class="col-12">
 
-    @if(session('error'))
-      <div class="alert alert-danger alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <i class="fas fa-exclamation-circle mr-1"></i> {{ session('error') }}
-      </div>
-    @endif
 
     @if(session('import_result'))
       @php $r = session('import_result'); @endphp

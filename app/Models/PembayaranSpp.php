@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PembayaranSpp extends Model
 {
+    use \App\Traits\Auditable;
+
     protected $fillable = [
         'tagihan_spp_id', 'tanggal_bayar', 'nominal_bayar',
         'metode', 'bukti', 'catatan', 'dicatat_oleh',

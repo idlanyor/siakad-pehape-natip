@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\PpdbExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWaNotification;
 use App\Models\GelombangPpdb;
 use App\Models\Jurusan;
 use App\Models\Kelas;
 use App\Models\Notifikasi;
 use App\Models\PendaftarPpdb;
 use App\Models\User;
+use App\Services\WaTemplates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -100,6 +102,13 @@ class PpdbController extends Controller
                          "Silakan login dan segera ganti password.",
             'url'     => '/dashboard',
         ]);
+
+        // Kirim WA ke pendaftar
+        $phone = $pendaftar->no_hp ?? $pendaftar->no_hp_ortu ?? null;
+        if ($phone) {
+            $waMsg = WaTemplates::ppdbDiterima($pendaftar, $result['username'], $result['password']);
+            SendWaNotification::dispatch($phone, $waMsg, 'ppdb_diterima');
+        }
 
         return redirect()->route('admin.ppdb.show', $pendaftar)
             ->with('terima_result', [

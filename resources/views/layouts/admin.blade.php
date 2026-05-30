@@ -37,7 +37,7 @@
     }
   </style>
 </head>
-<body style="font-family: Quicksand;" class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<body style="font-family: Quicksand;" class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed {{ request()->cookie('dark_mode') === 'on' ? 'dark-mode' : '' }}">
 <div class="wrapper">
 
   @include('layouts.partials.navbar')
@@ -77,6 +77,29 @@
 <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
+
+<script>
+// Toggle Dark Mode — simpan preferensi di cookie (1 tahun), terapkan tanpa reload.
+(function () {
+  var toggle = document.getElementById('dark-mode-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', function (e) {
+    e.preventDefault();
+    var body = document.body;
+    var isDark = body.classList.toggle('dark-mode');
+    var nav = document.querySelector('.main-header');
+    if (nav) {
+      nav.classList.toggle('navbar-white', !isDark);
+      nav.classList.toggle('navbar-light', !isDark);
+      nav.classList.toggle('navbar-dark', isDark);
+      nav.classList.toggle('navbar-secondary', isDark);
+    }
+    var icon = toggle.querySelector('i');
+    if (icon) { icon.className = 'fas ' + (isDark ? 'fa-sun' : 'fa-moon'); }
+    document.cookie = 'dark_mode=' + (isDark ? 'on' : 'off') + ';path=/;max-age=' + (60 * 60 * 24 * 365) + ';SameSite=Lax';
+  });
+})();
+</script>
 
 @stack('scripts')
 </body>

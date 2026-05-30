@@ -136,10 +136,10 @@ class DummyDataSeeder extends Seeder
         $semesterAktif = Semester::where('aktif', true)->first();
 
         // ==================== MATA PELAJARAN & JADWAL ====================
-        $mapel1 = Mapel::create(['kode' => 'BD-44', 'nama_mapel' => 'Basis Data',         'dosen_pengampu' => 'Siti Delimasari, S.Kom']);
-        $mapel2 = Mapel::create(['kode' => 'SD-33', 'nama_mapel' => 'Struktur Data',      'dosen_pengampu' => 'Rahman Manto, S.Kom']);
-        $mapel3 = Mapel::create(['kode' => 'PW-55', 'nama_mapel' => 'Pemrograman Web',    'dosen_pengampu' => 'Rahman Manto, S.Kom']);
-        $mapel4 = Mapel::create(['kode' => 'JK-66', 'nama_mapel' => 'Jaringan Komputer',  'dosen_pengampu' => 'Siti Delimasari, S.Kom']);
+        $mapel1 = Mapel::create(['kode' => 'BD-44', 'nama_mapel' => 'Basis Data',        ]);
+        $mapel2 = Mapel::create(['kode' => 'SD-33', 'nama_mapel' => 'Struktur Data',      ]);
+        $mapel3 = Mapel::create(['kode' => 'PW-55', 'nama_mapel' => 'Pemrograman Web',    ]);
+        $mapel4 = Mapel::create(['kode' => 'JK-66', 'nama_mapel' => 'Jaringan Komputer',  ]);
 
         Jadwal::create(['mapel_id' => $mapel1->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru1->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Selasa',  'jam_mulai' => '08:00', 'jam_selesai' => '09:30', 'ruangan' => 'Lab Komputer 1', 'link_zoom' => 'https://zoom.us/j/123']);
         Jadwal::create(['mapel_id' => $mapel2->id, 'kelas_id' => $kelasTkj1->id, 'guru_id' => $guru2->id, 'semester_id' => $semesterAktif->id, 'hari' => 'Rabu',    'jam_mulai' => '10:00', 'jam_selesai' => '11:30', 'ruangan' => 'Ruang 3', 'link_zoom' => 'https://zoom.us/j/456']);

@@ -5,465 +5,491 @@
 
 @push('styles')
 <style>
-  .counter-num { font-size: 2.8rem; font-weight: 800; }
   html { scroll-behavior: smooth; }
+
+  /* Modern Hero Section */
+  .hero-section {
+    position: relative;
+    padding: 120px 0 80px;
+    background: linear-gradient(135deg, rgba(15,60,92,0.95) 0%, rgba(24,90,138,0.9) 100%);
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('{{ setting_url("hero_bg") }}') center/cover no-repeat;
+    opacity: 0.3;
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-badge {
+    background: rgba(243, 156, 18, 0.2);
+    color: var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .hero-subtitle {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    max-width: 90%;
+  }
+
+  /* Modern Stats Bar */
+  .stats-bar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    margin-top: -50px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .stat-item {
+    text-align: center;
+    position: relative;
+  }
+
+  .stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: var(--bg-gray);
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Section Styles */
+  .section-padding { padding: 80px 0; }
+  .bg-light-gray { background-color: var(--bg-light); }
+
+  /* Cards */
+  .hover-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+  .hover-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  }
+
+  /* Feature Icons */
+  .feature-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: rgba(15, 60, 92, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    font-size: 1.8rem;
+    transition: all 0.3s;
+  }
+
+  .hover-card:hover .feature-icon-wrapper {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  /* Sambutan Kepsek */
+  .kepsek-wrapper {
+    position: relative;
+    padding: 2rem;
+  }
+  .kepsek-image {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 2;
+  }
+  .kepsek-bg-shape {
+    position: absolute;
+    top: 0; right: 0;
+    width: 80%; height: 80%;
+    background: var(--accent);
+    border-radius: 20px;
+    z-index: 1;
+    transform: translate(20px, -20px);
+  }
+
+  /* CTA Banner */
+  .cta-banner {
+    background: linear-gradient(135deg, var(--accent) 0%, #d35400 100%);
+    border-radius: 20px;
+    padding: 3rem;
+    color: #fff;
+    box-shadow: 0 15px 30px rgba(243, 156, 18, 0.2);
+  }
 </style>
 @endpush
 
 @section('content')
 
-{{-- ── HERO ─────────────────────────────────────────────────────────────────── --}}
-<section class="hero-section" id="hero"
-  @if(setting_url('hero_bg'))
-    style="background: linear-gradient(135deg, rgba(26,58,107,.92) 0%, rgba(45,95,158,.88) 100%), url('{{ setting_url('hero_bg') }}') center/cover no-repeat;"
-  @endif
->
-  <div class="container position-relative" style="z-index:2; padding-top: 80px;">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-7">
-        <span class="hero-badge"><i class="fas fa-star me-1" style="color:var(--accent)"></i>Sekolah Unggulan Jakarta Timur</span>
-        <h1 class="hero-title mb-3">{{ setting('sekolah_nama', 'SMK Negeri 48 Jakarta') }}</h1>
-        <p class="hero-subtitle mb-4">{{ setting('sekolah_tagline', 'Mencetak generasi unggul, berkarakter, dan siap bersaing di era global.') }}</p>
-        <div class="d-flex flex-wrap gap-3 mb-5">
-          <a href="{{ route('ppdb.index') }}" class="btn btn-lg fw-bold px-4"
-             style="background:var(--accent);color:#fff;border-radius:10px">
-            <i class="fas fa-file-alt me-2"></i>Daftar PPDB
-          </a>
-          <a href="#program" class="btn btn-lg px-4"
-             style="background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.3);border-radius:10px">
-            <i class="fas fa-graduation-cap me-2"></i>Program Kami
-          </a>
+{{-- ── HERO SECTION ────────────────────────────────────────────────────────── --}}
+<section class="hero-section" id="hero">
+  <div class="container hero-content">
+    <div class="row align-items-center">
+      <div class="col-lg-7 py-5">
+        <div class="hero-badge" data-aos="fade-up">
+          <i class="fas fa-certificate"></i> Sekolah Unggulan & Berprestasi
         </div>
-
-        {{-- Mini Stats --}}
-        <div class="hero-stats d-flex flex-wrap gap-4">
-          <div class="text-center">
-            <div class="hero-stat-num">{{ $stats['siswa'] }}+</div>
-            <div class="hero-stat-label">Siswa Aktif</div>
-          </div>
-          <div class="text-center">
-            <div class="hero-stat-num">{{ $stats['guru'] }}+</div>
-            <div class="hero-stat-label">Tenaga Pendidik</div>
-          </div>
-          <div class="text-center">
-            <div class="hero-stat-num">{{ $stats['jurusan'] }}</div>
-            <div class="hero-stat-label">Program Keahlian</div>
-          </div>
-          <div class="text-center">
-            <div class="hero-stat-num">{{ date('Y') - (int)$stats['tahun_berdiri'] }}+</div>
-            <div class="hero-stat-label">Tahun Berpengalaman</div>
-          </div>
+        <h1 class="hero-title" data-aos="fade-up" data-aos-delay="100">
+          Selamat Datang di<br>
+          <span style="color: var(--accent)">{{ setting('sekolah_nama', 'SMK Negeri 48') }}</span>
+        </h1>
+        <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
+          {{ setting('sekolah_tagline', 'Berkomitmen mencetak lulusan yang kompeten, berkarakter mulia, dan siap menghadapi tantangan dunia industri global.') }}
+        </p>
+        <div class="d-flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="300">
+          @if(setting('ppdb_aktif') == '1')
+            <a href="{{ route('ppdb.index') }}" class="btn btn-warning btn-lg px-4 py-3 fw-bold rounded-pill text-dark shadow-sm">
+              <i class="fas fa-user-plus me-2"></i> Daftar PPDB Sekarang
+            </a>
+          @endif
+          <a href="#program" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold rounded-pill">
+            <i class="fas fa-compass me-2"></i> Jelajahi Program Kami
+          </a>
         </div>
       </div>
 
-      <div class="col-lg-5 d-none d-lg-block text-center">
+      <div class="col-lg-5 d-none d-lg-block text-center" data-aos="zoom-in" data-aos-delay="200">
         @if(setting_url('logo'))
-          <img src="{{ setting_url('logo') }}" class="img-fluid" style="max-height:340px;filter:drop-shadow(0 20px 40px rgba(0,0,0,.3))" alt="Logo Sekolah">
-        @else
-          <div style="width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.1);margin:auto;display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-graduation-cap" style="font-size:7rem;color:rgba(255,255,255,.4)"></i>
-          </div>
+          <img src="{{ setting_url('logo') }}" class="img-fluid" style="max-height:400px; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3));" alt="Logo {{ setting('sekolah_nama') }}">
         @endif
       </div>
     </div>
   </div>
-
-  {{-- Scroll indicator --}}
-  <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4" style="z-index:2">
-    <a href="#sambutan" style="color:rgba(255,255,255,.5);animation:bounce 2s infinite">
-      <i class="fas fa-chevron-down fa-lg"></i>
-    </a>
-  </div>
 </section>
 
-@if(setting('ppdb_aktif') == '1')
-{{-- ── PPDB ALERT BANNER ────────────────────────────────────────────────────── --}}
-<div class="ppdb-cta py-4">
-  <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
-    <div class="text-white">
-      <span class="badge bg-white text-warning fw-bold me-2">PPDB {{ setting('ppdb_tahun_ajaran') }}</span>
-      <strong class="fs-5">Pendaftaran Siswa Baru Sedang Dibuka!</strong>
-      @if(setting('ppdb_info'))
-        <p class="mb-0 mt-1 opacity-90 small">{{ setting('ppdb_info') }}</p>
-      @endif
+{{-- ── STATS BAR ───────────────────────────────────────────────────────────── --}}
+<div class="container">
+  <div class="stats-bar">
+    <div class="row g-4">
+      <div class="col-6 col-md-3 stat-item">
+        <div class="stat-number counter-num" data-target="{{ $stats['siswa'] }}">0</div>
+        <div class="stat-label">Siswa Aktif</div>
+      </div>
+      <div class="col-6 col-md-3 stat-item">
+        <div class="stat-number counter-num" data-target="{{ $stats['guru'] }}">0</div>
+        <div class="stat-label">Tenaga Pendidik</div>
+      </div>
+      <div class="col-6 col-md-3 stat-item">
+        <div class="stat-number counter-num" data-target="{{ $stats['jurusan'] }}">0</div>
+        <div class="stat-label">Program Keahlian</div>
+      </div>
+      <div class="col-6 col-md-3 stat-item" style="border:none;">
+        <div class="stat-number counter-num" data-target="{{ $stats['prestasi'] }}">0</div>
+        <div class="stat-label">Prestasi Diraih</div>
+      </div>
     </div>
-    <a href="{{ route('ppdb.index') }}" class="btn btn-lg fw-bold px-4"
-       style="background:#fff;color:var(--accent);border-radius:8px;white-space:nowrap">
-      <i class="fas fa-paper-plane me-2"></i>Daftar Sekarang
-    </a>
   </div>
 </div>
-@endif
 
-{{-- ── SAMBUTAN KEPSEK ──────────────────────────────────────────────────────── --}}
+{{-- ── SAMBUTAN KEPSEK ─────────────────────────────────────────────────────── --}}
 @if(setting('sambutan_kepsek') || setting('nama_kepsek'))
-<section class="sambutan-section py-5" id="sambutan">
+<section class="section-padding" id="sambutan">
   <div class="container">
     <div class="row align-items-center g-5">
-      <div class="col-md-3 text-center">
-        @if(setting_url('foto_kepsek'))
-          <img src="{{ setting_url('foto_kepsek') }}" class="kepsek-photo" alt="Kepala Sekolah">
-        @else
-          <div style="width:160px;height:160px;border-radius:50%;background:#e2e8f0;margin:auto;display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-user fa-3x text-muted"></i>
-          </div>
-        @endif
-        @if(setting('nama_kepsek'))
-          <div class="mt-3">
-            <div class="fw-bold text-dark">{{ setting('nama_kepsek') }}</div>
-            <div class="text-muted small">Kepala Sekolah</div>
-            @if(setting('nip_kepsek'))
-              <div class="text-muted small">NIP. {{ setting('nip_kepsek') }}</div>
-            @endif
-          </div>
-        @endif
+      <div class="col-lg-5">
+        <div class="kepsek-wrapper">
+          <div class="kepsek-bg-shape d-none d-md-block"></div>
+          @if(setting_url('foto_kepsek'))
+            <img src="{{ setting_url('foto_kepsek') }}" class="kepsek-image" alt="Foto Kepala Sekolah">
+          @else
+            <div class="kepsek-image bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+              <i class="fas fa-user-tie fa-5x text-muted"></i>
+            </div>
+          @endif
+        </div>
       </div>
-      <div class="col-md-9">
-        <div class="mb-2"><span class="badge" style="background:var(--accent);color:#fff;font-size:.75rem">Sambutan</span></div>
-        <h2 class="section-title mb-3">Kata Kepala Sekolah</h2>
-        <div class="text-muted lh-lg" style="font-size:.98rem">{!! setting('sambutan_kepsek') !!}</div>
+      <div class="col-lg-7">
+        <h6 class="text-warning fw-bold text-uppercase tracking-wider mb-2">Sambutan Kepala Sekolah</h6>
+        <h2 class="section-title mb-4">Membangun Generasi Emas Masa Depan</h2>
+
+        <div class="lead text-muted mb-4" style="font-size: 1.1rem; line-height: 1.8;">
+          {!! Str::limit(strip_tags(setting('sambutan_kepsek')), 400) !!}
+        </div>
+
+        <div class="d-flex align-items-center mt-4">
+          <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; color: white;">
+            <i class="fas fa-quote-right"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">{{ setting('nama_kepsek', 'Nama Kepala Sekolah') }}</h5>
+            <span class="text-muted small">Kepala {{ setting('sekolah_nama') }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 @endif
 
-{{-- ── PROGRAM KEAHLIAN ─────────────────────────────────────────────────────── --}}
-<section class="py-5 bg-white" id="program">
+{{-- ── PROGRAM KEAHLIAN ────────────────────────────────────────────────────── --}}
+<section class="section-padding bg-light-gray" id="program">
   <div class="container">
     <div class="text-center mb-5">
-      <div class="section-divider mx-auto"></div>
-      <h2 class="section-title">Program Keahlian</h2>
-      <p class="section-subtitle">Pilih jurusan yang sesuai dengan minat dan bakatmu</p>
+      <h6 class="text-warning fw-bold text-uppercase mb-2">Program Studi</h6>
+      <h2 class="section-title">Program Keahlian Kami</h2>
+      <div class="section-divider"></div>
+      <p class="section-subtitle mx-auto" style="max-width: 600px;">Pilihan program keahlian yang disesuaikan dengan kebutuhan industri masa kini dan masa depan.</p>
     </div>
-    <div class="row g-4">
+
+    <div class="row g-4 justify-content-center">
       @forelse($jurusans as $j)
-      <div class="col-md-6 col-lg-4">
-        <div class="jurusan-card card h-100 p-4">
-          <div class="d-flex align-items-start gap-3">
-            <div class="jurusan-icon flex-shrink-0">
-              <i class="{{ $j->icon ?? 'fas fa-graduation-cap' }}"></i>
-            </div>
-            <div>
-              <h5 class="fw-bold mb-1" style="color:var(--primary)">{{ $j->nama_jurusan }}</h5>
-              @if($j->deskripsi_publik)
-                <p class="text-muted small mb-0 lh-lg">{{ Str::limit($j->deskripsi_publik, 120) }}</p>
-              @endif
-            </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 border-0 rounded-4 hover-card bg-white p-4">
+          <div class="feature-icon-wrapper">
+            <i class="{{ $j->icon ?? 'fas fa-laptop-code' }}"></i>
           </div>
-          @if($j->gambar)
-            <img src="{{ asset('storage/' . $j->gambar) }}" class="mt-3 rounded" style="width:100%;height:140px;object-fit:cover" alt="{{ $j->nama_jurusan }}">
-          @endif
+          <h4 class="fw-bold mb-3" style="color: var(--primary)">{{ $j->nama_jurusan }}</h4>
+          <p class="text-muted mb-4 flex-grow-1" style="line-height: 1.7;">
+            {{ $j->deskripsi_publik ? Str::limit($j->deskripsi_publik, 120) : 'Program keahlian unggulan yang mempersiapkan siswa menjadi tenaga profesional di bidangnya.' }}
+          </p>
+          <a href="{{ route('landing.program') }}" class="text-primary fw-semibold text-decoration-none">
+            Pelajari Lebih Lanjut <i class="fas fa-arrow-right ms-1"></i>
+          </a>
         </div>
       </div>
       @empty
-        <div class="col-12 text-center text-muted py-4">Belum ada program keahlian.</div>
+        <div class="col-12 text-center text-muted">Belum ada data program keahlian.</div>
       @endforelse
     </div>
-    <div class="text-center mt-4">
-      <a href="{{ route('landing.program') }}" class="btn btn-outline-primary px-4 fw-semibold">
-        Lihat Semua Program <i class="fas fa-arrow-right ms-2"></i>
-      </a>
-    </div>
   </div>
 </section>
 
-{{-- ── STATISTIK ────────────────────────────────────────────────────────────── --}}
-<section class="py-5" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)">
+{{-- ── CTA PPDB ───────────────────────────────────────────────────────────── --}}
+@if(setting('ppdb_aktif') == '1')
+<section class="py-5">
   <div class="container">
-    <div class="row g-4 text-center text-white">
-      <div class="col-6 col-lg-3">
-        <div class="counter-num text-warning" data-target="{{ $stats['siswa'] }}">0</div>
-        <div class="mt-1 opacity-75">Siswa Aktif</div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="counter-num text-warning" data-target="{{ $stats['guru'] }}">0</div>
-        <div class="mt-1 opacity-75">Tenaga Pendidik</div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="counter-num text-warning" data-target="{{ $stats['ekskul'] }}">0</div>
-        <div class="mt-1 opacity-75">Ekstrakurikuler</div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="counter-num text-warning" data-target="{{ $stats['prestasi'] }}">0</div>
-        <div class="mt-1 opacity-75">Prestasi Diraih</div>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="cta-banner position-relative overflow-hidden">
+      <!-- Background elements -->
+      <i class="fas fa-graduation-cap position-absolute" style="font-size: 15rem; color: rgba(255,255,255,0.1); right: -50px; top: -50px;"></i>
 
-{{-- ── EKSTRAKURIKULER ──────────────────────────────────────────────────────── --}}
-@if($ekskuls->count() > 0)
-<section class="py-5" style="background:var(--bg-light)">
-  <div class="container">
-    <div class="text-center mb-5">
-      <div class="section-divider mx-auto"></div>
-      <h2 class="section-title">Ekstrakurikuler</h2>
-      <p class="section-subtitle">Kembangkan bakat dan minat melalui kegiatan ekstrakurikuler kami</p>
-    </div>
-    <div class="row g-3">
-      @foreach($ekskuls as $e)
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="ekskul-card d-flex align-items-center gap-2">
-          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <i class="fas fa-users" style="color:#fff;font-size:.8rem"></i>
-          </div>
-          <div>
-            <div class="fw-semibold small" style="color:var(--primary)">{{ $e->nama }}</div>
-            @if($e->pembina)
-              <div class="text-muted" style="font-size:.72rem">{{ $e->pembina->nama }}</div>
-            @endif
-          </div>
+      <div class="row align-items-center position-relative z-index-1">
+        <div class="col-lg-8 mb-4 mb-lg-0">
+          <span class="badge bg-white text-warning fw-bold px-3 py-2 rounded-pill mb-3">PPDB {{ setting('ppdb_tahun_ajaran') }} BUKA</span>
+          <h2 class="fw-bold mb-3" style="font-family: 'Poppins', sans-serif;">Mari Bergabung Bersama Kami!</h2>
+          <p class="lead mb-0 opacity-90">Pendaftaran Peserta Didik Baru (PPDB) Tahun Ajaran {{ setting('ppdb_tahun_ajaran') }} telah resmi dibuka. Daftar sekarang juga.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <a href="{{ route('ppdb.index') }}" class="btn btn-light btn-lg px-5 py-3 fw-bold rounded-pill text-primary shadow">
+            Daftar Sekarang <i class="fas fa-arrow-right ms-2"></i>
+          </a>
         </div>
       </div>
-      @endforeach
     </div>
   </div>
 </section>
 @endif
 
-{{-- ── PRESTASI ─────────────────────────────────────────────────────────────── --}}
-@if($prestasis->count() > 0)
-<section class="py-5 bg-white">
+{{-- ── PRESTASI & EKSKUL (Combined Section) ────────────────────────────────── --}}
+<section class="section-padding">
   <div class="container">
-    <div class="text-center mb-5">
-      <div class="section-divider mx-auto"></div>
-      <h2 class="section-title">Prestasi Terkini</h2>
-      <p class="section-subtitle">Capaian membanggakan siswa-siswi kami</p>
-    </div>
-    <div class="row g-4">
-      @foreach($prestasis as $p)
-      <div class="col-md-6 col-lg-4">
-        <div class="card border-0 shadow-sm rounded-3 p-4 h-100">
-          <div class="d-flex align-items-start gap-3">
-            @if($p->foto)
-              <img src="{{ asset('storage/' . $p->foto) }}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0" alt="">
-            @else
-              <div style="width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                <i class="fas fa-trophy text-warning fa-lg"></i>
+    <div class="row g-5">
+      <!-- Prestasi -->
+      <div class="col-lg-6">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <h6 class="text-warning fw-bold text-uppercase mb-1">Pencapaian</h6>
+            <h3 class="fw-bold" style="color: var(--primary);">Prestasi Siswa</h3>
+          </div>
+          <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-3">Lihat Semua</a>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          @forelse($prestasis->take(4) as $p)
+          <div class="card border-0 shadow-sm rounded-3 hover-card">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+              <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center flex-shrink-0" style="width: 60px; height: 60px;">
+                <i class="fas fa-trophy fa-2x"></i>
               </div>
-            @endif
-            <div>
-              <span class="prestasi-badge mb-1 d-inline-block
-                {{ in_array($p->tingkat, ['Nasional','Internasional']) ? 'bg-warning text-dark' : 'bg-primary text-white' }}">
-                {{ $p->tingkat }}
-              </span>
-              <div class="fw-semibold small lh-sm">{{ $p->nama_prestasi }}</div>
-              <div class="text-muted" style="font-size:.78rem">{{ $p->siswa->nama ?? '-' }} · {{ \Carbon\Carbon::parse($p->tanggal)->format('M Y') }}</div>
+              <div>
+                <h6 class="fw-bold mb-1">{{ $p->nama_prestasi }}</h6>
+                <div class="text-muted small">
+                  <span class="badge bg-light text-dark border me-1">{{ $p->tingkat }}</span>
+                  {{ $p->siswa->nama ?? 'Siswa' }} • {{ \Carbon\Carbon::parse($p->tanggal)->format('M Y') }}
+                </div>
+              </div>
             </div>
           </div>
+          @empty
+            <div class="text-muted text-center p-4 bg-light rounded">Belum ada data prestasi.</div>
+          @endforelse
         </div>
       </div>
-      @endforeach
+
+      <!-- Ekskul -->
+      <div class="col-lg-6">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <h6 class="text-warning fw-bold text-uppercase mb-1">Pengembangan Diri</h6>
+            <h3 class="fw-bold" style="color: var(--primary);">Ekstrakurikuler</h3>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          @forelse($ekskuls->take(6) as $e)
+          <div class="col-sm-6">
+            <div class="card border-0 bg-light-gray rounded-3 h-100 hover-card">
+              <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="bg-white rounded-circle d-flex align-items-center justify-content-center text-primary shadow-sm flex-shrink-0" style="width: 45px; height: 45px;">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0 text-dark">{{ $e->nama }}</h6>
+                  @if($e->pembina)<small class="text-muted">{{ $e->pembina->nama }}</small>@endif
+                </div>
+              </div>
+            </div>
+          </div>
+          @empty
+            <div class="col-12 text-muted text-center p-4 bg-light rounded">Belum ada data ekstrakurikuler.</div>
+          @endforelse
+        </div>
+      </div>
     </div>
   </div>
 </section>
-@endif
 
 {{-- ── BERITA TERBARU ───────────────────────────────────────────────────────── --}}
 @if($artikelTerbaru->count() > 0)
-<section class="py-5 bg-white">
+<section class="section-padding bg-light-gray">
   <div class="container">
     <div class="text-center mb-5">
-      <div class="section-divider mx-auto"></div>
-      <h2 class="section-title">Berita Terbaru</h2>
-      <p class="section-subtitle">Informasi dan kabar terkini dari sekolah kami</p>
+      <h6 class="text-warning fw-bold text-uppercase mb-2">Informasi Terkini</h6>
+      <h2 class="section-title">Berita & Pengumuman</h2>
+      <div class="section-divider"></div>
     </div>
+
     <div class="row g-4">
       @foreach($artikelTerbaru as $a)
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden" style="transition:transform .25s,box-shadow .25s"
-             onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,.1)'"
-             onmouseleave="this.style.transform='';this.style.boxShadow=''">
-          @if($a->thumbnail_url)
-            <img src="{{ $a->thumbnail_url }}" style="height:180px;object-fit:cover;width:100%" alt="{{ $a->judul }}">
-          @else
-            <div style="height:180px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center">
-              <i class="fas fa-newspaper fa-3x" style="color:rgba(255,255,255,.3)"></i>
+      <div class="col-lg-4 col-md-6">
+        <div class="card border-0 rounded-4 shadow-sm h-100 hover-card overflow-hidden">
+          <div class="position-relative">
+            @if($a->thumbnail_url)
+              <img src="{{ $a->thumbnail_url }}" class="card-img-top" style="height:220px; object-fit:cover;" alt="{{ $a->judul }}">
+            @else
+              <div class="bg-secondary d-flex align-items-center justify-content-center" style="height:220px;">
+                <i class="fas fa-newspaper fa-4x text-white opacity-50"></i>
+              </div>
+            @endif
+            <div class="position-absolute top-0 end-0 m-3">
+              <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">{{ $a->kategori_label }}</span>
             </div>
-          @endif
-          <div class="card-body p-4">
-            <span class="badge mb-2" style="background:var(--accent);color:#fff;font-size:.72rem">{{ $a->kategori_label }}</span>
-            <h6 class="fw-bold lh-sm mb-2" style="color:var(--primary)">{{ Str::limit($a->judul, 65) }}</h6>
-            <p class="text-muted small lh-lg mb-3">{{ Str::limit($a->ringkasan_auto, 90) }}</p>
-            <a href="{{ route('berita.show', $a) }}" class="btn btn-sm btn-outline-primary">
-              Baca <i class="fas fa-arrow-right ms-1"></i>
+          </div>
+          <div class="card-body p-4 d-flex flex-column">
+            <div class="text-muted small mb-2 d-flex align-items-center gap-3">
+              <span><i class="far fa-calendar-alt me-1 text-primary"></i> {{ \Carbon\Carbon::parse($a->published_at)->format('d M Y') }}</span>
+            </div>
+            <h5 class="fw-bold mb-3">
+              <a href="{{ route('berita.show', $a) }}" class="text-dark text-decoration-none hover-primary">{{ Str::limit($a->judul, 60) }}</a>
+            </h5>
+            <p class="text-muted mb-4 flex-grow-1" style="font-size: 0.95rem;">{{ Str::limit($a->ringkasan_auto, 100) }}</p>
+            <a href="{{ route('berita.show', $a) }}" class="text-primary fw-bold text-decoration-none mt-auto">
+              Baca Selengkapnya <i class="fas fa-arrow-right ms-1"></i>
             </a>
           </div>
         </div>
       </div>
       @endforeach
     </div>
-    <div class="text-center mt-4">
-      <a href="{{ route('berita.index') }}" class="btn btn-outline-primary px-4 fw-semibold">
-        Semua Berita <i class="fas fa-arrow-right ms-2"></i>
+    <div class="text-center mt-5">
+      <a href="{{ route('berita.index') }}" class="btn btn-primary btn-lg rounded-pill px-5 fw-semibold shadow-sm">
+        Lihat Semua Berita
       </a>
     </div>
   </div>
 </section>
 @endif
-
-{{-- ── GALERI TERBARU ───────────────────────────────────────────────────────── --}}
-@if($galeriTerbaru->count() > 0)
-<section class="py-5" style="background:var(--bg-light)">
-  <div class="container">
-    <div class="text-center mb-5">
-      <div class="section-divider mx-auto"></div>
-      <h2 class="section-title">Galeri Kegiatan</h2>
-      <p class="section-subtitle">Momen berharga kegiatan sekolah kami</p>
-    </div>
-    <div class="row g-3">
-      @foreach($galeriTerbaru as $g)
-      <div class="col-6 col-md-3">
-        <a href="{{ route('galeri.show', $g) }}" class="d-block text-decoration-none" style="overflow:hidden;border-radius:10px;position:relative">
-          @if($g->cover_url)
-            <img src="{{ $g->cover_url }}" style="width:100%;height:180px;object-fit:cover;transition:transform .3s;display:block"
-                 onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform=''"
-                 alt="{{ $g->nama }}">
-          @else
-            <div style="height:180px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center">
-              <i class="fas fa-images fa-2x" style="color:rgba(255,255,255,.4)"></i>
-            </div>
-          @endif
-          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:.75rem">
-            <div class="text-white fw-semibold" style="font-size:.82rem">{{ Str::limit($g->nama, 35) }}</div>
-            <div class="text-white opacity-75" style="font-size:.72rem">{{ $g->items_count }} foto</div>
-          </div>
-        </a>
-      </div>
-      @endforeach
-    </div>
-    <div class="text-center mt-4">
-      <a href="{{ route('galeri.index') }}" class="btn btn-outline-primary px-4 fw-semibold">
-        Lihat Semua Galeri <i class="fas fa-arrow-right ms-2"></i>
-      </a>
-    </div>
-  </div>
-</section>
-@endif
-
-{{-- ── KONTAK ───────────────────────────────────────────────────────────────── --}}
-<section class="py-5" style="background:var(--bg-light)" id="kontak">
-  <div class="container">
-    <div class="text-center mb-5">
-      <div class="section-divider mx-auto"></div>
-      <h2 class="section-title">Hubungi Kami</h2>
-      <p class="section-subtitle">Kami siap membantu pertanyaan Anda</p>
-    </div>
-    <div class="row g-4 justify-content-center">
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-3 p-4 text-center h-100">
-          <div class="mb-3" style="font-size:2rem;color:var(--primary)"><i class="fas fa-map-marker-alt"></i></div>
-          <h6 class="fw-bold">Alamat</h6>
-          <p class="text-muted small mb-0">{{ setting('sekolah_alamat') }}</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-3 p-4 text-center h-100">
-          <div class="mb-3" style="font-size:2rem;color:var(--primary)"><i class="fas fa-phone-alt"></i></div>
-          <h6 class="fw-bold">Telepon & Email</h6>
-          <p class="text-muted small mb-0">
-            {{ setting('sekolah_no_telp') }}<br>
-            {{ setting('sekolah_email') }}
-          </p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-3 p-4 text-center h-100">
-          <div class="mb-3" style="font-size:2rem;color:var(--primary)"><i class="fas fa-clock"></i></div>
-          <h6 class="fw-bold">Jam Operasional</h6>
-          <p class="text-muted small mb-0">Senin – Jumat<br>07.00 – 16.00 WIB</p>
-        </div>
-      </div>
-    </div>
-
-    @if(setting('maps_embed'))
-    <div class="mt-4 rounded-3 overflow-hidden shadow-sm" style="height:280px">
-      <iframe src="{{ setting('maps_embed') }}" width="100%" height="280" style="border:0;display:block" allowfullscreen loading="lazy"></iframe>
-    </div>
-    @endif
-
-    {{-- Form Kontak --}}
-    <div class="row justify-content-center mt-5">
-      <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-3 p-4 p-md-5">
-          <h4 class="fw-bold mb-1" style="color:var(--primary)">Kirim Pesan</h4>
-          <p class="text-muted small mb-4">Isi formulir di bawah ini, kami akan membalas secepatnya.</p>
-
-          @if(session('kontak_success'))
-            <div class="alert alert-success alert-dismissible">
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              <i class="fas fa-check-circle me-2"></i>{{ session('kontak_success') }}
-            </div>
-          @endif
-
-          <form action="{{ route('kontak.store') }}" method="POST">
-            @csrf
-            @if($errors->has('nama') || $errors->has('email') || $errors->has('pesan'))
-              <div class="alert alert-danger">
-                <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-              </div>
-            @endif
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
-                <input type="text" name="nama" class="form-control" value="{{ old('nama') }}" placeholder="Nama Anda" required>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="email@contoh.com" required>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label fw-semibold">No. HP / WhatsApp</label>
-                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}" placeholder="08xxxxxxxxxx">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label fw-semibold">Subjek <span class="text-danger">*</span></label>
-                <input type="text" name="subjek" class="form-control" value="{{ old('subjek') }}" placeholder="Topik pesan" required>
-              </div>
-              <div class="col-12">
-                <label class="form-label fw-semibold">Pesan <span class="text-danger">*</span></label>
-                <textarea name="pesan" rows="4" class="form-control" placeholder="Tulis pesan Anda di sini..." required minlength="10">{{ old('pesan') }}</textarea>
-              </div>
-              <div class="col-12">
-                <button type="submit" class="btn btn-primary fw-semibold px-5">
-                  <i class="fas fa-paper-plane me-2"></i>Kirim Pesan
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 @endsection
 
 @push('scripts')
+<!-- Include AOS for scroll animations if not already in layout -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-// Counter animation
-const counters = document.querySelectorAll('.counter-num[data-target]');
-const animateCounters = () => {
-  counters.forEach(el => {
-    const target = +el.dataset.target;
-    const step = Math.ceil(target / 60);
-    let current = 0;
-    const timer = setInterval(() => {
-      current = Math.min(current + step, target);
-      el.textContent = current.toLocaleString('id');
-      if (current >= target) clearInterval(timer);
-    }, 25);
+  // Initialize AOS
+  AOS.init({
+    duration: 800,
+    once: true,
+    offset: 50
   });
-};
 
-// Trigger on scroll into view
-const statsSection = document.querySelector('[data-target]')?.closest('section');
-if (statsSection) {
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) { animateCounters(); observer.disconnect(); }
-  }, { threshold: .3 });
-  observer.observe(statsSection);
-}
+  // Counter animation
+  const counters = document.querySelectorAll('.counter-num[data-target]');
+  const animateCounters = () => {
+    counters.forEach(el => {
+      const target = +el.dataset.target;
+      const step = Math.ceil(target / 50); // Speed control
+      let current = 0;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString('id');
+        if (current >= target) clearInterval(timer);
+      }, 30);
+    });
+  };
+
+  // Trigger counters when stats bar comes into view
+  const statsBar = document.querySelector('.stats-bar');
+  if (statsBar) {
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        animateCounters();
+        observer.disconnect();
+      }
+    }, { threshold: 0.5 });
+    observer.observe(statsBar);
+  }
 </script>
 @endpush

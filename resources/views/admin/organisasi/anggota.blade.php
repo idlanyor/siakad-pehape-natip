@@ -87,12 +87,6 @@
         <h3 class="card-title"><i class="fas fa-users mr-1"></i> Daftar Anggota</h3>
       </div>
       <div class="card-body p-0">
-        @if(session('success'))
-          <div class="alert alert-success m-3 alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{ session('success') }}
-          </div>
-        @endif
 
         @forelse($anggota as $a)
         <div class="d-flex align-items-center p-3 border-bottom {{ !$a->is_aktif ? 'bg-light' : '' }}">

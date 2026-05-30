@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TagihanSpp extends Model
 {
+    use \App\Traits\Auditable;
+
     protected $fillable = ['siswa_id', 'bulan', 'nominal', 'status', 'keterangan', 'dicatat_oleh'];
 
     protected $casts = [

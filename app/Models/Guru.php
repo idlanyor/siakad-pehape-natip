@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Guru extends Model
 {
-    protected $fillable = ['user_id', 'nip', 'nama', 'bidang_studi', 'no_hp'];
+    use \App\Traits\Auditable;
+
+    protected $fillable = ['user_id', 'nip', 'nama', 'bidang_studi', 'no_hp', 'no_wa'];
 
     public function user()
     {
@@ -21,6 +23,11 @@ class Guru extends Model
     public function ekskuls()
     {
         return $this->hasMany(Ekskul::class, 'pembina_id');
+    }
+
+    public function mapels()
+    {
+        return $this->belongsToMany(Mapel::class, 'guru_mapel')->withTimestamps();
     }
 
     public function permission()

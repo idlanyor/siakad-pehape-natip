@@ -1,5 +1,6 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+@php $isDark = request()->cookie('dark_mode') === 'on'; @endphp
+<nav class="main-header navbar navbar-expand {{ $isDark ? 'navbar-dark navbar-secondary' : 'navbar-white navbar-light' }}">
   <!-- Left navbar links -->
   <ul class="navbar-nav">
     <li class="nav-item">
@@ -9,6 +10,13 @@
 
   <!-- Right navbar links -->
   <ul class="navbar-nav ml-auto">
+
+    {{-- Toggle Dark Mode --}}
+    <li class="nav-item">
+      <a href="#" class="nav-link" id="dark-mode-toggle" role="button" title="Mode Gelap/Terang">
+        <i class="fas {{ $isDark ? 'fa-sun' : 'fa-moon' }}"></i>
+      </a>
+    </li>
 
     {{-- Pengumuman --}}
     <li class="nav-item">
@@ -51,6 +59,23 @@
           </form>
         </div>
       </div>
+    </li>
+
+    {{-- Keamanan 2FA --}}
+    <li class="nav-item">
+      <a href="{{ route('profile.2fa') }}" class="nav-link" title="Autentikasi Dua Faktor">
+        <i class="fas fa-shield-alt"></i>
+        @if(auth()->user()->hasTwoFactorEnabled())
+          <span class="badge badge-success badge-pill">on</span>
+        @endif
+      </a>
+    </li>
+
+    {{-- Profil --}}
+    <li class="nav-item">
+      <a href="{{ route('profile.edit') }}" class="nav-link" title="Profil Saya">
+        <img src="{{ auth()->user()->avatar_url }}" class="img-circle" alt="Foto Profil" style="width:24px;height:24px;object-fit:cover;vertical-align:middle">
+      </a>
     </li>
 
     {{-- Logout --}}

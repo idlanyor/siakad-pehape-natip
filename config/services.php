@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'whatsapp' => [
+        'api_url' => env('WA_API_URL', 'https://gate.ireng.uk'),
+        'api_key' => env('WA_API_KEY'),
+        'enabled' => env('WA_NOTIFICATION_ENABLED', true),
+    ],
+
 ];

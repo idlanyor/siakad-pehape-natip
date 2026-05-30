@@ -35,7 +35,7 @@
                 <tr>
                   <td>{{ $mapel->kode }}</td>
                   <td>{{ $mapel->nama_mapel }}</td>
-                  <td>{{ $mapel->dosen_pengampu }}</td>
+                  <td>{{ $jadwal->guru?->nama ?? $mapel->guru_pengampu }}</td>
                   <td>{{ $jadwal->jam_mulai }}-{{ $jadwal->jam_selesai }}</td>
                   <td>{{ $jadwal->hari }}</td>
                 </tr>

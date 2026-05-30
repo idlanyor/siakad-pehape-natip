@@ -42,7 +42,7 @@
               <div class="custom-control custom-radio mr-3">
                 <input type="radio" id="tipe_{{ $val }}" name="tipe" value="{{ $val }}"
                        class="custom-control-input tipe-radio"
-                       {{ old('tipe', $materi->tipe ?? 'file') === $val ? 'checked' : '' }}>
+                       {{ old('tipe', ($materi ?? null)?->tipe ?? 'file') === $val ? 'checked' : '' }}>
                 <label class="custom-control-label" for="tipe_{{ $val }}">
                   <i class="fas {{ $opt['icon'] }} text-{{ $opt['color'] }}"></i> {{ $opt['label'] }}
                 </label>
@@ -76,7 +76,7 @@
           <div id="input-link" class="form-group tipe-input" style="display:none">
             <label>URL Tautan <span class="text-danger">*</span></label>
             <input type="url" name="link" class="form-control @error('link') is-invalid @enderror"
-                   value="{{ old('link', $materi->tipe === 'link' ? ($materi->konten ?? '') : '') }}"
+                   value="{{ old('link', (($materi ?? null)?->tipe === 'link') ? ($materi->konten ?? '') : '') }}"
                    placeholder="https://...">
             @error('link')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
@@ -86,7 +86,7 @@
             <label>Isi Materi <span class="text-danger">*</span></label>
             <textarea name="teks" rows="10"
                       class="form-control @error('teks') is-invalid @enderror"
-                      placeholder="Tuliskan isi materi di sini...">{{ old('teks', $materi->tipe === 'teks' ? ($materi->konten ?? '') : '') }}</textarea>
+                      placeholder="Tuliskan isi materi di sini...">{{ old('teks', (($materi ?? null)?->tipe === 'teks') ? ($materi->konten ?? '') : '') }}</textarea>
             @error('teks')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -94,7 +94,7 @@
             <div class="custom-control custom-switch">
               <input type="checkbox" name="is_published" id="is_published" value="1"
                      class="custom-control-input"
-                     {{ old('is_published', ($materi->is_published ?? true) ? '1' : '') ? 'checked' : '' }}>
+                     {{ old('is_published', (($materi ?? null)?->is_published ?? true) ? '1' : '') ? 'checked' : '' }}>
               <label class="custom-control-label" for="is_published">Publikasikan (langsung terlihat siswa)</label>
             </div>
           </div>

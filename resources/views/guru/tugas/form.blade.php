@@ -21,7 +21,7 @@
           <div class="form-group">
             <label>Judul Tugas <span class="text-danger">*</span></label>
             <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror"
-                   value="{{ old('judul', $tugas->judul ?? '') }}" required>
+                   value="{{ old('judul', ($tugas ?? null)?->judul ?? '') }}" required>
             @error('judul')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -29,7 +29,7 @@
             <label>Instruksi / Deskripsi Tugas <span class="text-danger">*</span></label>
             <textarea name="instruksi" rows="5"
                       class="form-control @error('instruksi') is-invalid @enderror"
-                      placeholder="Jelaskan apa yang harus dikerjakan siswa..." required>{{ old('instruksi', $tugas->instruksi ?? '') }}</textarea>
+                      placeholder="Jelaskan apa yang harus dikerjakan siswa..." required>{{ old('instruksi', ($tugas ?? null)?->instruksi ?? '') }}</textarea>
             @error('instruksi')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -48,7 +48,7 @@
                 <label>Nilai Maksimal <span class="text-danger">*</span></label>
                 <input type="number" name="nilai_maksimal" min="1" max="100"
                        class="form-control @error('nilai_maksimal') is-invalid @enderror"
-                       value="{{ old('nilai_maksimal', $tugas->nilai_maksimal ?? 100) }}" required>
+                       value="{{ old('nilai_maksimal', ($tugas ?? null)?->nilai_maksimal ?? 100) }}" required>
                 @error('nilai_maksimal')<div class="invalid-feedback">{{ $message }}</div>@enderror
               </div>
             </div>
@@ -59,7 +59,7 @@
             <select name="tipe_pengumpulan" class="form-control @error('tipe_pengumpulan') is-invalid @enderror">
               @foreach(\App\Models\Tugas::TIPE_LABEL as $val => $label)
                 <option value="{{ $val }}"
-                  {{ old('tipe_pengumpulan', $tugas->tipe_pengumpulan ?? 'file') === $val ? 'selected' : '' }}>
+                  {{ old('tipe_pengumpulan', ($tugas ?? null)?->tipe_pengumpulan ?? 'file') === $val ? 'selected' : '' }}>
                   {{ $label }}
                 </option>
               @endforeach

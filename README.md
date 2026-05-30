@@ -1,66 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIAKAD (Sistem Informasi Akademik)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Informasi Akademik berbasis web yang dikembangkan menggunakan framework Laravel. Sistem ini dirancang untuk mengelola berbagai proses akademik sekolah mulai dari Penerimaan Peserta Didik Baru (PPDB), manajemen pembelajaran, hingga administrasi keuangan (SPP).
 
-## About Laravel
+## 🌟 Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Aplikasi ini memiliki 3 hak akses utama: **Admin**, **Guru**, dan **Siswa**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. Modul Admin
+* **Dashboard & Statistik**: Ringkasan data akademik dan keuangan.
+* **Manajemen Pengguna**: Kelola data Admin, Guru, dan Siswa.
+* **Manajemen Master Data**: Kelola Jurusan, Mata Pelajaran (Mapel), dan Kelas.
+* **PPDB (Penerimaan Peserta Didik Baru)**: Kelola pendaftaran, seleksi, dan pengumuman siswa baru.
+* **Keuangan**: Manajemen tagihan SPP dan pencatatan pembayaran SPP.
+* **Integrasi WhatsApp**: Log notifikasi WA (Pesan gateway untuk tagihan/pengumuman).
+* **Pengumuman**: Broadcast informasi ke guru dan siswa.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 2. Modul Guru
+* **Manajemen Kelas & Mapel**: Mengelola mata pelajaran yang diampu.
+* **Materi & Tugas**: Upload materi pelajaran dan memberikan tugas ke siswa.
+* **Absensi**: Input dan rekap kehadiran siswa.
+* **Penilaian**: Manajemen nilai tugas dan evaluasi.
 
-## Learning Laravel
+### 3. Modul Siswa
+* **Dashboard Akademik**: Lihat jadwal dan informasi sekolah.
+* **Akses Pembelajaran**: Download materi dan kumpul tugas.
+* **Informasi Keuangan**: Cek riwayat pembayaran dan tagihan SPP aktif.
+* **Absensi**: Cek rekap kehadiran mandiri.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 💻 Tech Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+* **Backend**: Laravel (PHP)
+* **Frontend**: Blade Templating, Tailwind CSS / Bootstrap
+* **Database**: MySQL
+* **Package Manager**: Composer & NPM
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 📋 Persyaratan Sistem
 
-## Laravel Sponsors
+Sebelum menjalankan aplikasi, pastikan sistem Anda telah terinstal:
+* PHP >= 8.1
+* Composer >= 2.0
+* Node.js & NPM
+* MySQL / MariaDB
+* Ekstensi PHP: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🚀 Panduan Instalasi
 
-### Premium Partners
+Ikuti langkah-langkah berikut untuk menjalankan aplikasi di *local environment*:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+1. **Clone repositori**
+   ```bash
+   git clone <repo-url>
+   cd siakad-pehape-natip
+   ```
 
-## Contributing
+2. **Install dependensi PHP dan Node.js**
+   ```bash
+   composer install
+   npm install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Konfigurasi Environment**
+   Salin file `.env.example` menjadi `.env`.
+   ```bash
+   cp .env.example .env
+   ```
+   Sesuaikan konfigurasi database pada file `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=nama_database_anda
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-## Code of Conduct
+4. **Generate Application Key**
+   ```bash
+   php artisan key:generate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. **Migrasi Database dan Seeding**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-## Security Vulnerabilities
+6. **Compile Aset Frontend**
+   ```bash
+   npm run build
+   # atau gunakan 'npm run dev' untuk development
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7. **Jalankan Local Server**
+   ```bash
+   php artisan serve
+   ```
+   Aplikasi dapat diakses melalui `http://localhost:8000`.
 
-## License
+## 📁 Struktur Dokumen Penting
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Selain `README.md`, perhatikan juga dokumen manajemen proyek berikut:
+* `ROADMAP.md` - Peta jalan pengembangan fitur jangka panjang.
+* `PROGRESS.md` - Laporan progres pengerjaan harian/mingguan.
+* `Sprint.md` - Catatan task management dan sprint saat ini.
+
+## 🔒 Keamanan & Perhatian
+
+* Pastikan file `.env` tidak pernah di-commit ke repositori publik.
+* Ubah kredensial default dari seeder segera setelah aplikasi di-deploy ke production.

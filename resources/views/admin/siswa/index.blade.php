@@ -13,14 +13,24 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="card-title">Daftar Siswa</h3>
-        <a href="{{ route('admin.siswa.create') }}" class="btn btn-primary btn-sm">
-          <i class="fas fa-plus"></i> Tambah Siswa
-        </a>
+        <div>
+          <button type="button" id="btn-bulk-hapus" class="btn btn-danger btn-sm" disabled
+                  onclick="bulkHapusSiswa()">
+            <i class="fas fa-trash"></i> Hapus Terpilih (<span id="bulk-count">0</span>)
+          </button>
+          <a href="{{ route('admin.siswa.create') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Tambah Siswa
+          </a>
+        </div>
       </div>
       <div class="card-body">
+        <form id="form-bulk-siswa" action="{{ route('admin.siswa.bulk-destroy') }}" method="POST">
+          @csrf @method('DELETE')
+        </form>
         <table id="tabel-siswa" class="table table-bordered table-striped">
           <thead>
             <tr>
+              <th style="width:34px"><input type="checkbox" id="cek-semua" title="Pilih semua"></th>
               <th>#</th>
               <th>Nama</th>
               <th>NISN</th>
@@ -34,6 +44,7 @@
           <tbody>
             @foreach($siswas as $i => $s)
             <tr>
+              <td><input type="checkbox" class="cek-baris" value="{{ $s->id }}"></td>
               <td>{{ $i + 1 }}</td>
               <td>{{ $s->nama }}</td>
               <td>{{ $s->nisn }}</td>
@@ -65,6 +76,36 @@
 <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script>
-  $(function () { $('#tabel-siswa').DataTable({ responsive: true, autoWidth: false }); });
+  $(function () {
+    $('#tabel-siswa').DataTable({ responsive: true, autoWidth: false, columnDefs: [{ orderable: false, targets: 0 }] });
+  });
+
+  function refreshBulkSiswa() {
+    var n = document.querySelectorAll('.cek-baris:checked').length;
+    document.getElementById('bulk-count').textContent = n;
+    document.getElementById('btn-bulk-hapus').disabled = n === 0;
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'cek-semua') {
+      document.querySelectorAll('.cek-baris').forEach(function (c) { c.checked = e.target.checked; });
+    }
+    if (e.target.classList.contains('cek-baris') || e.target.id === 'cek-semua') {
+      refreshBulkSiswa();
+    }
+  });
+
+  function bulkHapusSiswa() {
+    var ids = Array.from(document.querySelectorAll('.cek-baris:checked')).map(function (c) { return c.value; });
+    if (!ids.length) return;
+    if (!confirm('Hapus ' + ids.length + ' siswa terpilih? Akun login-nya juga akan dihapus.')) return;
+    var form = document.getElementById('form-bulk-siswa');
+    ids.forEach(function (id) {
+      var inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = 'ids[]'; inp.value = id;
+      form.appendChild(inp);
+    });
+    form.submit();
+  }
 </script>
 @endpush

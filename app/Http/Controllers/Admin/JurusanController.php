@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\JurusanRequest;
 use App\Models\Jurusan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -20,13 +21,8 @@ class JurusanController extends Controller
         return view('admin.jurusan.form', ['jurusan' => null]);
     }
 
-    public function store(Request $request)
+    public function store(JurusanRequest $request)
     {
-        $request->validate([
-            'nama_jurusan' => 'required|string|max:100|unique:jurusans,nama_jurusan',
-            'gambar'       => 'nullable|image|max:2048',
-        ]);
-
         $data = $request->only(['nama_jurusan', 'deskripsi_publik', 'icon']);
         $data['is_aktif_ppdb'] = $request->boolean('is_aktif_ppdb');
         if ($request->hasFile('gambar')) {
@@ -43,13 +39,8 @@ class JurusanController extends Controller
         return view('admin.jurusan.form', compact('jurusan'));
     }
 
-    public function update(Request $request, Jurusan $jurusan)
+    public function update(JurusanRequest $request, Jurusan $jurusan)
     {
-        $request->validate([
-            'nama_jurusan' => 'required|string|max:100|unique:jurusans,nama_jurusan,' . $jurusan->id,
-            'gambar'       => 'nullable|image|max:2048',
-        ]);
-
         $data = $request->only(['nama_jurusan', 'deskripsi_publik', 'icon']);
         $data['is_aktif_ppdb'] = $request->boolean('is_aktif_ppdb');
         if ($request->hasFile('gambar')) {

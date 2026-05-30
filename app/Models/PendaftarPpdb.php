@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Storage;
 
 class PendaftarPpdb extends Model
 {
+    use \App\Traits\Auditable;
+
+    /** Jangan pernah catat kredensial di audit log. */
+    public array $auditExclude = ['akun_password_plain', 'akun_username'];
+
     protected $fillable = [
         'user_id',
         'no_pendaftaran', 'nama', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir',
@@ -22,9 +27,18 @@ class PendaftarPpdb extends Model
     ];
 
     protected $casts = [
-        'tanggal_lahir'   => 'date',
-        'nilai_rata_rata' => 'float',
-        'diproses_at'     => 'datetime',
+        'tanggal_lahir'       => 'date',
+        'nilai_rata_rata'     => 'float',
+        'diproses_at'         => 'datetime',
+        'akun_password_plain' => 'encrypted',
+    ];
+
+    /**
+     * Sembunyikan password (terenkripsi) dari serialisasi array/JSON
+     * agar tidak bocor lewat API atau response yang men-serialize model.
+     */
+    protected $hidden = [
+        'akun_password_plain',
     ];
 
     const STATUS_LIST = ['pending', 'verifikasi', 'diterima', 'ditolak'];

@@ -46,6 +46,7 @@ class ArtikelController extends Controller
         ]);
 
         $data = $request->only(['judul', 'ringkasan', 'konten', 'kategori', 'published_at']);
+        $data['konten']      = $request->filled('konten') ? clean($request->konten) : null;
         $data['slug']        = Artikel::generateSlug($request->judul);
         $data['is_published'] = $request->boolean('is_published');
         $data['dibuat_oleh'] = auth()->id();
@@ -78,6 +79,7 @@ class ArtikelController extends Controller
         ]);
 
         $data = $request->only(['judul', 'ringkasan', 'konten', 'kategori', 'published_at']);
+        $data['konten']      = $request->filled('konten') ? clean($request->konten) : null;
         $data['is_published'] = $request->boolean('is_published');
 
         if ($request->hasFile('thumbnail')) {

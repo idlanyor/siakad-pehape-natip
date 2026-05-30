@@ -26,6 +26,19 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $user = Auth::user();
+
+        // Jika 2FA aktif, jangan langsung masuk — alihkan ke tantangan OTP.
+        if ($user->hasTwoFactorEnabled()) {
+            $remember = $request->boolean('remember');
+            Auth::logout();
+
+            $request->session()->put('2fa:user:id', $user->id);
+            $request->session()->put('2fa:remember', $remember);
+
+            return redirect()->route('2fa.challenge');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');

@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Siswa extends Model
 {
-    protected $fillable = ['user_id', 'jurusan_id', 'kelas_id', 'nama', 'nisn', 'tanggal_lahir'];
+    use \App\Traits\Auditable;
+
+    protected $fillable = ['user_id', 'jurusan_id', 'kelas_id', 'nama', 'nisn', 'no_wa', 'tanggal_lahir'];
 
     public function user()
     {
@@ -61,5 +63,12 @@ class Siswa extends Model
     public function tagihanSpps()
     {
         return $this->hasMany(TagihanSpp::class);
+    }
+
+    public function orangTua()
+    {
+        return $this->belongsToMany(OrangTua::class, 'orang_tua_siswa')
+            ->withPivot('hubungan')
+            ->withTimestamps();
     }
 }

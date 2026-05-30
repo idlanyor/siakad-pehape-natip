@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\KelasRequest;
 use App\Models\Guru;
 use App\Models\Jurusan;
 use App\Models\Kelas;
@@ -23,15 +24,8 @@ class KelasController extends Controller
         return view('admin.kelas.form', ['kelas' => null, 'jurusans' => $jurusans, 'gurus' => $gurus]);
     }
 
-    public function store(Request $request)
+    public function store(KelasRequest $request)
     {
-        $request->validate([
-            'nama_kelas'    => 'required|string|max:50',
-            'jurusan_id'    => 'required|exists:jurusans,id',
-            'tingkat'       => 'required|in:X,XI,XII',
-            'wali_kelas_id' => 'nullable|exists:gurus,id',
-        ]);
-
         Kelas::create($request->only('nama_kelas', 'jurusan_id', 'tingkat', 'wali_kelas_id'));
 
         return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil ditambahkan.');
@@ -44,15 +38,8 @@ class KelasController extends Controller
         return view('admin.kelas.form', ['kelas' => $kela, 'jurusans' => $jurusans, 'gurus' => $gurus]);
     }
 
-    public function update(Request $request, Kelas $kela)
+    public function update(KelasRequest $request, Kelas $kela)
     {
-        $request->validate([
-            'nama_kelas'    => 'required|string|max:50',
-            'jurusan_id'    => 'required|exists:jurusans,id',
-            'tingkat'       => 'required|in:X,XI,XII',
-            'wali_kelas_id' => 'nullable|exists:gurus,id',
-        ]);
-
         $kela->update($request->only('nama_kelas', 'jurusan_id', 'tingkat', 'wali_kelas_id'));
 
         return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil diperbarui.');

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\SppExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWaNotification;
 use App\Models\Kelas;
 use App\Models\PembayaranSpp;
 use App\Models\TagihanSpp;
 use App\Models\TahunAjaran;
 use App\Models\TarifSpp;
+use App\Services\WaTemplates;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -115,6 +117,27 @@ class TagihanSppController extends Controller
             $msg .= ", {$totalDilewati} sudah ada (dilewati)";
         }
         $msg .= '.';
+
+        // Kirim WA notifikasi tagihan baru (async via queue)
+        if ($totalDibuat > 0) {
+            $newTagihans = TagihanSpp::with('siswa')
+                ->whereIn('bulan', collect($bulanList)->map(fn($b) => \Carbon\Carbon::createFromFormat('Y-m', $b)->startOfMonth()->toDateString()))
+                ->whereHas('siswa', fn($q) => $q->whereIn('kelas_id', $request->kelas_ids))
+                ->where('created_at', '>=', now()->subMinutes(5))
+                ->get();
+
+            foreach ($newTagihans as $tagihan) {
+                $siswa = $tagihan->siswa;
+                $phone = $siswa->no_wa ?? $siswa->no_hp ?? null;
+                if ($phone) {
+                    SendWaNotification::dispatch(
+                        $phone,
+                        WaTemplates::tagihanBaru($siswa, $tagihan),
+                        'tagihan_baru'
+                    );
+                }
+            }
+        }
 
         return redirect()->route('admin.keuangan.tagihan.index')
             ->with('success', $msg);

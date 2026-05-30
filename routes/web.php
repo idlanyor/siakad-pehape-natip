@@ -8,6 +8,15 @@ Route::post('/webhook/midtrans', [\App\Http\Controllers\MidtransWebhookControlle
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
     ->name('webhook.midtrans');
 
+// --- Installer Wizard (terkunci jika sudah terpasang) ---
+Route::middleware('install.guard')->prefix('install')->name('install.')->group(function () {
+    Route::get('/',          [\App\Http\Controllers\InstallController::class, 'welcome'])->name('welcome');
+    Route::get('/database',  [\App\Http\Controllers\InstallController::class, 'database'])->name('database');
+    Route::post('/database', [\App\Http\Controllers\InstallController::class, 'saveDatabase'])->name('database.save');
+    Route::get('/admin',     [\App\Http\Controllers\InstallController::class, 'admin'])->name('admin');
+    Route::post('/finish',   [\App\Http\Controllers\InstallController::class, 'finish'])->name('finish');
+});
+
 // --- Fase 15: Sitemap (Public) ---
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
@@ -44,10 +53,13 @@ Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     }
     if (auth()->user()->role == 1) {
-        return redirect()->route('dosen.dashboard');
+        return redirect()->route('guru.dashboard');
     }
     if (auth()->user()->role == 3) {
         return redirect()->route('pendaftar.dashboard');
+    }
+    if (auth()->user()->role == 4) {
+        return redirect()->route('orangtua.dashboard');
     }
     return redirect()->route('siswa.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -67,9 +79,11 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::resource('kelas', \App\Http\Controllers\Admin\KelasController::class)->parameters(['kelas' => 'kela']);
     Route::resource('mapel', \App\Http\Controllers\Admin\MapelController::class);
     Route::resource('guru', \App\Http\Controllers\Admin\GuruController::class);
+    Route::delete('guru-bulk', [\App\Http\Controllers\Admin\GuruController::class, 'bulkDestroy'])->name('guru.bulk-destroy');
     Route::get('guru/{guru}/permission', [\App\Http\Controllers\Admin\GuruPermissionController::class, 'edit'])->name('guru.permission.edit');
     Route::put('guru/{guru}/permission', [\App\Http\Controllers\Admin\GuruPermissionController::class, 'update'])->name('guru.permission.update');
     Route::resource('siswa', \App\Http\Controllers\Admin\SiswaAdminController::class);
+    Route::delete('siswa-bulk', [\App\Http\Controllers\Admin\SiswaAdminController::class, 'bulkDestroy'])->name('siswa.bulk-destroy');
 
     Route::resource('jadwal', \App\Http\Controllers\Admin\JadwalController::class);
     Route::get('/absensi', [\App\Http\Controllers\Admin\AbsensiController::class, 'index'])->name('absensi.index');
@@ -232,10 +246,10 @@ Route::middleware(['auth', 'role:2'])->prefix('siswa')->group(function () {
     Route::delete('/tugas/kumpulan/{pengumpulan}', [\App\Http\Controllers\Siswa\TugasController::class, 'hapusKumpulan'])->name('siswa.tugas.hapus');
 });
 
-Route::middleware(['auth', 'role:1'])->prefix('dosen')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\DosenController::class, 'index'])->name('dosen.dashboard');
-    Route::get('/jadwal', [\App\Http\Controllers\DosenController::class, 'jadwal'])->name('dosen.jadwal')->middleware('guru.can:menu_jadwal');
-    Route::get('/mapel', [\App\Http\Controllers\DosenController::class, 'mapel'])->name('dosen.mapel')->middleware('guru.can:menu_mapel');
+Route::middleware(['auth', 'role:1'])->prefix('guru')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\GuruDashboardController::class, 'index'])->name('guru.dashboard');
+    Route::get('/jadwal', [\App\Http\Controllers\GuruDashboardController::class, 'jadwal'])->name('guru.jadwal')->middleware('guru.can:menu_jadwal');
+    Route::get('/mapel', [\App\Http\Controllers\GuruDashboardController::class, 'mapel'])->name('guru.mapel')->middleware('guru.can:menu_mapel');
 
     Route::middleware('guru.can:menu_absensi')->group(function () {
         Route::get('/absensi', [\App\Http\Controllers\Guru\AbsensiController::class, 'index'])->name('guru.absensi.index');
@@ -296,6 +310,37 @@ Route::middleware(['auth', 'role:1'])->prefix('dosen')->group(function () {
 Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('pengumuman', \App\Http\Controllers\Admin\PengumumanController::class);
     Route::post('pengumuman/{pengumuman}/publish', [\App\Http\Controllers\Admin\PengumumanController::class, 'publish'])->name('pengumuman.publish');
+
+    // WhatsApp Log
+    Route::get('whatsapp/log', [\App\Http\Controllers\Admin\WaLogController::class, 'index'])->name('whatsapp.log');
+
+    // --- Fase B: Akun Orang Tua / Wali ---
+    Route::resource('orangtua', \App\Http\Controllers\Admin\OrangTuaController::class)->parameters(['orangtua' => 'orangtua'])->except(['show']);
+    Route::post('orangtua/{orangtua}/anak', [\App\Http\Controllers\Admin\OrangTuaController::class, 'assignAnak'])->name('orangtua.anak.assign');
+    Route::delete('orangtua/{orangtua}/anak/{siswa}', [\App\Http\Controllers\Admin\OrangTuaController::class, 'detachAnak'])->name('orangtua.anak.detach');
+
+    // --- Fase E: Audit Log ---
+    Route::get('audit-log', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log.index');
+    Route::get('audit-log/export', [\App\Http\Controllers\Admin\AuditLogController::class, 'export'])->name('audit-log.export');
+
+    // --- Fase F: Laporan ---
+    Route::get('laporan', [\App\Http\Controllers\Admin\LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('laporan/kehadiran', [\App\Http\Controllers\Admin\LaporanController::class, 'kehadiran'])->name('laporan.kehadiran');
+    Route::get('laporan/nilai', [\App\Http\Controllers\Admin\LaporanController::class, 'nilai'])->name('laporan.nilai');
+    Route::get('laporan/keuangan', [\App\Http\Controllers\Admin\LaporanController::class, 'keuangan'])->name('laporan.keuangan');
+    Route::get('laporan/ppdb', [\App\Http\Controllers\Admin\LaporanController::class, 'ppdb'])->name('laporan.ppdb');
+});
+
+// --- Fase B: Portal Orang Tua / Wali (role=4) ---
+Route::middleware(['auth', 'role:4'])->prefix('orangtua')->name('orangtua.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\OrangTua\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/anak/switch', [\App\Http\Controllers\OrangTua\AnakController::class, 'switch'])->name('anak.switch');
+    Route::get('/nilai', [\App\Http\Controllers\OrangTua\NilaiController::class, 'index'])->name('nilai');
+    Route::get('/absensi', [\App\Http\Controllers\OrangTua\AbsensiController::class, 'index'])->name('absensi');
+    Route::get('/kesiswaan', [\App\Http\Controllers\OrangTua\KesiswaanController::class, 'index'])->name('kesiswaan');
+    Route::get('/spp', [\App\Http\Controllers\OrangTua\SppController::class, 'index'])->name('spp');
+    Route::get('/spp/{tagihan}', [\App\Http\Controllers\OrangTua\SppController::class, 'show'])->name('spp.show');
+    Route::post('/spp/{tagihan}/snap-token', [\App\Http\Controllers\OrangTua\SppController::class, 'getSnapToken'])->name('spp.snap-token');
 });
 
 // --- Fase 8: Pengumuman & Notifikasi (semua role) ---
@@ -312,6 +357,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Autentikasi Dua Faktor (2FA)
+    Route::get('/profile/2fa', [\App\Http\Controllers\TwoFactorController::class, 'show'])->name('profile.2fa');
+    Route::post('/profile/2fa/enable', [\App\Http\Controllers\TwoFactorController::class, 'enable'])->name('profile.2fa.enable');
+    Route::post('/profile/2fa/confirm', [\App\Http\Controllers\TwoFactorController::class, 'confirm'])->name('profile.2fa.confirm');
+    Route::delete('/profile/2fa', [\App\Http\Controllers\TwoFactorController::class, 'disable'])->name('profile.2fa.disable');
 });
 
 require __DIR__.'/auth.php';

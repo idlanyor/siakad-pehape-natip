@@ -1,8 +1,8 @@
 # SIAKAD SMK — Progress & Implementation Plan
 
 **Stack**: Laravel 11 · AdminLTE 3 (Bootstrap 4) · MySQL
-**Role system**: `users.role` — `0` = Admin, `1` = Guru, `2` = Siswa
-**Last updated**: 2026-05-26 (Fase 10 selesai — ditambah rencana Fase 11–13)
+**Role system**: `users.role` — `0` = Admin, `1` = Guru, `2` = Siswa, `3` = Pendaftar PPDB
+**Last updated**: 2026-05-28 (Semua fase selesai, ditambah dokumentasi fitur baru)
 
 ---
 
@@ -14,15 +14,19 @@
 | 2 | Master Data | ✅ Selesai |
 | 3 | Absensi Kelas | ✅ Selesai |
 | 4 | Penilaian & Raport | ✅ Selesai |
-| 5 | PKL | ✅ Selesai |
+| 5 | PKL (Praktek Kerja Lapangan) | ✅ Selesai |
 | 6 | Kesiswaan | ✅ Selesai |
-| 7 | Keuangan / SPP | ✅ Selesai |
+| 7 | Keuangan / SPP & Midtrans | ✅ Selesai |
 | 8 | Notifikasi & Pengumuman | ✅ Selesai |
-| 9 | PPDB | ✅ Selesai |
+| 9 | PPDB & PPDB Plus | ✅ Selesai |
 | 10 | Laporan & Integrasi | ✅ Selesai |
 | 11 | RBAC Guru (Hak Akses Menu) | ✅ Selesai |
 | 12 | Struktur Organisasi Sekolah | ✅ Selesai |
 | 13 | Import Excel Master Data | ✅ Selesai |
+| 14 | E-Learning (Materi & Tugas) | ✅ Selesai |
+| 15 | Website CMS & Landing Page | ✅ Selesai |
+| 16 | Integrasi WhatsApp & Kontak | ✅ Selesai |
+| 17 | API Mobile | ✅ Selesai |
 
 ---
 
@@ -31,8 +35,8 @@
 **Selesai.**
 
 - Laravel 11 fresh install + AdminLTE 3 layout
-- Auth: Breeze (email/password), middleware `role:{n}`
-- Model `User` dengan kolom `role` (0/1/2)
+- Auth: Breeze (email/username/password), middleware `role:{n}`
+- Model `User` dengan kolom `role` (0 = Admin, 1 = Guru, 2 = Siswa, 3 = Pendaftar)
 - Redirect `/dashboard` berdasarkan role
 - Layout: `layouts/admin.blade.php`, `layouts/partials/sidebar.blade.php`, `layouts/partials/navbar.blade.php`
 
@@ -45,7 +49,7 @@
 ### Yang diimplementasi
 - **Jurusan** — CRUD admin (`admin.jurusan.*`)
 - **Kelas** — CRUD admin (`admin.kelas.*`), relasi ke Jurusan
-- **Mapel** — CRUD admin (`admin.mapel.*`)
+- **Mapel** — CRUD admin (`admin.mapel.*`), migrasi `create_matkuls_table` (membuat tabel `mapels`)
 - **Guru** — CRUD admin (`admin.guru.*`), relasi ke User
 - **Siswa** — CRUD admin (`admin.siswa.*`), relasi ke User + Kelas
 - **Jadwal** — CRUD admin (`admin.jadwal.*`), pivot mapel + guru + kelas + hari + jam
@@ -81,10 +85,10 @@
 
 ### Routes
 ```
-GET  /dosen/absensi                  guru.absensi.index
-GET  /dosen/absensi/{jadwal}         guru.absensi.form
-POST /dosen/absensi/{jadwal}         guru.absensi.simpan
-GET  /dosen/absensi/{jadwal}/rekap   guru.absensi.rekap
+GET  /guru/absensi                  guru.absensi.index
+GET  /guru/absensi/{jadwal}         guru.absensi.form
+POST /guru/absensi/{jadwal}         guru.absensi.simpan
+GET  /guru/absensi/{jadwal}/rekap   guru.absensi.rekap
 GET  /admin/absensi                  admin.absensi.index
 GET  /admin/absensi/{jadwal}         admin.absensi.detail
 GET  /siswa/absensi                  siswa.absensi
@@ -103,9 +107,9 @@ GET  /siswa/absensi                  siswa.absensi
 - Guru lihat rekap nilai per jadwal
 - Admin lihat progress pengisian (X/Y siswa dinilai) per jadwal
 - Admin lihat detail nilai per jadwal
-- Admin cetak raport (pilih kelas → pilih siswa → tampil semua mapel)
+- Admin cetak raport (pilih kelas → pilih siswa → tampil semua mapel) dengan support export PDF
 - Siswa lihat nilai per mapel + raport mandiri
-- `@media print` CSS untuk cetak raport
+- `@media print` CSS dan dompdf untuk cetak raport
 
 ### Models & Tabel
 - `Nilai` → `nilais` — kolom: `jadwal_id`, `siswa_id`, 6 decimal(5,2) nullable, `catatan`, `dicatat_oleh`
@@ -114,7 +118,7 @@ GET  /siswa/absensi                  siswa.absensi
 
 ### Controllers
 - `Guru\NilaiController` — index, form, simpan (updateOrCreate per siswa), rekap
-- `Admin\NilaiController` — index (dengan jumlah_siswa/jumlah_dinilai), detail, raport
+- `Admin\NilaiController` — index, detail, raport, raportPdf
 - `Siswa\NilaiController` — index, raport
 
 ### Routes
@@ -122,10 +126,11 @@ GET  /siswa/absensi                  siswa.absensi
 GET  /admin/nilai                  admin.nilai.index
 GET  /admin/nilai/{jadwal}         admin.nilai.detail
 GET  /admin/raport                 admin.raport
-GET  /dosen/nilai                  guru.nilai.index
-GET  /dosen/nilai/{jadwal}         guru.nilai.form
-POST /dosen/nilai/{jadwal}         guru.nilai.simpan
-GET  /dosen/nilai/{jadwal}/rekap   guru.nilai.rekap
+GET  /admin/raport/pdf             admin.raport.pdf
+GET  /guru/nilai                  guru.nilai.index
+GET  /guru/nilai/{jadwal}         guru.nilai.form
+POST /guru/nilai/{jadwal}         guru.nilai.simpan
+GET  /guru/nilai/{jadwal}/rekap   guru.nilai.rekap
 GET  /siswa/nilai                  siswa.nilai
 GET  /siswa/raport                 siswa.raport
 ```
@@ -175,10 +180,10 @@ GET  /admin/pkl                          admin.pkl.index
 GET  /admin/pkl/{penempatan}             admin.pkl.detail
 resource /admin/pkl/tempat               admin.pkl-tempat.*
 resource /admin/pkl/penempatan           admin.pkl-penempatan.*
-GET  /dosen/pkl                          guru.pkl.index
-GET  /dosen/pkl/{penempatan}             guru.pkl.detail
-GET  /dosen/pkl/{penempatan}/nilai       guru.pkl.nilai
-POST /dosen/pkl/{penempatan}/nilai       guru.pkl.nilai.simpan
+GET  /guru/pkl                          guru.pkl.index
+GET  /guru/pkl/{penempatan}             guru.pkl.detail
+GET  /guru/pkl/{penempatan}/nilai       guru.pkl.nilai
+POST /guru/pkl/{penempatan}/nilai       guru.pkl.nilai.simpan
 GET  /siswa/pkl                          siswa.pkl
 GET  /siswa/pkl/jurnal                   siswa.pkl.jurnal
 POST /siswa/pkl/jurnal                   siswa.pkl.jurnal.store
@@ -227,7 +232,7 @@ GET  /admin/pelanggaran/create       admin.pelanggaran.create
 GET  /admin/pelanggaran/{p}/edit     admin.pelanggaran.edit
 DEL  /admin/pelanggaran/{p}          admin.pelanggaran.destroy
 GET  /admin/prestasi                 admin.prestasi.index
-POST /admin/prestasi                 admin.prestasi.store (multipart, foto)
+POST /admin/prestasi                 admin.prestasi.store
 GET  /admin/prestasi/create          admin.prestasi.create
 GET  /admin/prestasi/{p}/edit        admin.prestasi.edit
 DEL  /admin/prestasi/{p}             admin.prestasi.destroy
@@ -239,218 +244,141 @@ DEL  /admin/ekskul/{e}/anggota/{a}   admin.ekskul.anggota.destroy
 GET  /admin/surat                    admin.surat.index
 POST /admin/surat                    admin.surat.store
 GET  /admin/surat/{s}/print          admin.surat.print
-GET  /dosen/ekskul                   guru.ekskul.index
-GET  /dosen/ekskul/{e}               guru.ekskul.detail
-GET  /dosen/ekskul/{e}/absensi       guru.ekskul.absensi
-POST /dosen/ekskul/{e}/absensi       guru.ekskul.absensi.store
-GET  /dosen/ekskul/{e}/rekap         guru.ekskul.rekap
+GET  /guru/ekskul                   guru.ekskul.index
+GET  /guru/ekskul/{e}               guru.ekskul.detail
+GET  /guru/ekskul/{e}/absensi       guru.ekskul.absensi
+POST /guru/ekskul/{e}/absensi       guru.ekskul.absensi.store
+GET  /guru/ekskul/{e}/rekap         guru.ekskul.rekap
 GET  /siswa/kesiswaan                siswa.kesiswaan
 ```
 
 ---
 
-## ⬜ Fase 7 — Keuangan / SPP
+## ✅ Fase 7 — Keuangan / SPP & Midtrans
 
-**Belum dimulai.**
+**Selesai.**
 
-### Rencana
+### Yang diimplementasi
+- **Tarif SPP** — nominal SPP per kelas per tahun ajaran
+- **Tagihan SPP** — auto-generate tagihan bulanan per siswa berdasarkan kelas
+- **Pembayaran SPP Manual** — pencatatan tunai, transfer, QRIS oleh admin/siswa dengan upload bukti transfer
+- **Konfirmasi Admin** — admin memverifikasi dan menyetujui bukti pembayaran manual siswa
+- **Laporan Keuangan** — rekap bulanan penerimaan kas, rekap tunggakan per kelas, export Excel, dan cetak kwitansi pembayaran
+- **Integrasi Midtrans Gateway** — pembayaran online real-time via Snap Token (Siswa) + Webhook auto-confirm (Midtrans Callback)
 
-#### Fitur
-1. **Tagihan SPP** — generate tagihan bulanan per siswa per kelas
-2. **Pembayaran** — catat pembayaran, upload bukti
-3. **Laporan keuangan** — rekap per bulan, per kelas, tunggakan
+### Models & Tabel
+| Model | Tabel | Kolom Utama / Relasi |
+|-------|-------|-------------------|
+| `TarifSpp` | `tarif_spps` | `kelas_id`, `tahun_ajaran_id`, `nominal` (UNIQUE) |
+| `TagihanSpp` | `tagihan_spps` | `siswa_id`, `bulan` (date), `nominal`, `status` (lunas, belum, cicil), `dicatat_oleh` |
+| `PembayaranSpp` | `pembayaran_spps` | `tagihan_spp_id`, `tanggal_bayar`, `nominal_bayar`, `metode`, `bukti`, `status_konfirmasi` (pending, dikonfirmasi, ditolak), `midtrans_order_id`, `midtrans_transaction_id` |
 
-#### Models & Tabel (rencana)
-| Model | Tabel | Kolom Utama |
-|-------|-------|-------------|
-| `TagihanSpp` | `tagihan_spps` | siswa_id, bulan (date), nominal, status (enum: lunas/belum/cicil) |
-| `PembayaranSpp` | `pembayaran_spps` | tagihan_spp_id, tanggal_bayar, nominal_bayar, metode, bukti (file), dicatat_oleh |
-| `TarifSpp` | `tarif_spps` | kelas_id, tahun_ajaran_id, nominal — UNIQUE(kelas_id, tahun_ajaran_id) |
+### Controllers & Services
+- `Admin\TarifSppController` — CRUD tarif
+- `Admin\TagihanSppController` — CRUD tagihan, batch generate, export Excel
+- `Admin\PembayaranSppController` — Input pembayaran manual, konfirmasi pembayaran, hapus pembayaran
+- `Admin\LaporanKeuanganController` — Rekap bulanan, daftar tunggakan, print kwitansi
+- `Siswa\SppController` — List tagihan diri, upload bukti bayar, request Midtrans snap-token
+- `MidtransWebhookController` — Handler callback transaksi otomatis dari Midtrans
+- `App\Services\MidtransService` — Wrapper SDK/API Midtrans untuk integrasi Snap
 
-#### Controllers (rencana)
-- `Admin\TagihanSppController` — generate batch per kelas, CRUD
-- `Admin\PembayaranSppController` — input pembayaran, upload bukti
-- `Admin\LaporanKeuanganController` — rekap tunggakan, export
-- `Siswa\SppController` — lihat tagihan + riwayat pembayaran diri sendiri
-
----
-
-## ⬜ Fase 8 — Notifikasi & Pengumuman
-
-**Belum dimulai.**
-
-### Rencana
-
-#### Fitur
-1. **Pengumuman** — admin buat pengumuman, target: semua/guru/siswa/kelas tertentu
-2. **Notifikasi in-app** — bell icon di navbar, unread count, mark as read
-3. **(Opsional)** Push notifikasi via browser (Web Push API)
-
-#### Models & Tabel (rencana)
-| Model | Tabel | Kolom Utama |
-|-------|-------|-------------|
-| `Pengumuman` | `pengumumans` | judul, isi (text), target_role (nullable), target_kelas_id (nullable), dibuat_oleh, published_at |
-| `Notifikasi` | `notifikasis` | user_id, judul, pesan, url (nullable), read_at (nullable) |
-
-#### Controllers (rencana)
-- `Admin\PengumumanController` — CRUD, publish
-- `NotifikasiController` — index, markRead, markAllRead (API endpoint AJAX)
-
----
-
-## ⬜ Fase 9 — PPDB (Penerimaan Peserta Didik Baru)
-
-**Belum dimulai.**
-
-### Rencana
-
-#### Fitur
-1. **Formulir pendaftaran** — publik (tanpa login), isi data calon siswa + upload dokumen
-2. **Seleksi** — admin review, approve/reject, set kelas
-3. **Aktivasi akun** — generate akun siswa otomatis setelah diterima
-4. **Laporan PPDB** — jumlah pendaftar, diterima, ditolak per jurusan
-
-#### Models & Tabel (rencana)
-| Model | Tabel | Kolom Utama |
-|-------|-------|-------------|
-| `PendaftarPpdb` | `pendaftar_ppdbs` | nama, email, no_hp, alamat, asal_sekolah, jurusan_pilihan_id, dokumen (JSON/nullable), status (enum: pending/diterima/ditolak), catatan_admin |
-
-#### Controllers (rencana)
-- `PpdbController` — form pendaftaran publik, store, status check (by no. pendaftaran)
-- `Admin\PpdbController` — index pendaftar, review, approve (create Siswa + User), reject, laporan
-
----
-
-## ⬜ Fase 10 — Laporan & Integrasi
-
-**Belum dimulai.**
-
-### Rencana
-
-#### Fitur
-1. **Export Excel** — nilai, absensi, SPP (via `maatwebsite/excel`)
-2. **Export PDF** — raport resmi, surat keterangan (via `barryvdh/laravel-dompdf`)
-3. **Dashboard analytics** — chart rekapitulasi (Chart.js): absensi per bulan, distribusi nilai, SPP tunggakan
-4. **API mobile** (opsional) — endpoint JSON untuk siswa (nilai, jadwal, absensi)
-5. **Backup otomatis** — scheduled command `php artisan backup:run` (via `spatie/laravel-backup`)
-
-#### Dependencies (rencana)
-```bash
-composer require maatwebsite/excel
-composer require barryvdh/laravel-dompdf
-composer require spatie/laravel-backup  # opsional
+### Routes
+```
+GET  /admin/keuangan/tarif                  admin.keuangan.tarif.index
+POST /admin/keuangan/tagihan/{t}/bayar       admin.keuangan.tagihan.bayar
+POST /admin/keuangan/pembayaran/{p}/konfirmasi admin.keuangan.pembayaran.konfirmasi
+GET  /admin/keuangan/laporan                admin.keuangan.laporan
+GET  /admin/keuangan/tunggakan              admin.keuangan.tunggakan
+GET  /admin/keuangan/kwitansi/{p}           admin.keuangan.kwitansi
+GET  /siswa/spp                             siswa.spp
+POST /siswa/spp/{tagihan}/upload            siswa.spp.upload
+POST /siswa/spp/{tagihan}/snap-token        siswa.spp.snap-token
+POST /webhook/midtrans                      webhook.midtrans
 ```
 
 ---
 
-## Struktur Direktori Saat Ini
+## ✅ Fase 8 — Notifikasi & Pengumuman
 
+**Selesai.**
+
+### Yang diimplementasi
+- **Pengumuman** — Pembuatan pengumuman oleh admin dengan target role tertentu (Semua, Guru, Siswa) dan filter kelas tertentu
+- **Notifikasi In-App** — Pengiriman notifikasi internal ke user penerima setelah pengumuman dipublish
+- **Mark as Read** — Icon lonceng dengan unread count, fitur baca/tandai semua dibaca untuk user
+
+### Models & Tabel
+| Model | Tabel | Kolom Utama |
+|-------|-------|-------------|
+| `Pengumuman` | `pengumumans` | `judul`, `isi` (text), `target_role`, `target_kelas_id`, `dibuat_oleh`, `published_at` |
+| `Notifikasi` | `notifikasis` | `user_id`, `judul`, `pesan`, `url`, `read_at` |
+
+### Controllers
+- `Admin\PengumumanController` — CRUD pengumuman, method `publish` + broadcast trigger
+- `PengumumanController` — List pengumuman publik/internal setelah login
+- `NotifikasiController` — List notifikasi user, `markRead`, `markAllRead`
+
+### Routes
 ```
-app/
-  Http/
-    Controllers/
-      Admin/
-        AbsensiController.php
-        GuruController.php
-        JadwalController.php
-        JurusanController.php
-        KelasController.php
-        MapelController.php
-        NilaiController.php          ← Fase 4
-        PenempatanPklController.php  ← Fase 5
-        PklController.php            ← Fase 5
-        SiswaAdminController.php
-        TahunAjaranController.php
-        TempatPklController.php      ← Fase 5
-      Guru/
-        AbsensiController.php
-        NilaiController.php          ← Fase 4
-        PklController.php            ← Fase 5
-      Siswa/
-        AbsensiController.php
-        NilaiController.php          ← Fase 4
-        PklController.php            ← Fase 5
-      AdminController.php
-      DosenController.php
-      ProfileController.php
-      SiswaController.php
-  Models/
-    AbsensiPkl.php    ← Fase 5
-    Guru.php
-    Jadwal.php
-    JurnalPkl.php     ← Fase 5
-    Kelas.php
-    Jurusan.php
-    Mapel.php
-    Nilai.php         ← Fase 4
-    NilaiPkl.php      ← Fase 5
-    PenempatanPkl.php ← Fase 5
-    Semester.php
-    Siswa.php
-    TahunAjaran.php
-    TempatPkl.php     ← Fase 5
-    User.php
-resources/
-  views/
-    admin/
-      absensi/
-      guru/
-      jadwal/
-      jurusan/
-      kelas/
-      mapel/
-      nilai/           ← Fase 4
-      pkl/             ← Fase 5
-        tempat/
-        penempatan/
-        index.blade.php
-        detail.blade.php
-      siswa/
-      tahun-ajaran/
-    guru/
-      absensi/
-      nilai/           ← Fase 4
-      pkl/             ← Fase 5
-    siswa/
-      absensi.blade.php
-      jadwal.blade.php
-      mapel.blade.php
-      nilai.blade.php  ← Fase 4
-      raport.blade.php ← Fase 4
-      pkl/             ← Fase 5
-    layouts/
-      admin.blade.php
-      partials/
-        sidebar.blade.php
-        navbar.blade.php
-database/
-  migrations/
-    ...semua migration sudah di-migrate
+GET  /admin/pengumuman                      admin.pengumuman.index
+POST /admin/pengumuman/{pengumuman}/publish admin.pengumuman.publish
+GET  /pengumuman                            pengumuman.index
+GET  /pengumuman/{pengumuman}               pengumuman.show
+GET  /notifikasi                            notifikasi.index
+POST /notifikasi/{notifikasi}/read          notifikasi.read
+POST /notifikasi/read-all                   notifikasi.readAll
 ```
 
 ---
 
-## Catatan Teknis
+## ✅ Fase 9 — PPDB & PPDB Plus
 
-### Pattern yang digunakan
-- **updateOrCreate** — untuk upsert nilai dan absensi (idempoten)
-- **Route model binding** — otomatis resolve model dari ID di URL
-- **`keyBy('siswa_id')`** — untuk mapping koleksi ke array asosiatif di view nilai
-- **Base64 foto** — absensi PKL: canvas → base64 → JSON POST → `base64_decode` → `Storage::put`
-- **`@media print`** — CSS khusus cetak untuk raport
-- **Middleware `role:n`** — proteksi route per peran
+**Selesai.**
 
-### Konvensi nama route
-- Admin: prefix `admin.` — e.g. `admin.siswa.index`
-- Guru: `guru.*` — e.g. `guru.nilai.index`
-- Siswa: `siswa.*` — e.g. `siswa.pkl`
-- PKL resource admin: `admin.pkl-tempat.*`, `admin.pkl-penempatan.*` (bukan default karena nested path)
+### Yang diimplementasi
+- **Form Pendaftaran Publik** — Pendaftaran tanpa login: isi data diri, ortu, nilai rata-rata, pilihan jurusan 1 & 2
+- **Portal Pendaftar (Role 3)** — Setelah register, pendaftar mendapat akun (role=3) untuk upload berkas (Foto, Ijazah, KK, Akta, Rapor)
+- **Gelombang PPDB** — Batasan pendaftaran berdasarkan rentang tanggal aktif dan kuota pendaftar per gelombang
+- **Seleksi & Aktivasi Akun** — Admin memproses status pendaftar (Verifikasi/Terima/Tolak). Jika diterima, otomatis upgrade role ke Siswa (role=2) dan generate akun kelas/NISN
+- **FAQ & Persyaratan** — Manajemen dinamis informasi persyaratan pendaftaran dan tanya jawab PPDB di halaman landing
 
-### Storage
-- Foto jurnal PKL: `storage/app/public/pkl/jurnal/`
-- Foto absensi PKL: `storage/app/public/pkl/foto/`
-- Akses publik via: `asset('storage/...')`
-- Jalankan `php artisan storage:link` jika belum
+### Models & Tabel
+| Model | Tabel | Kolom Utama |
+|-------|-------|-------------|
+| `PendaftarPpdb` | `pendaftar_ppdbs` | `user_id`, `no_pendaftaran`, `nama`, `nisn`, `status` (pending, verifikasi, diterima, ditolak), `gelombang_id`, `akun_username`, `akun_password_plain` |
+| `GelombangPpdb` | `gelombang_ppdbs` | `nama`, `tahun_ajaran`, `tanggal_buka`, `tanggal_tutup`, `kuota`, `is_aktif` |
+| `PersyaratanPpdb` | `persyaratan_ppdbs` | `judul`, `deskripsi`, `urutan`, `is_aktif` |
+| `FaqPpdb` | `faq_ppdbs` | `pertanyaan`, `jawaban`, `urutan`, `is_aktif` |
+
+### Controllers
+- `PpdbController` — Halaman landing PPDB, form daftar, cetak bukti, cek status pendaftar
+- `PendaftarController` — Dashboard pendaftar (role=3) untuk kelola & upload berkas pendaftaran
+- `Admin\PpdbController` — Review pendaftar, cetak laporan, export data, verifikasi, terima (auto-upgrade ke Siswa), tolak
+- `Admin\GelombangPpdbController` — CRUD Gelombang PPDB
+- `Admin\PersyaratanPpdbController` — CRUD Persyaratan PPDB
+- `Admin\FaqPpdbController` — CRUD FAQ PPDB
+
+### Routes
+```
+GET  /ppdb                                  ppdb.landing
+GET  /ppdb/daftar                           ppdb.index
+POST /ppdb/daftar                           ppdb.store
+GET  /pendaftar/dashboard                   pendaftar.dashboard
+POST /pendaftar/dokumen/{field}             pendaftar.dokumen.upload
+POST /admin/ppdb/{pendaftar}/verifikasi     admin.ppdb.verifikasi
+POST /admin/ppdb/{pendaftar}/terima         admin.ppdb.terima
+```
+
+---
+
+## ✅ Fase 10 — Laporan & Integrasi
+
+**Selesai.**
+
+### Yang diimplementasi
+- **Export Data** — Export nilai, absensi, tagihan SPP, dan data pendaftar ke Excel menggunakan library `Maatwebsite\Excel`
+- **Export PDF** — Cetak raport resmi siswa ke file PDF menggunakan `Barryvdh\DomPDF`
+- **Dashboard Analytics** — Grafik interaktif rekap pembayaran, tren absensi bulanan, dan sebaran prestasi
 
 ---
 
@@ -458,90 +386,28 @@ database/
 
 **Selesai.**
 
-### Latar Belakang
+### Yang diimplementasi
+- **Granular Permission** — Pembatasan hak akses menu bagi guru berdasarkan konfigurasi per individu oleh admin
+- **Daftar Menu Dikontrol**:
+  - `menu_jadwal` → Jadwal Mengajar (`guru.jadwal`)
+  - `menu_mapel` / `menu_materi` → Mata Pelajaran (`guru.mapel` / `guru.materi.*`)
+  - `menu_absensi` → Input Absensi Kelas (`guru.absensi.*`)
+  - `menu_nilai` / `menu_tugas` → Input Nilai / Tugas (`guru.nilai.*` / `guru.tugas.*`)
+  - `menu_pkl` → PKL Bimbingan (`guru.pkl.*`)
+  - `menu_ekskul` → Ekskul Binaan (`guru.ekskul.*`)
 
-Saat ini semua guru mendapat akses ke seluruh menu guru (absensi, nilai, PKL, ekskul, dll). Fase ini menambahkan **granular permission per guru** — admin bisa mengatur menu apa saja yang boleh diakses masing-masing guru.
+### Models & Tabel
+- `GuruPermission` → `guru_permissions` — kolom: `guru_id` (UNIQUE), 6 status boolean (`menu_jadwal`, `menu_mapel`, dll.)
 
-### Daftar Menu yang Dikontrol
+### Middleware & Sidebar
+- Middleware `CheckGuruPermission` (alias: `guru.can:menu_key`) mereject akses jika flag permission bernilai `false` (abort 403)
+- Kondisi `@if(auth()->user()->guru?->canAccess('menu_absensi'))` di sidebar blade untuk menyembunyikan link secara dinamis
 
-| Key Permission | Label Menu | Route Terlibat |
-|----------------|-----------|----------------|
-| `menu_jadwal` | Jadwal Mengajar | `guru.jadwal` |
-| `menu_mapel` | Mata Pelajaran | `guru.mapel` |
-| `menu_absensi` | Input Absensi Kelas | `guru.absensi.*` |
-| `menu_nilai` | Input Nilai | `guru.nilai.*` |
-| `menu_pkl` | PKL Bimbingan | `guru.pkl.*` |
-| `menu_ekskul` | Ekskul Binaan | `guru.ekskul.*` |
-
-### Model & Tabel
-
-#### `guru_permissions` (tabel baru)
-| Kolom | Tipe | Keterangan |
-|-------|------|-----------|
-| `id` | bigint PK | |
-| `guru_id` | FK → gurus | UNIQUE (satu record per guru) |
-| `menu_jadwal` | boolean default true | |
-| `menu_mapel` | boolean default true | |
-| `menu_absensi` | boolean default true | |
-| `menu_nilai` | boolean default true | |
-| `menu_pkl` | boolean default true | |
-| `menu_ekskul` | boolean default true | |
-| timestamps | | |
-
-> Default semua `true` agar guru lama tidak kehilangan akses saat fase ini di-deploy.
-
-Model `GuruPermission`:
-- `belongsTo(Guru::class)`
-- Accessor `getAllPermissionsAttribute()` → array key-value
-
-Model `Guru` tambahan:
-- `hasOne(GuruPermission::class)`
-- Helper `canAccess(string $menu): bool` → cek permission atau default true jika belum ada record
-
-### Middleware Baru
-
-`CheckGuruPermission` — diregistrasi sebagai `guru.can`:
+### Routes
 ```
-Route::get('/dosen/absensi', ...)->middleware(['role:1', 'guru.can:menu_absensi']);
+GET  /admin/guru/{guru}/permission          admin.guru.permission.edit
+PUT  /admin/guru/{guru}/permission          admin.guru.permission.update
 ```
-- Ambil `auth()->user()->guru->permission`
-- Jika kolom permission = false → abort(403) atau redirect dengan flash error
-
-### Controller & View
-
-**`Admin\GuruPermissionController`**
-- `edit(Guru $guru)` — form checklist permission
-- `update(Guru $guru)` — simpan dengan `updateOrCreate`
-
-View `admin/guru/permission.blade.php`:
-- Daftar checklist toggle (Bootstrap switch) per menu
-- Terintegrasi di halaman detail / edit guru
-
-### Route Baru
-```
-GET  /admin/guru/{guru}/permission       admin.guru.permission.edit
-PUT  /admin/guru/{guru}/permission       admin.guru.permission.update
-```
-
-### Sidebar Guru
-
-`sidebar.blade.php` — setiap item menu guru dibungkus kondisi:
-```blade
-@if(auth()->user()->guru?->canAccess('menu_absensi'))
-  <li class="nav-item">...</li>
-@endif
-```
-
-### Langkah Implementasi
-
-1. Migration `create_guru_permissions_table`
-2. Model `GuruPermission` + update model `Guru`
-3. Middleware `CheckGuruPermission` + register di `bootstrap/app.php`
-4. `Admin\GuruPermissionController` (edit + update)
-5. View `admin/guru/permission.blade.php`
-6. Update sidebar.blade.php — kondisi per menu guru
-7. Tambah middleware ke routes guru di web.php
-8. Seeder default: generate `GuruPermission` untuk semua guru existing
 
 ---
 
@@ -549,88 +415,20 @@ PUT  /admin/guru/{guru}/permission       admin.guru.permission.update
 
 **Selesai.**
 
-### Fitur
+### Yang diimplementasi
+- **Jabatan & Anggota** — Pengaturan susunan jabatan hierarkis (Kepala Sekolah, Waka, Kaprodi, dst.) dan anggota pengisi jabatan (bisa Guru internal maupun Staf/tamu eksternal)
+- **Tampilan Hierarki Bagan** — Struktur visual organisasi di halaman publik (`/organisasi`) menggunakan CSS flexbox tree responsive tanpa library tambahan
 
-1. **Admin CRUD** — kelola jabatan + assign guru/staf per jabatan
-2. **Tampilan visual** — bagan hierarki (CSS tree atau Bootstrap card grid)
-3. **Halaman publik** — tampil di website sekolah (`/organisasi`)
-4. **Tampilan internal** — menu di sidebar admin & siswa (opsional)
+### Models & Tabel
+- `JabatanOrganisasi` → `jabatan_organisasis` — kolom: `nama_jabatan`, `parent_id` (self-referencing), `urutan`, `tipe_hubungan` (utama/koordinasi)
+- `AnggotaOrganisasi` → `anggota_organisasis` — kolom: `jabatan_organisasi_id`, `nama`, `guru_id` (nullable), `foto` (nullable), `nip`, `periode`, `is_aktif`
 
-### Model & Tabel
-
-#### `jabatan_organisasis`
-| Kolom | Tipe | Keterangan |
-|-------|------|-----------|
-| `id` | bigint PK | |
-| `nama_jabatan` | varchar 150 | Kepala Sekolah, Waka Kurikulum, dst |
-| `parent_id` | FK nullable → self | Hierarki (null = puncak) |
-| `urutan` | int default 0 | Urutan tampil dalam level yang sama |
-| `deskripsi` | text nullable | |
-| timestamps | | |
-
-#### `anggota_organisasis`
-| Kolom | Tipe | Keterangan |
-|-------|------|-----------|
-| `id` | bigint PK | |
-| `jabatan_organisasi_id` | FK | |
-| `nama` | varchar 150 | Nama bisa guru internal atau tamu |
-| `guru_id` | FK nullable → gurus | Jika diisi, nama & foto diambil dari guru |
-| `foto` | varchar nullable | Upload foto jika bukan guru internal |
-| `nip` | varchar nullable | |
-| `periode` | varchar 50 nullable | e.g. "2024–2027" |
-| `is_aktif` | boolean default true | |
-| timestamps | | |
-
-### Tampilan Hierarki
-
-Gunakan **CSS flexbox tree** (tidak perlu library tambahan):
-- Level 0 (root): Kepala Sekolah — center
-- Level 1: Waka-waka — row di bawah
-- Level 2: Kaproli, BK, dll — row di bawah masing-masing waka
-- Garis penghubung via CSS border/pseudo-element
-
-Alternatif ringan: card grid per level dengan `indikator level` tanpa garis (lebih mobile-friendly).
-
-### Controllers
-
-- `Admin\StrukturOrganisasiController` — resource CRUD jabatan + endpoint kelola anggota
-- `LandingController` (update) — tambah method `organisasi()` untuk halaman publik
-
-### Route Baru
+### Routes
 ```
-GET    /admin/organisasi                     admin.organisasi.index
-GET    /admin/organisasi/create              admin.organisasi.create
-POST   /admin/organisasi                     admin.organisasi.store
-GET    /admin/organisasi/{jabatan}/edit      admin.organisasi.edit
-PUT    /admin/organisasi/{jabatan}           admin.organisasi.update
-DEL    /admin/organisasi/{jabatan}           admin.organisasi.destroy
-GET    /admin/organisasi/{jabatan}/anggota   admin.organisasi.anggota
-POST   /admin/organisasi/{jabatan}/anggota   admin.organisasi.anggota.store
-DEL    /admin/organisasi/{jabatan}/anggota/{a} admin.organisasi.anggota.destroy
-
-GET    /organisasi                           public.organisasi  (publik, no auth)
+GET  /admin/organisasi                      admin.organisasi.index
+GET  /admin/organisasi/{organisasi}/anggota  admin.organisasi.anggota
+GET  /organisasi                            landing.organisasi  (Publik)
 ```
-
-### Views
-```
-resources/views/admin/organisasi/
-  index.blade.php       ← daftar jabatan + tree preview
-  form.blade.php        ← create/edit jabatan
-  anggota.blade.php     ← kelola anggota jabatan
-resources/views/public/
-  organisasi.blade.php  ← tampilan publik bagan organisasi
-```
-
-### Langkah Implementasi
-
-1. Migration `create_jabatan_organisasis_table` + `create_anggota_organisasis_table`
-2. Model `JabatanOrganisasi` (self-referential `parent`/`children`) + `AnggotaOrganisasi`
-3. `Admin\StrukturOrganisasiController` — full CRUD
-4. Views admin (index + form + anggota)
-5. Update `LandingController` → method `organisasi()`
-6. View publik `public/organisasi.blade.php` + CSS tree
-7. Tambah link ke menu sidebar admin & navbar publik
-8. Tambah route ke web.php
 
 ---
 
@@ -638,100 +436,329 @@ resources/views/public/
 
 **Selesai.**
 
-### Dependensi
+### Yang diimplementasi
+- **Batch Import** — Import data Guru, Siswa, Mapel, dan Tagihan SPP secara massal via file `.xlsx` / `.xls`
+- **Skema Default Account**:
+  - Guru: password default NIP, username NIP
+  - Siswa: password default NIS, username NIS
+- **Import Validation** — Pengecekan data wajib, validasi relasi kelas/jurusan, pengembalian log hasil import (Summary sukses & gagal per baris)
 
-`maatwebsite/excel ^3.1` **sudah terpasang** di `composer.json` ✅ — tidak perlu install tambahan.
+### Imports Classes (`app/Imports/`)
+- `GuruImport`, `SiswaImport`, `MapelImport`, `TagihanSppImport` (Implements `ToCollection`, `WithHeadingRow`, `WithValidation`)
 
-### Cakupan Import
-
-| Data | Sheet/File | Aksi setelah import |
-|------|-----------|---------------------|
-| **Guru** | Template: `template_guru.xlsx` | Buat `User` (role=1) + `Guru`, generate password dari NIP |
-| **Siswa** | Template: `template_siswa.xlsx` | Buat `User` (role=2) + `Siswa`, assign kelas jika ada |
-| **Mata Pelajaran** | Template: `template_mapel.xlsx` | Insert/update `Mapel` |
-| **Tagihan SPP** | Template: `template_tagihan_spp.xlsx` | Generate batch `TagihanSpp` per siswa per bulan |
-
-### Template Excel (format kolom)
-
-#### Guru (`template_guru.xlsx`)
+### Routes
 ```
-NIP | Nama Lengkap | Bidang Studi | No HP | Email (opsional)
-```
-- Password default: NIP (di-hash)
-- Username default: NIP
-- Jika NIP sudah ada → skip (tidak overwrite)
-
-#### Siswa (`template_siswa.xlsx`)
-```
-NIS | Nama Lengkap | Kelas (nama) | No HP | Alamat | Tanggal Lahir | Email (opsional)
-```
-- Password default: NIS (di-hash)
-- Username default: NIS
-- Kolom `Kelas` dicocokkan ke tabel `kelas.nama` — jika tidak ketemu, siswa tetap dibuat tanpa kelas
-
-#### Mata Pelajaran (`template_mapel.xlsx`)
-```
-Kode Mapel | Nama Mapel | Jurusan (nama) | Deskripsi
-```
-- Upsert berdasarkan `kode` — jika kode sudah ada, nama/deskripsi diperbarui
-
-#### Tagihan SPP (`template_tagihan_spp.xlsx`)
-```
-NIS | Bulan (YYYY-MM) | Nominal | Keterangan
-```
-- Lookup siswa berdasarkan NIS
-- `updateOrCreate` berdasarkan `(siswa_id, bulan)` agar idempoten
-
-### Import Classes (app/Imports/)
-
-```
-app/Imports/
-  GuruImport.php         ← implements ToCollection, WithHeadingRow, WithValidation
-  SiswaImport.php
-  MapelImport.php
-  TagihanSppImport.php
+GET  /admin/import                          admin.import.index
+GET  /admin/import/template/{type}          admin.import.template  (Download .xlsx)
+POST /admin/import                          admin.import.store
 ```
 
-Setiap class:
-- `WithHeadingRow` — baris pertama = header (case-insensitive slug)
-- `WithValidation` — validasi kolom wajib
-- Return `ImportResult` (baris berhasil, baris gagal + alasan) — ditampilkan di view sebagai summary
+---
+
+## ✅ Fase 14 — E-Learning (Materi & Tugas)
+
+**Selesai.**
+
+### Yang diimplementasi
+- **Manajemen Materi** — Guru mempublikasikan materi e-learning bertipe File, Tautan (Link), atau Teks kaya. Siswa dapat melihat dan mendownload materi tersebut sesuai jadwal kelasnya
+- **Pengumpulan Tugas** — Guru membuat tugas dengan tenggat waktu (deadline). Siswa mengumpulkan tugas dalam bentuk upload file, tautan, atau teks essay
+- **Penilaian Tugas** — Guru mereview pengumpulan tugas, memberikan nilai angka (maksimal dinamis), serta feedback tertulis secara langsung
+
+### Models & Tabel
+| Model | Tabel | Kolom Utama |
+|-------|-------|-------------|
+| `Materi` | `materis` | `jadwal_id`, `guru_id`, `judul`, `tipe` (file, link, teks), `konten` (file path / link / teks), `is_published` |
+| `Tugas` | `tugas` | `jadwal_id`, `guru_id`, `judul`, `instruksi`, `deadline`, `nilai_maksimal`, `tipe_pengumpulan` |
+| `PengumpulanTugas` | `pengumpulan_tugas` | `tugas_id`, `siswa_id`, `konten`, `nilai`, `feedback`, `dinilai_at`, `dinilai_oleh` |
 
 ### Controllers
+- `Guru\MateriController` — Kelola materi per jadwal mengajar
+- `Guru\TugasController` — Kelola tugas, lihat pengumpul, beri nilai & feedback
+- `Siswa\MateriController` — Lihat materi per mata pelajaran
+- `Siswa\TugasController` — Lihat daftar tugas, sisa waktu/deadline, form upload pengumpulan
 
-**`Admin\ImportController`**
-- `index()` — halaman pilih jenis import + form upload
-- `template(string $type)` — download file template `.xlsx`
-- `store(Request $request)` — proses file + return hasil
-
-### Route Baru
+### Routes
 ```
-GET  /admin/import              admin.import.index
-GET  /admin/import/template/{type}  admin.import.template   (download)
-POST /admin/import              admin.import.store
-```
-
-### View
-```
-resources/views/admin/import/
-  index.blade.php   ← tab/accordion per jenis data + form upload + tabel hasil
+GET  /guru/materi/{jadwal}/create           guru.materi.create
+POST /guru/tugas/nilai/{pengumpulan}        guru.tugas.nilai
+GET  /siswa/materi/detail/{materi}          siswa.materi.detail
+POST /siswa/tugas/{tugas}/kumpul            siswa.tugas.kumpul
 ```
 
-UI per tab:
-1. Tombol **Download Template** → GET `/admin/import/template/guru`
-2. Form upload file `.xlsx`
-3. Setelah submit: tabel dua bagian — **Berhasil** (N baris) | **Gagal** (baris + alasan)
+---
 
-### Langkah Implementasi
+## ✅ Fase 15 — Website CMS & Landing Page
 
-1. Buat `app/Imports/GuruImport.php` + `SiswaImport.php` + `MapelImport.php` + `TagihanSppImport.php`
-2. Buat file template Excel di `storage/app/templates/` (bisa di-generate via seeder atau diletakkan sebagai asset statis)
-3. `Admin\ImportController` — index, template download, store
-4. View `admin/import/index.blade.php`
-5. Tambah route ke web.php
-6. Tambah link menu di sidebar admin (bagian Konfigurasi atau Data Master)
+**Selesai.**
 
-### Catatan Keamanan
-- Validasi ekstensi file: hanya `.xlsx` / `.xls`
-- Batas ukuran file: 2MB (konfigurasi `php.ini` / `upload_max_filesize`)
-- Wrap seluruh proses import dalam `DB::transaction()` per baris agar gagal parsial tidak merusak data
+### Yang diimplementasi
+- **Landing Page Dinamis** — Halaman utama sekolah, tentang sekolah, program keahlian, dan struktur organisasi terintegrasi database
+- **Manajemen Artikel / Berita** — Admin memposting berita sekolah lengkap dengan kategori, cover image, slug, dan rich text editor
+- **Galeri Foto** — Pengelolaan album galeri dan foto kegiatan sekolah dinamis
+- **Halaman Statis** — Pembuatan halaman custom (contoh: Visi Misi, Sejarah) yang dapat langsung diakses publik via slug
+- **Pengaturan Umum** — Konfigurasi metadata SEO, nama sekolah, email, no HP, alamat, koordinat peta, logo, dan profil sosial media
+
+### Models & Tabel
+- `Artikel` → `artikels` (judul, slug, konten, cover, is_published, views)
+- `Galeri` → `galeris` (nama, deskripsi, cover, tanggal, is_published)
+- `GaleriItem` → `galeri_items` (galeri_id, foto, keterangan, urutan)
+- `HalamanStatis` → `halaman_statis` (slug, judul, konten, meta_desc, is_published)
+- `Pengaturan` → `pengaturans` (key, value, grup, label, tipe)
+
+---
+
+## ✅ Fase 16 — Integrasi WhatsApp & Kontak
+
+**Selesai.**
+
+### Yang diimplementasi
+- **Notifikasi WhatsApp** — Pengiriman pesan otomatis (template berbasis event) menggunakan WhatsApp API Gateway eksternal
+- **WhatsApp Logs** — Pencatatan log status kirim pesan WhatsApp (status: sent, failed, response log) untuk memantau traffic notifikasi
+- **Hubungi Kami** — Form kontak pada website publik yang mengirimkan pesan langsung ke dashboard admin
+- **Sitemap Generator** — Auto-update file `sitemap.xml` untuk optimasi indeks search engine (SEO)
+
+### Models & Tabel
+- `WaLog` → `wa_logs` (phone, message, event, status, response)
+- `PesanKontak` → `pesan_kontaks` (nama, email, no_hp, subjek, pesan, is_read, read_at)
+
+### Services & Controllers
+- `App\Services\WhatsAppService` — Driver pengirim payload API WhatsApp Gateway
+- `App\Services\WaTemplates` — Penyusun template pesan WhatsApp dinamis (misal: Tagihan SPP baru, Notifikasi Absensi alpha)
+- `Admin\WaLogController` — Dashboard monitor logs pesan WA oleh admin
+- `KontakController` / `Admin\KontakController` — Handler pengiriman dari public form dan review pesan masuk oleh admin
+
+---
+
+## ✅ Fase 17 — API Mobile
+
+**Selesai.**
+
+### Yang diimplementasi
+- **Sanctum Authentication** — Secure token-based API Auth (`/api/v1/login`, `/api/v1/me`, `/api/v1/logout`)
+- **JSON Force Middleware** — Memaksa semua request dan response API dalam format standard `application/json`
+- **Siswa API Mobile**:
+  - Profile siswa, jadwal pelajaran, absensi kelas, raport hasil belajar
+  - Absensi & jurnal PKL (Geo-GPS + image attachment)
+  - Info & history tagihan SPP
+  - Pengumuman & Notifikasi (in-app mark-as-read)
+- **Guru API Mobile**:
+  - Jadwal mengajar, rekap & input absensi siswa, input nilai mata pelajaran, overview bimbingan PKL
+
+### Routes (`routes/api.php`)
+- Terproteksi middleware `auth:sanctum` dengan namespace `App\Http\Controllers\Api\`
+
+---
+
+## Struktur Direktori Saat Ini
+
+```
+app/
+  Console/
+  Http/
+    Controllers/
+      Admin/
+        AbsensiController.php
+        ArtikelController.php
+        EkskulController.php
+        FaqPpdbController.php
+        GaleriController.php
+        GelombangPpdbController.php
+        GuruController.php
+        GuruPermissionController.php
+        HalamanStatisController.php
+        ImportController.php
+        JadwalController.php
+        JurusanController.php
+        KelasController.php
+        KontakController.php
+        LaporanKeuanganController.php
+        MapelController.php
+        NilaiController.php
+        PelanggaranController.php
+        PembayaranSppController.php
+        PenempatanPklController.php
+        PengaturanController.php
+        PengumumanController.php
+        PersyaratanPpdbController.php
+        PklController.php
+        PpdbController.php
+        PrestasiController.php
+        SiswaAdminController.php
+        StrukturOrganisasiController.php
+        SuratController.php
+        TagihanSppController.php
+        TahunAjaranController.php
+        TarifSppController.php
+        TempatPklController.php
+        WaLogController.php
+      Api/
+        AuthController.php
+        Guru/
+          AbsensiController.php
+          JadwalController.php
+          NilaiController.php
+          PklController.php
+        Siswa/
+          AbsensiController.php
+          JadwalController.php
+          KesiswaanController.php
+          NilaiController.php
+          NotifikasiController.php
+          PengumumanController.php
+          PklController.php
+          RaportController.php
+          SppController.php
+      Guru/
+        AbsensiController.php
+        EkskulController.php
+        MateriController.php
+        NilaiController.php
+        PklController.php
+        TugasController.php
+      Siswa/
+        AbsensiController.php
+        KesiswaanController.php
+        MateriController.php
+        NilaiController.php
+        PklController.php
+        SppController.php
+        TugasController.php
+      AdminController.php
+      BeritaController.php
+      GaleriPublikController.php
+      GuruDashboardController.php
+      LandingController.php
+      MidtransWebhookController.php
+      NotifikasiController.php
+      PendaftarController.php
+      PengumumanController.php
+      PpdbController.php
+      ProfileController.php
+      SiswaController.php
+      SitemapController.php
+    Middleware/
+      CheckGuruPermission.php
+      ForceJsonResponse.php
+      RoleMiddleware.php
+  Imports/
+    GuruImport.php
+    MapelImport.php
+    SiswaImport.php
+    TagihanSppImport.php
+  Models/
+    Absensi.php
+    AbsensiEkskul.php
+    AbsensiPkl.php
+    AnggotaEkskul.php
+    AnggotaOrganisasi.php
+    Artikel.php
+    Ekskul.php
+    FaqPpdb.php
+    Galeri.php
+    GaleriItem.php
+    GelombangPpdb.php
+    Guru.php
+    GuruPermission.php
+    HalamanStatis.php
+    JabatanOrganisasi.php
+    Jadwal.php
+    JurnalPkl.php
+    Jurusan.php
+    Kelas.php
+    Mapel.php
+    Materi.php
+    Nilai.php
+    NilaiPkl.php
+    Notifikasi.php
+    Pelanggaran.php
+    PembayaranSpp.php
+    PendaftarPpdb.php
+    PenempatanPkl.php
+    Pengaturan.php
+    PengumpulanTugas.php
+    Pengumuman.php
+    PersyaratanPpdb.php
+    PesanKontak.php
+    Prestasi.php
+    Semester.php
+    Siswa.php
+    SuratKeterangan.php
+    TagihanSpp.php
+    TahunAjaran.php
+    TarifSpp.php
+    TempatPkl.php
+    Tugas.php
+    User.php
+    WaLog.php
+  Services/
+    MidtransService.php
+    WaTemplates.php
+    WhatsAppService.php
+resources/
+  views/
+    admin/
+      absensi/
+      cms/
+      guru/
+      import/
+      jadwal/
+      jurusan/
+      kelas/
+      kesiswaan/
+      keuangan/
+      kontak/
+      mapel/
+      nilai/
+      organisasi/
+      pengumuman/
+      pkl/
+      ppdb/
+      siswa/
+      tahun-ajaran/
+      whatsapp/
+    guru/
+      absensi/
+      ekskul/
+      materi/
+      nilai/
+      pkl/
+      tugas/
+    siswa/
+      kesiswaan/
+      materi/
+      pkl/
+      spp/
+      tugas/
+      absensi.blade.php
+      dashboard.blade.php
+      jadwal.blade.php
+      mapel.blade.php
+      nilai.blade.php
+      raport.blade.php
+    public/
+      berita/
+      galeri/
+      landing/
+      partials/
+    ppdb/
+    pendaftar/
+    layouts/
+      admin.blade.php
+      app.blade.php
+      public.blade.php
+      partials/
+        sidebar.blade.php
+        navbar.blade.php
+```
+
+---
+
+## Catatan Teknis
+
+### Pola & Integrasi yang Digunakan
+- **updateOrCreate** — untuk upsert nilai, absensi, dan data keuangan agar idempoten.
+- **Midtrans API** — Transaksi pembayaran digital otomatis terkonfirmasi via webhook API (Snap Token).
+- **Sanctum Auth** — Otentikasi berbasis token untuk aplikasi mobile client.
+- **WhatsApp API Integration** — Event-driven template notifications menggunakan HTTP Client.
+- **Granular RBAC** — Custom middleware `CheckGuruPermission` untuk melayani izin menu per guru secara dinamis.
+- **Hierarchical Tree CSS** — Visualisasi bagan organisasi memanfaatkan flexbox tree responsive tanpa overhead JavaScript.

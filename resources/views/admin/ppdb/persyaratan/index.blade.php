@@ -76,7 +76,6 @@
       <form action="{{ route('admin.ppdb.persyaratan.store') }}" method="POST">
         @csrf
         <div class="card-body">
-          @if(session('success'))<div class="alert alert-success py-2">{{ session('success') }}</div>@endif
           <div class="form-group">
             <label>Judul Persyaratan <span class="text-danger">*</span></label>
             <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror"

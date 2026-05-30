@@ -15,11 +15,6 @@
         <div class="card-body">
 
           {{-- Conflict warning --}}
-          @if(session('error'))
-          <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle mr-1"></i> {{ session('error') }}
-          </div>
-          @endif
 
           <div class="row">
             <div class="col-md-6">

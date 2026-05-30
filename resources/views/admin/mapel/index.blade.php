@@ -24,6 +24,7 @@
               <th>#</th>
               <th>Kode</th>
               <th>Nama Mata Pelajaran</th>
+              <th>Jurusan</th>
               <th>Guru Pengampu</th>
               <th>Jadwal</th>
               <th>Aksi</th>
@@ -35,7 +36,14 @@
               <td>{{ $i + 1 }}</td>
               <td><span class="badge badge-secondary">{{ $m->kode }}</span></td>
               <td>{{ $m->nama_mapel }}</td>
-              <td>{{ $m->dosen_pengampu }}</td>
+              <td>{{ $m->jurusan?->nama_jurusan ?? 'Umum' }}</td>
+              <td>
+                @forelse($m->gurus as $g)
+                  <span class="badge badge-primary">{{ $g->nama }}</span>
+                @empty
+                  <span class="text-muted">-</span>
+                @endforelse
+              </td>
               <td>
                 @foreach($m->jadwals as $j)
                   <span class="badge badge-info">{{ $j->hari }}, {{ $j->waktu }}</span>

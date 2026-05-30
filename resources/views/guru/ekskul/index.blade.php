@@ -3,12 +3,6 @@
 @section('page_title', 'Ekskul Binaan Saya')
 
 @section('content')
-@if(session('success'))
-  <div class="alert alert-success alert-dismissible">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    {{ session('success') }}
-  </div>
-@endif
 
 @if($ekskuls->isEmpty())
   <div class="callout callout-warning">

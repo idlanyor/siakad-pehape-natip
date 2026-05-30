@@ -32,7 +32,7 @@ class HalamanStatisController extends Controller
         HalamanStatis::create([
             'slug'         => $request->slug,
             'judul'        => $request->judul,
-            'konten'       => $request->konten,
+            'konten'       => $request->filled('konten') ? clean($request->konten) : null,
             'meta_desc'    => $request->meta_desc,
             'is_published' => $request->boolean('is_published'),
             'urutan'       => $request->urutan ?? 0,
@@ -60,7 +60,7 @@ class HalamanStatisController extends Controller
         $halaman->update([
             'slug'         => $request->slug,
             'judul'        => $request->judul,
-            'konten'       => $request->konten,
+            'konten'       => $request->filled('konten') ? clean($request->konten) : null,
             'meta_desc'    => $request->meta_desc,
             'is_published' => $request->boolean('is_published'),
             'urutan'       => $request->urutan ?? 0,

@@ -14,12 +14,6 @@
 <form action="{{ route('admin.cms.pengaturan.update') }}" method="POST" enctype="multipart/form-data">
   @csrf @method('PUT')
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
-    </div>
-  @endif
 
   {{-- Tab Navigation --}}
   <ul class="nav nav-tabs mb-3" id="settingTabs">

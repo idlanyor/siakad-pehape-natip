@@ -15,6 +15,20 @@ class Materi extends Model
         'is_published' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        // Notifikasi ke siswa saat materi terbit (baru dibuat / baru diterbitkan).
+        static::created(function (Materi $materi) {
+            \App\Services\ELearningNotifier::materiTerbit($materi);
+        });
+
+        static::updated(function (Materi $materi) {
+            if ($materi->wasChanged('is_published') && $materi->is_published) {
+                \App\Services\ELearningNotifier::materiTerbit($materi);
+            }
+        });
+    }
+
     const TIPE_LABEL = [
         'file' => 'File',
         'link' => 'Tautan',

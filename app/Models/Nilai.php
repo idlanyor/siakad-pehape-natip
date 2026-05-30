@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Nilai extends Model
 {
+    use \App\Traits\Auditable;
+
     protected $fillable = [
         'jadwal_id', 'siswa_id',
         'tugas', 'pts', 'pas',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\SiswaRequest;
 use App\Models\Jurusan;
 use App\Models\Kelas;
 use App\Models\Siswa;
@@ -25,19 +26,8 @@ class SiswaAdminController extends Controller
         return view('admin.siswa.form', ['siswa' => null, 'jurusans' => $jurusans, 'kelas' => $kelas]);
     }
 
-    public function store(Request $request)
+    public function store(SiswaRequest $request)
     {
-        $request->validate([
-            'name'          => 'required|string|max:100',
-            'username'      => 'required|string|max:50|unique:users,username',
-            'email'         => 'nullable|email|unique:users,email',
-            'password'      => 'required|string|min:6',
-            'nisn'          => 'required|string|max:20|unique:siswas,nisn',
-            'jurusan_id'    => 'required|exists:jurusans,id',
-            'kelas_id'      => 'nullable|exists:kelas,id',
-            'tanggal_lahir' => 'required|date',
-        ]);
-
         $user = User::create([
             'name'     => $request->name,
             'username' => $request->username,
@@ -65,19 +55,8 @@ class SiswaAdminController extends Controller
         return view('admin.siswa.form', compact('siswa', 'jurusans', 'kelas'));
     }
 
-    public function update(Request $request, Siswa $siswa)
+    public function update(SiswaRequest $request, Siswa $siswa)
     {
-        $request->validate([
-            'name'          => 'required|string|max:100',
-            'username'      => 'required|string|max:50|unique:users,username,' . $siswa->user_id,
-            'email'         => 'nullable|email|unique:users,email,' . $siswa->user_id,
-            'password'      => 'nullable|string|min:6',
-            'nisn'          => 'required|string|max:20|unique:siswas,nisn,' . $siswa->id,
-            'jurusan_id'    => 'required|exists:jurusans,id',
-            'kelas_id'      => 'nullable|exists:kelas,id',
-            'tanggal_lahir' => 'required|date',
-        ]);
-
         $userData = [
             'name'     => $request->name,
             'username' => $request->username,
@@ -103,5 +82,20 @@ class SiswaAdminController extends Controller
     {
         $siswa->user->delete();
         return redirect()->route('admin.siswa.index')->with('success', 'Data siswa berhasil dihapus.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids'   => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:siswas,id'],
+        ]);
+
+        // Hapus akun login → siswa ikut terhapus (cascade), seperti destroy tunggal.
+        $userIds = Siswa::whereIn('id', $data['ids'])->pluck('user_id');
+        User::whereIn('id', $userIds)->each(fn ($u) => $u->delete());
+
+        $jumlah = $userIds->count();
+        return redirect()->route('admin.siswa.index')->with('success', "$jumlah siswa berhasil dihapus.");
     }
 }

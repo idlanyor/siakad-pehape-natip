@@ -17,6 +17,14 @@ class Tugas extends Model
         'nilai_maksimal' => 'integer',
     ];
 
+    protected static function booted(): void
+    {
+        // Notifikasi ke siswa kelas terkait saat tugas baru dibuat.
+        static::created(function (Tugas $tugas) {
+            \App\Services\ELearningNotifier::tugasBaru($tugas);
+        });
+    }
+
     const TIPE_LABEL = [
         'file' => 'Upload File',
         'link' => 'Tautan (URL)',
@@ -47,7 +55,7 @@ class Tugas extends Model
         if ($this->is_expired) {
             return 'Sudah lewat ' . $this->deadline->diffForHumans();
         }
-        return 'Sisa ' . $this->deadline->diffForHumans(absolute: true);
+        return 'Sisa ' . $this->deadline->diffForHumans(null, true);
     }
 
     public function getDeadlineColorAttribute(): string

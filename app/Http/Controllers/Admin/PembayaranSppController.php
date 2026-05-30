@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWaNotification;
 use App\Models\PembayaranSpp;
 use App\Models\TagihanSpp;
+use App\Services\WaTemplates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,6 +72,17 @@ class PembayaranSppController extends Controller
             ]);
             // Recalculate status tagihan
             $pembayaran->tagihan->refresh()->recalculateStatus();
+
+            // Kirim WA notifikasi ke siswa/orangtua
+            $siswa = $pembayaran->tagihan->siswa;
+            if ($siswa) {
+                $phone = $siswa->no_wa ?? $siswa->no_hp ?? null;
+                if ($phone) {
+                    $msg = WaTemplates::sppBerhasil($siswa, $pembayaran);
+                    SendWaNotification::dispatch($phone, $msg, 'spp_confirmed');
+                }
+            }
+
             return back()->with('success', 'Pembayaran dikonfirmasi. Status tagihan diperbarui.');
         }
 

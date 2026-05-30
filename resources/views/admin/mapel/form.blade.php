@@ -26,10 +26,26 @@
             @error('nama_mapel') <div class="invalid-feedback">{{ $message }}</div> @enderror
           </div>
           <div class="form-group">
-            <label>Guru Pengampu <span class="text-danger">*</span></label>
-            <input type="text" name="dosen_pengampu" class="form-control @error('dosen_pengampu') is-invalid @enderror"
-                   value="{{ old('dosen_pengampu', $mapel?->dosen_pengampu) }}" placeholder="Nama lengkap guru">
-            @error('dosen_pengampu') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <label>Jurusan</label>
+            <select name="jurusan_id" class="form-control @error('jurusan_id') is-invalid @enderror">
+              <option value="">— Umum (Semua Jurusan) —</option>
+              @foreach($jurusans as $j)
+                <option value="{{ $j->id }}" @selected(old('jurusan_id', $mapel?->jurusan_id) == $j->id)>{{ $j->nama_jurusan }}</option>
+              @endforeach
+            </select>
+            @error('jurusan_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <small class="form-text text-muted">Kosongkan jika mapel berlaku untuk semua jurusan.</small>
+          </div>
+          <div class="form-group">
+            <label>Guru Pengampu</label>
+            <select name="guru_ids[]" class="form-control select2 @error('guru_ids') is-invalid @enderror" multiple>
+              @php $selectedGurus = old('guru_ids', $mapel?->gurus->pluck('id')->toArray() ?? []); @endphp
+              @foreach($gurus as $g)
+                <option value="{{ $g->id }}" @selected(in_array($g->id, $selectedGurus))>{{ $g->nama }} ({{ $g->nip }})</option>
+              @endforeach
+            </select>
+            @error('guru_ids') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <small class="form-text text-muted">Bisa pilih lebih dari satu guru.</small>
           </div>
         </div>
         <div class="card-footer d-flex justify-content-between">
@@ -41,3 +57,15 @@
   </div>
 </div>
 @endsection
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('plugins/select2/css/select2.min.css') }}">
+<link rel="stylesheet" href="{{ asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+@endpush
+
+@push('scripts')
+<script src="{{ asset('plugins/select2/js/select2.full.min.js') }}"></script>
+<script>
+  $(function () { $('.select2').select2({ theme: 'bootstrap4', placeholder: 'Pilih guru...' }); });
+</script>
+@endpush

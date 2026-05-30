@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, \App\Traits\Auditable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
+        'avatar',
         'password',
         'role',
     ];
@@ -38,6 +40,11 @@ class User extends Authenticatable
     public function pendaftarPpdb()
     {
         return $this->hasOne(\App\Models\PendaftarPpdb::class);
+    }
+
+    public function orangTua()
+    {
+        return $this->hasOne(OrangTua::class);
     }
 
     public function isAdmin(): bool
@@ -60,6 +67,34 @@ class User extends Authenticatable
         return $this->role == 3;
     }
 
+    public function isOrangTua(): bool
+    {
+        return $this->role == 4;
+    }
+
+    /**
+     * URL avatar untuk ditampilkan. Pakai foto yang diunggah bila ada,
+     * jika tidak fallback ke avatar default AdminLTE.
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($this->avatar);
+        }
+
+        return asset('dist/img/avatar.png');
+    }
+
+    /**
+     * 2FA aktif & sudah dikonfirmasi (siap dipakai saat login).
+     */
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_enabled
+            && ! is_null($this->two_factor_confirmed_at)
+            && ! is_null($this->two_factor_secret);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -68,6 +103,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -80,6 +117,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 }

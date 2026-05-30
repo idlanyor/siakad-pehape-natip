@@ -102,7 +102,7 @@ class SiswaController extends Controller
         })->with(['jadwals' => function ($q) use ($siswa, $semester) {
             $q->where('kelas_id', $siswa->kelas_id);
             if ($semester) $q->where('semester_id', $semester->id);
-        }])->get();
+        }, 'jurusan', 'gurus'])->get();
 
         return view('siswa.mapel', compact('mapels', 'siswa', 'semester'));
     }

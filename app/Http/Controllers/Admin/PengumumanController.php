@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWaNotification;
 use App\Models\Kelas;
 use App\Models\Pengumuman;
+use App\Models\Siswa;
+use App\Services\WaTemplates;
 use Illuminate\Http\Request;
 
 class PengumumanController extends Controller
@@ -42,7 +45,7 @@ class PengumumanController extends Controller
 
         $pengumuman = Pengumuman::create([
             'judul'           => $request->judul,
-            'isi'             => $request->isi,
+            'isi'             => clean($request->isi),
             'target_role'     => $request->target_role !== '' ? $request->target_role : null,
             'target_kelas_id' => $request->target_kelas_id,
             'dibuat_oleh'     => auth()->id(),
@@ -80,7 +83,7 @@ class PengumumanController extends Controller
 
         $pengumuman->update([
             'judul'           => $request->judul,
-            'isi'             => $request->isi,
+            'isi'             => clean($request->isi),
             'target_role'     => $request->target_role !== '' ? $request->target_role : null,
             'target_kelas_id' => $request->target_kelas_id,
             'published_at'    => $request->published_at,
@@ -116,6 +119,18 @@ class PengumumanController extends Controller
 
         if (!$wasPublished) {
             $pengumuman->broadcastNotifikasi();
+
+            // Broadcast WA ke siswa yang punya no_wa
+            $ringkasan = \Str::limit(strip_tags($pengumuman->isi), 200);
+            $waMessage = WaTemplates::pengumumanBaru($pengumuman->judul, $ringkasan);
+
+            $siswaQuery = Siswa::query();
+            if ($pengumuman->target_kelas_id) {
+                $siswaQuery->where('kelas_id', $pengumuman->target_kelas_id);
+            }
+            $siswaQuery->whereNotNull('no_wa')->each(function ($siswa) use ($waMessage) {
+                SendWaNotification::dispatch($siswa->no_wa, $waMessage, 'pengumuman');
+            });
         }
 
         return back()->with('success', 'Pengumuman berhasil dipublish.');

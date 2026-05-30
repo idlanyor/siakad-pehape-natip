@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\MapelRequest;
+use App\Models\Guru;
+use App\Models\Jurusan;
 use App\Models\Mapel;
 use Illuminate\Http\Request;
 
@@ -10,42 +13,40 @@ class MapelController extends Controller
 {
     public function index()
     {
-        $mapels = Mapel::with('jadwals')->get();
+        $mapels = Mapel::with(['jadwals', 'jurusan', 'gurus'])->get();
         return view('admin.mapel.index', compact('mapels'));
     }
 
     public function create()
     {
-        return view('admin.mapel.form', ['mapel' => null]);
+        $jurusans = Jurusan::orderBy('nama_jurusan')->get();
+        $gurus    = Guru::orderBy('nama')->get();
+        return view('admin.mapel.form', ['mapel' => null, 'jurusans' => $jurusans, 'gurus' => $gurus]);
     }
 
-    public function store(Request $request)
+    public function store(MapelRequest $request)
     {
-        $request->validate([
-            'kode'          => 'required|string|max:20|unique:mapels,kode',
-            'nama_mapel'   => 'required|string|max:100',
-            'dosen_pengampu'=> 'required|string|max:100',
-        ]);
+        $mapel = Mapel::create($request->only('kode', 'nama_mapel', 'jurusan_id'));
 
-        Mapel::create($request->only('kode', 'nama_mapel', 'dosen_pengampu'));
+        if ($request->filled('guru_ids')) {
+            $mapel->gurus()->sync($request->guru_ids);
+        }
 
         return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran berhasil ditambahkan.');
     }
 
     public function edit(Mapel $mapel)
     {
-        return view('admin.mapel.form', ['mapel' => $mapel]);
+        $mapel->load('gurus');
+        $jurusans = Jurusan::orderBy('nama_jurusan')->get();
+        $gurus    = Guru::orderBy('nama')->get();
+        return view('admin.mapel.form', compact('mapel', 'jurusans', 'gurus'));
     }
 
-    public function update(Request $request, Mapel $mapel)
+    public function update(MapelRequest $request, Mapel $mapel)
     {
-        $request->validate([
-            'kode'          => 'required|string|max:20|unique:mapels,kode,' . $mapel->id,
-            'nama_mapel'   => 'required|string|max:100',
-            'dosen_pengampu'=> 'required|string|max:100',
-        ]);
-
-        $mapel->update($request->only('kode', 'nama_mapel', 'dosen_pengampu'));
+        $mapel->update($request->only('kode', 'nama_mapel', 'jurusan_id'));
+        $mapel->gurus()->sync($request->guru_ids ?? []);
 
         return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran berhasil diperbarui.');
     }
