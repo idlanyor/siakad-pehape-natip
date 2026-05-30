@@ -11,6 +11,39 @@
 @endpush
 
 @section('content')
+
+{{-- Maintenance Mode Card --}}
+<div class="card mb-3">
+  <div class="card-header bg-warning">
+    <h3 class="card-title"><i class="fas fa-tools mr-2"></i>Mode Maintenance</h3>
+  </div>
+  <div class="card-body">
+    @php
+      $isDown = app()->isDownForMaintenance();
+    @endphp
+    @if($isDown)
+      <div class="alert alert-warning mb-3">
+        <i class="fas fa-exclamation-triangle mr-1"></i>
+        <strong>Aplikasi sedang dalam mode maintenance.</strong> Hanya admin yang bisa mengakses.
+      </div>
+      <form action="{{ route('admin.maintenance.disable') }}" method="POST" class="d-inline">
+        @csrf
+        <button class="btn btn-success" onclick="return confirm('Nonaktifkan mode maintenance?')">
+          <i class="fas fa-check mr-1"></i> Nonaktifkan Maintenance
+        </button>
+      </form>
+    @else
+      <p class="mb-2">Aktifkan mode maintenance untuk menutup akses publik sementara (admin tetap bisa akses via bypass URL).</p>
+      <form action="{{ route('admin.maintenance.enable') }}" method="POST" class="d-inline">
+        @csrf
+        <button class="btn btn-warning" onclick="return confirm('Aktifkan mode maintenance? Pengguna non-admin tidak bisa akses.')">
+          <i class="fas fa-tools mr-1"></i> Aktifkan Maintenance
+        </button>
+      </form>
+    @endif
+  </div>
+</div>
+
 <form action="{{ route('admin.cms.pengaturan.update') }}" method="POST" enctype="multipart/form-data">
   @csrf @method('PUT')
 

@@ -11,6 +11,17 @@
   <!-- Right navbar links -->
   <ul class="navbar-nav ml-auto">
 
+    {{-- Maintenance Mode Indicator (admin only) --}}
+    @if(auth()->user()->isAdmin() && app()->isDownForMaintenance())
+    <li class="nav-item">
+      <span class="nav-link">
+        <span class="badge badge-warning">
+          <i class="fas fa-tools mr-1"></i> MAINTENANCE
+        </span>
+      </span>
+    </li>
+    @endif
+
     {{-- Toggle Dark Mode --}}
     <li class="nav-item">
       <a href="#" class="nav-link" id="dark-mode-toggle" role="button" title="Mode Gelap/Terang">

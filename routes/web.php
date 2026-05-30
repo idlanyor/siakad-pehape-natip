@@ -329,6 +329,11 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::get('laporan/nilai', [\App\Http\Controllers\Admin\LaporanController::class, 'nilai'])->name('laporan.nilai');
     Route::get('laporan/keuangan', [\App\Http\Controllers\Admin\LaporanController::class, 'keuangan'])->name('laporan.keuangan');
     Route::get('laporan/ppdb', [\App\Http\Controllers\Admin\LaporanController::class, 'ppdb'])->name('laporan.ppdb');
+
+    // Maintenance mode toggle (admin only)
+    Route::get('maintenance/status', [\App\Http\Controllers\Admin\MaintenanceController::class, 'status'])->name('maintenance.status');
+    Route::post('maintenance/enable', [\App\Http\Controllers\Admin\MaintenanceController::class, 'enable'])->name('maintenance.enable');
+    Route::post('maintenance/disable', [\App\Http\Controllers\Admin\MaintenanceController::class, 'disable'])->name('maintenance.disable');
 });
 
 // --- Fase B: Portal Orang Tua / Wali (role=4) ---
