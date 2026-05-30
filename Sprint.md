@@ -128,7 +128,7 @@ Portal orang tua (role=4) untuk memantau anak. Inti fitur selesai & teruji.
 | 24 | **API Orangtua** | TODO di Fase D — bergantung pada Fase B selesai dulu. |
 | 25 | **LICENSE file tidak ada** | Butuh lisensi komersial yang jelas untuk distribusi. |
 | 26 | ✅ **Multi-tenancy — DIBATALKAN & DICABUT** (2026-05-30) | Rencana SaaS multi-tenant dibatalkan. `stancl/tenancy` ternyata cuma boilerplate (provider tak terdaftar, `routes/tenant.php` tak di-load, nol referensi di kode). Dicabut bersih: `composer remove stancl/tenancy`, hapus `config/tenancy.php` + `TenancyServiceProvider` + `routes/tenant.php` + 2 migration + subdir, drop tabel `tenants`/`domains` (keduanya kosong, aman) + bersihkan entri `migrations`. App = single-tenant (satu install per sekolah). Diverifikasi: routes resolve, 74 passed nol regresi. |
-| 27 | **Loading skeleton / UX polish** | Tidak ada skeleton loader, loading indicator pada action berat. |
+| 27 | ✅ **Loading skeleton / UX polish** (SELESAI 2026-05-30) | **Table skeleton** component reusable (pulse animation) — diterapkan ke Data Siswa & Data Guru (skeleton 8-9 cols, hide setelah DataTables init). **Button loading state** global (disable + spinner saat form submit, auto via event listener). **SweetAlert2** intercept `confirm()` di form submit (41 native confirm → smooth modal). **Toastr** auto-show dari flash session (success/error/warning/info, top-right toast). Semua tanpa ubah view existing (kecuali 2 tabel). |
 | 28 | **Activity log / changelog untuk user** | User tidak tahu perubahan apa yang terjadi di akunnya. |
 
 ---

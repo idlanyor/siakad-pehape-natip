@@ -27,7 +27,11 @@
         <form id="form-bulk-guru" action="{{ route('admin.guru.bulk-destroy') }}" method="POST">
           @csrf @method('DELETE')
         </form>
-        <table id="tabel-guru" class="table table-bordered table-striped">
+
+        {{-- Skeleton loader --}}
+        <x-table-skeleton id="guru-skeleton" :cols="8" :rows="6" />
+
+        <table id="tabel-guru" class="table table-bordered table-striped" style="display:none;">
           <thead>
             <tr>
               <th style="width:34px"><input type="checkbox" id="cek-semua" title="Pilih semua"></th>
@@ -79,6 +83,8 @@
 <script>
   $(function () {
     $('#tabel-guru').DataTable({ responsive: true, autoWidth: false, columnDefs: [{ orderable: false, targets: 0 }] });
+    $('#guru-skeleton').hide();
+    $('#tabel-guru').show();
   });
 
   function refreshBulkGuru() {

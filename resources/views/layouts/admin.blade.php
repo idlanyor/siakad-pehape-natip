@@ -77,6 +77,64 @@
 <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
+<!-- SweetAlert2 -->
+<script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+<!-- Toastr -->
+<link rel="stylesheet" href="{{ asset('plugins/toastr/toastr.min.css') }}">
+<script src="{{ asset('plugins/toastr/toastr.min.js') }}"></script>
+
+<script>
+// Toastr config
+toastr.options = {
+  closeButton: true,
+  progressBar: true,
+  positionClass: 'toast-top-right',
+  timeOut: 4000
+};
+
+// Auto-show toast dari flash session
+@if(session('success'))
+  toastr.success("{{ session('success') }}");
+@endif
+@if(session('error'))
+  toastr.error("{{ session('error') }}");
+@endif
+@if(session('warning'))
+  toastr.warning("{{ session('warning') }}");
+@endif
+@if(session('info'))
+  toastr.info("{{ session('info') }}");
+@endif
+
+// Intercept form submit dengan confirm() → ganti dengan SweetAlert2
+document.addEventListener('submit', function(e) {
+  var form = e.target;
+  var onsubmit = form.getAttribute('onsubmit');
+
+  // Deteksi pola: onsubmit="return confirm('...')"
+  if (onsubmit && onsubmit.includes('confirm(')) {
+    var match = onsubmit.match(/confirm\(['"](.+?)['"]\)/);
+    if (match) {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Konfirmasi',
+        text: match[1],
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Lanjutkan',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+      }).then(function(result) {
+        if (result.isConfirmed) {
+          form.removeAttribute('onsubmit'); // hindari loop
+          form.submit();
+        }
+      });
+    }
+  }
+});
+
 
 <script>
 // Toggle Dark Mode — simpan preferensi di cookie (1 tahun), terapkan tanpa reload.
@@ -99,6 +157,21 @@
     document.cookie = 'dark_mode=' + (isDark ? 'on' : 'off') + ';path=/;max-age=' + (60 * 60 * 24 * 365) + ';SameSite=Lax';
   });
 })();
+
+// Helper: button loading state (disable + spinner) saat form submit
+document.addEventListener('submit', function(e) {
+  var form = e.target;
+  if (form.dataset.noLoading) return; // skip jika form punya data-no-loading
+  var btn = form.querySelector('button[type="submit"]');
+  if (btn && !btn.disabled) {
+    btn.disabled = true;
+    var icon = btn.querySelector('i');
+    if (icon) {
+      btn.dataset.originalIcon = icon.className;
+      icon.className = 'fas fa-spinner fa-spin';
+    }
+  }
+});
 </script>
 
 @stack('scripts')

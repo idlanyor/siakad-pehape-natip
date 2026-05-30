@@ -27,7 +27,11 @@
         <form id="form-bulk-siswa" action="{{ route('admin.siswa.bulk-destroy') }}" method="POST">
           @csrf @method('DELETE')
         </form>
-        <table id="tabel-siswa" class="table table-bordered table-striped">
+
+        {{-- Skeleton loader (hidden setelah DataTables init) --}}
+        <x-table-skeleton id="siswa-skeleton" :cols="9" :rows="8" />
+
+        <table id="tabel-siswa" class="table table-bordered table-striped" style="display:none;">
           <thead>
             <tr>
               <th style="width:34px"><input type="checkbox" id="cek-semua" title="Pilih semua"></th>
@@ -78,6 +82,9 @@
 <script>
   $(function () {
     $('#tabel-siswa').DataTable({ responsive: true, autoWidth: false, columnDefs: [{ orderable: false, targets: 0 }] });
+    // Hide skeleton, show table setelah DataTables init
+    $('#siswa-skeleton').hide();
+    $('#tabel-siswa').show();
   });
 
   function refreshBulkSiswa() {
