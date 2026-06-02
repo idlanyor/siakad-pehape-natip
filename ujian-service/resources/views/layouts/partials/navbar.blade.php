@@ -12,7 +12,7 @@
   <ul class="navbar-nav ml-auto">
 
     {{-- Maintenance Mode Indicator (admin only) --}}
-    @if(auth()->user()->isAdmin() && app()->isDownForMaintenance())
+    @if(auth()->user() && auth()->user()->isAdmin() && app()->isDownForMaintenance())
     <li class="nav-item">
       <span class="nav-link">
         <span class="badge badge-warning">
@@ -76,7 +76,7 @@
     <li class="nav-item">
       <a href="{{ route('profile.2fa') }}" class="nav-link" title="Autentikasi Dua Faktor">
         <i class="fas fa-shield-alt"></i>
-        @if(auth()->user()->hasTwoFactorEnabled())
+        @if(auth()->user() && auth()->user()->hasTwoFactorEnabled())
           <span class="badge badge-success badge-pill">on</span>
         @endif
       </a>
@@ -85,7 +85,7 @@
     {{-- Profil --}}
     <li class="nav-item">
       <a href="{{ route('profile.edit') }}" class="nav-link" title="Profil Saya">
-        <img src="{{ auth()->user()->avatar_url }}" class="img-circle" alt="Foto Profil" style="width:24px;height:24px;object-fit:cover;vertical-align:middle">
+        <img src="{{ auth()->user() ? auth()->user()->avatar_url : asset('dist/img/avatar5.png') }}" class="img-circle" alt="Foto Profil" style="width:24px;height:24px;object-fit:cover;vertical-align:middle">
       </a>
     </li>
 

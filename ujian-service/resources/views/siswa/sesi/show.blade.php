@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin-siswa')
 
 @section('title', 'Mengerjakan Ujian')
 

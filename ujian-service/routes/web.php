@@ -22,6 +22,23 @@ Route::get('/tentang', fn() => 'ok')->name('landing.tentang');
 Route::get('/hal/{halaman}', fn() => 'ok')->name('landing.halaman');
 Route::get('/notifikasi', fn() => 'ok')->name('notifikasi.index');
 Route::post('/notifikasi/read-all', fn() => 'ok')->name('notifikasi.readAll');
+Route::get('/profile/2fa', fn() => 'ok')->name('profile.2fa');
+Route::get('/profile/edit', fn() => 'ok')->name('profile.edit');
+Route::any('/logout', fn() => redirect()->route('siswa.logout'))->name('logout');
+
+// Sidebar route fallbacks (dibutuhkan layout admin.blade.php untuk semua role)
+Route::get('/admin/dashboard', fn() => 'ok')->name('admin.dashboard');
+Route::get('/admin/audit-log', fn() => 'ok')->name('admin.audit-log.index');
+Route::get('/admin/fase', fn() => 'ok')->name('admin.fase.index');
+Route::get('/admin/periode', fn() => 'ok')->name('admin.periode.index');
+Route::get('/admin/periode/create', fn() => 'ok')->name('admin.periode.create');
+Route::get('/admin/settings', fn() => 'ok')->name('admin.settings');
+Route::get('/bank-soal', fn() => 'ok')->name('bank-soal.index');
+Route::get('/hasil', fn() => 'ok')->name('hasil.index');
+Route::get('/hasil/statistik', fn() => 'ok')->name('hasil.statistik');
+Route::get('/proktor/dashboard', fn() => 'ok')->name('proktor.dashboard');
+Route::get('/ujian/create', fn() => 'ok')->name('ujian.create');
+Route::get('/siswa/riwayat', fn() => 'ok')->name('siswa.riwayat.index');
 
 // JWT Handoff from SIAKAD
 Route::get('/auth/handoff', [\App\Http\Controllers\Auth\HandoffController::class, 'receive'])->name('auth.handoff');
