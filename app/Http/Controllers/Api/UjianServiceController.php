@@ -153,7 +153,7 @@ class UjianServiceController extends Controller
         $siswa = $query->get()->map(function ($s) {
             return [
                 'id' => $s->id,
-                'nis' => $s->nis ?? (string) $s->id,
+                'nis' => $s->nis ?? (string) (10020 + $s->id),
                 'nisn' => $s->nisn,
                 'nama_lengkap' => $s->nama_lengkap ?? $s->nama,
                 'kelas_id' => $s->kelas_id,
