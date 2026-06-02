@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SiswaAuthController;
+use App\Http\Controllers\Siswa\UjianController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,18 +27,24 @@ Route::prefix('siswa')->name('siswa.')->group(function () {
     });
 
     // Authenticated routes
-    Route::middleware('auth.siswa')->group(function () {
-        // Redirect dashboard to ujian list
-        Route::get('/dashboard', function () {
-            return redirect()->route('siswa.ujian.index');
-        })->name('dashboard');
-
+    Route::middleware(['auth.siswa', 'siswa.context'])->group(function () {
+        Route::get('/dashboard', fn () => redirect()->route('siswa.ujian.index'))->name('dashboard');
         Route::post('/logout', [SiswaAuthController::class, 'logout'])->name('logout');
 
-        // Ujian routes - temporarily redirect to a placeholder
-        Route::get('/ujian', function () {
-            return view('siswa.ujian-placeholder');
-        })->name('ujian.index');
+        // Daftar ujian (HTML)
+        Route::get('/ujian', [\App\Http\Controllers\Siswa\UjianController::class, 'index'])->name('ujian.index');
+
+        // Mulai sesi (delegasi ke engine)
+        Route::post('/ujian/{ujian}/sesi', [\App\Http\Controllers\Api\SesiController::class, 'store'])->name('sesi.store');
+
+        // Pengerjaan (HTML)
+        Route::get('/sesi/{sesi}', [\App\Http\Controllers\Siswa\UjianController::class, 'show'])->name('sesi.show');
+        Route::get('/sesi/{sesi}/result', [\App\Http\Controllers\Siswa\UjianController::class, 'result'])->name('sesi.result');
+
+        // Aksi AJAX (delegasi ke engine, JSON)
+        Route::post('/sesi/{sesi}/answer', [\App\Http\Controllers\Api\SesiController::class, 'submitAnswer'])->name('sesi.answer');
+        Route::post('/sesi/{sesi}/submit', [\App\Http\Controllers\Api\SesiController::class, 'submit'])->name('sesi.submit');
+        Route::post('/sesi/{sesi}/violation', [\App\Http\Controllers\Api\SesiController::class, 'violation'])->name('sesi.violation');
     });
 });
 
