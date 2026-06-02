@@ -45,6 +45,16 @@ class UserSiswa extends Authenticatable
         return $this->belongsTo(Siswa::class);
     }
 
+    /** True — UserSiswa selalu siswa */
+    public function isAdmin(): bool { return false; }
+    public function isGuru(): bool  { return false; }
+    public function isSiswa(): bool { return true; }
+    public function hasTwoFactorEnabled(): bool { return false; }
+    public function getAvatarUrlAttribute(): string
+    {
+        return asset('dist/img/avatar5.png');
+    }
+
     /**
      * Check if account is locked
      */

@@ -14,6 +14,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Dummy routes kritis (dibutuhkan layout admin.blade.php)
+Route::get('/pengumuman', fn() => 'ok')->name('pengumuman.index');
+Route::get('/pengumuman/{artikel}', fn() => 'ok')->name('pengumuman.show');
+Route::get('/galeri', fn() => 'ok')->name('galeri.index');
+Route::get('/tentang', fn() => 'ok')->name('landing.tentang');
+Route::get('/hal/{halaman}', fn() => 'ok')->name('landing.halaman');
+Route::get('/notifikasi', fn() => 'ok')->name('notifikasi.index');
+Route::post('/notifikasi/read-all', fn() => 'ok')->name('notifikasi.readAll');
+
 // JWT Handoff from SIAKAD
 Route::get('/auth/handoff', [\App\Http\Controllers\Auth\HandoffController::class, 'receive'])->name('auth.handoff');
 Route::post('/auth/handoff/logout', [\App\Http\Controllers\Auth\HandoffController::class, 'logout'])->name('auth.handoff.logout');
