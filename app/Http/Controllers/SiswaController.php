@@ -67,10 +67,14 @@ class SiswaController extends Controller
             ->limit(5)
             ->get();
 
+        // Ujian tersedia - data dari ujian-service (microservice terpisah)
+        // TODO: Integrate with ujian-service API to get available exams
+        $ujianTersedia = 0;
+
         return view('siswa.dashboard', compact(
             'siswa', 'jadwalHariIni', 'jumlahMapel',
             'absensiRekap', 'tagihanBelumLunas', 'pengumumans',
-            'hariIni', 'semester'
+            'hariIni', 'semester', 'ujianTersedia'
         ));
     }
 

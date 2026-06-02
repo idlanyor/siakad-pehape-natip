@@ -10,6 +10,7 @@ use App\Models\Mapel;
 use App\Models\Semester;
 use App\Models\Siswa;
 use App\Models\Jurusan;
+use App\Models\SoalUjian;
 
 class GuruDashboardController extends Controller
 {
@@ -18,11 +19,26 @@ class GuruDashboardController extends Controller
         $guru = Guru::where('user_id', auth()->id())->first();
         $semester = Semester::aktif();
 
+        // Hitung essay yang perlu dikoreksi
+        $perluKoreksi = 0;
+        if ($guru) {
+            $perluKoreksi = SoalUjian::whereHas('ujian', function($q) use ($guru) {
+                $q->where('guru_id', $guru->id);
+            })
+            ->where('tipe', 'essay')
+            ->whereHas('jawabanSiswas', function($q) {
+                $q->whereNotNull('jawaban_text')
+                  ->whereNull('nilai');
+            })
+            ->count();
+        }
+
         $stats = [
             'total_siswa'   => Siswa::count(),
             'total_mapel'   => Mapel::count(),
             'total_jurusan' => Jurusan::count(),
             'total_jadwal'  => $guru ? Jadwal::where('guru_id', $guru->id)->count() : 0,
+            'perlu_koreksi' => $perluKoreksi,
         ];
 
         return view('guru.dashboard', compact('stats', 'guru'));
