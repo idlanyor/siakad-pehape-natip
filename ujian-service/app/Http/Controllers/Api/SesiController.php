@@ -244,49 +244,10 @@ class SesiController extends Controller
             }
         }
 
-        // Prepare soals data
-        $soals = $sesi->jawabans->map(function($jawaban) use ($sesi) {
-            $soal = $jawaban->soal;
-            
-            // Randomize options if needed
-            $options = null;
-            if ($soal->tipe === 'pilihan_ganda' && $sesi->ujian->acak_opsi) {
-                $options = collect([
-                    'A' => $soal->opsi_a,
-                    'B' => $soal->opsi_b,
-                    'C' => $soal->opsi_c,
-                    'D' => $soal->opsi_d,
-                    'E' => $soal->opsi_e,
-                ])->filter()->shuffle();
-            } else {
-                $options = [
-                    'A' => $soal->opsi_a,
-                    'B' => $soal->opsi_b,
-                    'C' => $soal->opsi_c,
-                    'D' => $soal->opsi_d,
-                    'E' => $soal->opsi_e,
-                ];
-            }
-
-            return [
-                'id' => $soal->id,
-                'nomor' => $soal->nomor,
-                'tipe' => $soal->tipe,
-                'pertanyaan' => $soal->pertanyaan,
-                'opsi' => $options,
-                'media_url' => $soal->media_url,
-                'jawaban_id' => $jawaban->id,
-                'jawaban' => $jawaban->jawaban,
-                'is_ragu' => $jawaban->is_ragu,
-                // Don't show kunci_jawaban during exam
-                'kunci_jawaban' => !in_array($sesi->status, ['berlangsung', 'sedang_mengerjakan'], true) ? $soal->kunci_jawaban : null,
-                'is_benar' => $jawaban->is_benar,
-                'nilai' => $jawaban->nilai,
-            ];
-        });
-
-        $waktuBerakhir = Carbon::parse($sesi->waktu_mulai)->addSeconds($this->sessionDurationSeconds($sesi));
-        $sisaWaktu = in_array($sesi->status, ['berlangsung', 'sedang_mengerjakan'], true) ? max(0, now()->diffInSeconds($waktuBerakhir, false)) : 0;
+        // Use presenter to build soals, progress, and remaining time
+        $payload = (new \App\Support\SesiPresenter())->forPengerjaan($sesi);
+        $soals = $payload['soals'];
+        $sisaWaktu = $payload['sisa_waktu_detik'];
 
         return response()->json([
             'success' => true,
@@ -314,11 +275,7 @@ class SesiController extends Controller
                     'tab_switch_count' => $sesi->tab_switch_count,
                 ],
                 'soals' => $soals,
-                'progress' => [
-                    'terjawab' => $sesi->jawabans->whereNotNull('jawaban')->count(),
-                    'ragu' => $sesi->jawabans->where('is_ragu', true)->count(),
-                    'total' => $sesi->jawabans->count(),
-                ],
+                'progress' => $payload['progress'],
             ],
         ]);
     }
