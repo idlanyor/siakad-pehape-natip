@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\Materi;
 use App\Models\Notifikasi;
 use App\Models\PengumpulanTugas;
+use App\Models\SesiUjian;
 use App\Models\Siswa;
 use App\Models\Tugas;
+use App\Models\Ujian;
 use Illuminate\Support\Str;
 
 /**
@@ -93,6 +95,57 @@ class ELearningNotifier
             'Nilai kamu: ' . rtrim(rtrim((string) $pengumpulan->nilai, '0'), '.')
                 . ' / ' . ($tugas?->nilai_maksimal ?? 100),
             route('siswa.tugas.show', $tugas?->id),
+        );
+    }
+
+    public static function ujianBaru(Ujian $ujian): void
+    {
+        if (! $ujian->is_published) {
+            return;
+        }
+
+        $jadwal = $ujian->jadwal;
+        $mapel  = $jadwal?->mapel?->nama_mapel ?? 'Mapel';
+
+        self::fanOut(
+            self::siswaUserIdsByJadwal($jadwal?->kelas_id),
+            'Ujian baru: ' . $ujian->judul,
+            Str::limit($mapel . ' — ' . $ujian->tipe_label . ' | ' . $ujian->waktu_mulai->format('d/m/Y H:i'), 120),
+            route('ujian.sso'),
+        );
+    }
+
+    public static function ujianReminder(Ujian $ujian): void
+    {
+        if (! $ujian->is_published) {
+            return;
+        }
+
+        $jadwal = $ujian->jadwal;
+        $mapel  = $jadwal?->mapel?->nama_mapel ?? 'Mapel';
+
+        self::fanOut(
+            self::siswaUserIdsByJadwal($jadwal?->kelas_id),
+            'Reminder: Ujian besok',
+            Str::limit($ujian->judul . ' — ' . $mapel . ' | ' . $ujian->waktu_mulai->format('d/m/Y H:i'), 120),
+            route('ujian.sso'),
+        );
+    }
+
+    public static function ujianDikoreksi(SesiUjian $sesi): void
+    {
+        $siswa = $sesi->siswa;
+        if (! $siswa || ! $siswa->user_id) {
+            return;
+        }
+
+        $ujian = $sesi->ujian;
+
+        self::fanOut(
+            [$siswa->user_id],
+            'Ujian dikoreksi: ' . ($ujian?->judul ?? 'Ujian'),
+            'Nilai kamu: ' . number_format($sesi->nilai_akhir, 2) . ' — ' . $sesi->predikat,
+            route('ujian.sso'),
         );
     }
 }

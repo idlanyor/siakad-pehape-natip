@@ -214,6 +214,13 @@
           </ul>
         </li>
 
+        <li class="nav-item">
+          <a href="{{ route('admin.ujian.index') }}" class="nav-link {{ request()->routeIs('admin.ujian.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-clipboard-list"></i>
+            <p>Ujian Online</p>
+          </a>
+        </li>
+
         <li class="nav-item {{ request()->routeIs('admin.pkl*') || request()->routeIs('admin.pkl-tempat.*') || request()->routeIs('admin.pkl-penempatan.*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ request()->routeIs('admin.pkl*') || request()->routeIs('admin.pkl-tempat.*') || request()->routeIs('admin.pkl-penempatan.*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
@@ -520,6 +527,31 @@
         </li>
         @endif
 
+        @if($guruPerms?->canAccess('menu_nilai'))
+        <li class="nav-item {{ request()->routeIs('guru.ujian.*') ? 'menu-open' : '' }}">
+          <a href="{{ route('guru.ujian.index') }}" class="nav-link {{ request()->routeIs('guru.ujian.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-alt"></i>
+            <p>
+              Ujian Online
+              @php
+                $perluKoreksi = \App\Models\SoalUjian::whereHas('ujian', function($q) use ($guruPerms) {
+                    $q->where('guru_id', $guruPerms->id);
+                })
+                ->where('tipe', 'essay')
+                ->whereHas('jawabanSiswas', function($q) {
+                    $q->whereNotNull('jawaban_text')
+                      ->whereNull('nilai');
+                })
+                ->count();
+              @endphp
+              @if($perluKoreksi > 0)
+                <span class="badge badge-warning badge-pill right">{{ $perluKoreksi }}</span>
+              @endif
+            </p>
+          </a>
+        </li>
+        @endif
+
         @endif
         {{-- ===== END GURU ===== --}}
 
@@ -591,6 +623,16 @@
           <a href="{{ route('siswa.tugas.index') }}" class="nav-link {{ request()->routeIs('siswa.tugas.*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-tasks"></i>
             <p>Tugas Online</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ route('ujian.sso') }}" class="nav-link {{ request()->routeIs('ujian.sso') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-alt"></i>
+            <p>
+              Ujian Online
+              {{-- Badge dihilangkan: ujian sudah jadi microservice terpisah, count tak bisa dihitung lokal --}}
+            </p>
           </a>
         </li>
 
