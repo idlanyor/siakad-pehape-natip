@@ -213,17 +213,17 @@
 
 <!-- Hidden data -->
 <input type="hidden" id="sesi-id" value="{{ $sesi->id }}">
-<input type="hidden" id="jwt-token" value="{{ session('jwt_token') }}">
 <input type="hidden" id="sisa-waktu" value="{{ $sesi->sisa_waktu_detik }}">
 @endsection
 
 @push('scripts')
 <script>
+$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+
 // Global variables
 let currentSoalIndex = 0;
 let soals = @json($soals);
 let sesiId = $('#sesi-id').val();
-let jwtToken = $('#jwt-token').val();
 let sisaWaktu = parseInt($('#sisa-waktu').val());
 let timerInterval;
 let proktorInterval;
@@ -406,13 +406,9 @@ function saveCurrentAnswer() {
   
   // Send to server
   $.ajax({
-    url: '/api/sesi/' + sesiId + '/answer',
+    url: '/siswa/sesi/' + sesiId + '/answer',
     method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + jwtToken,
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify({
+    data: {
       jawaban_id: soal.jawaban_id,
       jawaban: jawaban,
       is_ragu: soal.is_ragu
@@ -534,11 +530,8 @@ function submitExam() {
       saveCurrentAnswer();
       
       $.ajax({
-        url: '/api/sesi/' + sesiId + '/submit',
+        url: '/siswa/sesi/' + sesiId + '/submit',
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + jwtToken
-        },
         success: function(response) {
           clearInterval(timerInterval);
           clearInterval(proktorInterval);
@@ -577,11 +570,8 @@ function autoSubmit() {
     saveCurrentAnswer();
     
     $.ajax({
-      url: '/api/sesi/' + sesiId + '/submit',
+      url: '/siswa/sesi/' + sesiId + '/submit',
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + jwtToken
-      },
       success: function(response) {
         $(window).off('beforeunload');
         window.location.href = '/siswa/sesi/' + sesiId + '/result';
@@ -602,17 +592,11 @@ function startProktorMonitoring() {
 
 function recordProktorEvent(eventType, eventData) {
   $.ajax({
-    url: '/api/proktor/event',
+    url: '/siswa/sesi/' + sesiId + '/violation',
     method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + jwtToken,
-      'Content-Type': 'application/json'
+    data: {
+      type: eventType,
     },
-    data: JSON.stringify({
-      sesi_ujian_id: sesiId,
-      event_type: eventType,
-      event_data: eventData
-    }),
     error: function(xhr) {
       console.error('Failed to record proktor event', xhr);
     }

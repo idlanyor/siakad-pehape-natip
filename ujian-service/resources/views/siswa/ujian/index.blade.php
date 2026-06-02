@@ -42,7 +42,7 @@
                 <p><strong>Passing Grade:</strong> {{ $ujian->passing_grade }}</p>
                 
                 @php
-                  $sesi = $ujian->sesis()->where('siswa_id', Auth::id())->where('is_resmi', true)->first();
+                  $sesi = $sesiByUjian[$ujian->id] ?? null;
                   $now = now();
                   $canStart = $now->between($ujian->waktu_mulai, $ujian->waktu_selesai);
                 @endphp
