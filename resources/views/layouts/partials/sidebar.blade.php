@@ -627,7 +627,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="{{ route('ujian.sso') }}" class="nav-link {{ request()->routeIs('ujian.sso') ? 'active' : '' }}">
+          <a href="{{ rtrim(config('services.ujian.url', ''), '/') }}/siswa/login" class="nav-link" target="_blank" rel="noopener">
             <i class="nav-icon fas fa-file-alt"></i>
             <p>
               Ujian Online
