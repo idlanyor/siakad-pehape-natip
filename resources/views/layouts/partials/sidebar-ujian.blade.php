@@ -26,7 +26,7 @@
   <ul class="nav nav-treeview">
     @foreach ($menu as [$route, $pola, $label])
       <li class="nav-item">
-        <a href="{{ route($route) }}" class="nav-link {{ request()->routeIs(...explode('|', $pola)) ? 'active' : '' }}">
+        <a href="{{ route($route) }}" data-pola="{{ $pola }}" class="nav-link {{ request()->routeIs(...explode('|', $pola)) ? 'active' : '' }}">
           <i class="far fa-circle nav-icon"></i><p>{{ $label }}</p>
         </a>
       </li>

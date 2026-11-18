@@ -17,6 +17,8 @@ createInertiaApp({
     resolve: (name) =>
         resolvePageComponent(`./Ujian/Pages/${name}.vue`, import.meta.glob('./Ujian/Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
+        tampilkanFlash(props.initialPage.props.flash);
+
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
@@ -26,41 +28,31 @@ createInertiaApp({
 });
 
 /**
- * Flash message: layout Blade hanya merender flash pada full page load,
- * jadi di halaman Inertia flash ditampilkan lewat toastr setiap navigasi.
+ * Flash message ditampilkan lewat toastr (layout Blade tidak merender flash
+ * di halaman Inertia): sekali saat halaman pertama dimuat, lalu setiap
+ * kunjungan sukses. Event "success" dipakai, bukan "navigate", karena
+ * redirect kembali ke URL yang sama (mis. simpan nilai) tidak memicu navigate.
  */
-router.on('navigate', (event) => {
-    const flash = event.detail.page.props.flash ?? {};
-    if (window.toastr) {
-        for (const type of ['success', 'error', 'warning', 'info']) {
-            if (flash[type]) window.toastr[type](flash[type]);
-        }
+function tampilkanFlash(flash) {
+    if (!window.toastr || !flash) return;
+    for (const type of ['success', 'error', 'warning', 'info']) {
+        if (flash[type]) window.toastr[type](flash[type]);
     }
-    syncSidebarActive(window.location.pathname);
-});
+}
+
+router.on('success', (event) => tampilkanFlash(event.detail.page.props.flash));
+router.on('navigate', (event) => syncSidebarActive(event.detail.page.props.rute));
 
 /**
  * Sidebar dirender Blade sekali saat full load; sinkronkan class "active"
- * secara manual ketika navigasi Inertia terjadi di sisi klien.
+ * ketika navigasi Inertia terjadi di sisi klien. Setiap link menu ujian
+ * membawa data-pola berisi pola nama route (sama dengan routeIs() di Blade).
  */
-function syncSidebarActive(pathname) {
-    // Hanya link tujuan di menu ujian; toggle treeview (href="#") dilewati.
-    const links = [...document.querySelectorAll('[data-ujian-nav] a.nav-link[href]')]
-        .filter((link) => link.getAttribute('href') !== '#');
-    let best = null;
-    let bestLength = -1;
+function syncSidebarActive(rute) {
+    if (!rute) return;
+    const cocok = (pola) => pola.split('|').some((p) => new RegExp(`^${p.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`).test(rute));
 
-    links.forEach((link) => {
-        const path = new URL(link.href, window.location.origin).pathname.replace(/\/$/, '');
-        const matches = pathname === path || pathname.startsWith(`${path}/`);
-        if (matches && path.length > bestLength) {
-            best = link;
-            bestLength = path.length;
-        }
+    document.querySelectorAll('[data-ujian-nav] a.nav-link[data-pola]').forEach((link) => {
+        link.classList.toggle('active', cocok(link.dataset.pola));
     });
-
-    if (!best) return;
-
-    links.forEach((link) => link.classList.remove('active'));
-    best.classList.add('active');
 }

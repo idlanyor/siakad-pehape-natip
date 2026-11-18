@@ -49,6 +49,6 @@ class SidebarUjianTest extends TestCase
         $this->actingAs($this->siswa->user)
             ->get(route('siswa.dashboard'))
             ->assertOk()
-            ->assertSee(route('ujian.dashboard'), false);
+            ->assertSee(route('ujian.siswa.index'), false);
     }
 }

@@ -30,6 +30,8 @@ class HandleInertiaRequests extends Middleware
                     },
                 ] : null,
             ],
+            // Nama route aktif, dipakai resources/js/ujian.js untuk menandai menu sidebar.
+            'rute' => $request->route()?->getName(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

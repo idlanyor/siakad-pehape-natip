@@ -601,7 +601,7 @@
         </li>
 
         <li class="nav-item" data-ujian-nav>
-          <a href="{{ route('ujian.dashboard') }}" class="nav-link {{ request()->routeIs('ujian.*') ? 'active' : '' }}">
+          <a href="{{ route('ujian.siswa.index') }}" class="nav-link {{ request()->routeIs('ujian.*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-file-alt"></i>
             <p>Ujian Online</p>
           </a>
