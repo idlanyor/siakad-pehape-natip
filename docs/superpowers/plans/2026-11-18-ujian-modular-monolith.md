@@ -87,6 +87,8 @@ Setiap fase menjadi satu commit (atau lebih). Aplikasi harus tetap bisa jalan da
 - Periode dan fase, bank soal, CRUD ujian dan susun soal, hasil dan koreksi esai, export Excel/PDF.
 - Port halaman `Periode/*`, `BankSoal/*`, `Ujian/*`, dan `Hasil/*` ke `resources/js/Ujian/Pages`. Ganti panggilan `axios` + JWT dengan `useForm`/`router`.
 - Buat feature test per controller.
+- Form periode: input `semester_id` (dropdown semester SIAKAD) menggantikan teks `tahun_ajaran` + enum `semester`.
+- `ujian.kelas_id`/`mapel_id` memakai FK `restrict`. Controller hapus Kelas/Mapel di SIAKAD harus menangkap kasus ini dan menampilkan pesan, bukan error 500.
 
 ### Fase 5: Fitur siswa (Inertia)
 - Daftar ujian, mulai sesi, mengerjakan (`Exam/Take.vue`), dan hasil.

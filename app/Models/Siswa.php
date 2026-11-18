@@ -25,6 +25,11 @@ class Siswa extends Model
         return $this->belongsTo(Kelas::class);
     }
 
+    public function sesiUjian()
+    {
+        return $this->hasMany(\App\Modules\Ujian\Models\SesiUjian::class);
+    }
+
     public function absensi()
     {
         return $this->hasMany(Absensi::class);
