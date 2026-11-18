@@ -7,20 +7,22 @@ use App\Http\Requests\Admin\KelasRequest;
 use App\Models\Guru;
 use App\Models\Jurusan;
 use App\Models\Kelas;
-use Illuminate\Http\Request;
+use App\Modules\Ujian\Models\Ujian;
 
 class KelasController extends Controller
 {
     public function index()
     {
         $kelas = Kelas::with(['jurusan', 'waliKelas'])->withCount('siswas')->get();
+
         return view('admin.kelas.index', compact('kelas'));
     }
 
     public function create()
     {
         $jurusans = Jurusan::all();
-        $gurus    = Guru::all();
+        $gurus = Guru::all();
+
         return view('admin.kelas.form', ['kelas' => null, 'jurusans' => $jurusans, 'gurus' => $gurus]);
     }
 
@@ -34,7 +36,8 @@ class KelasController extends Controller
     public function edit(Kelas $kela)
     {
         $jurusans = Jurusan::all();
-        $gurus    = Guru::all();
+        $gurus = Guru::all();
+
         return view('admin.kelas.form', ['kelas' => $kela, 'jurusans' => $jurusans, 'gurus' => $gurus]);
     }
 
@@ -47,7 +50,13 @@ class KelasController extends Controller
 
     public function destroy(Kelas $kela)
     {
+        // Hasil ujian online merujuk ke kelas ini (FK restrict).
+        if (Ujian::withTrashed()->where('kelas_id', $kela->id)->exists()) {
+            return redirect()->route('admin.kelas.index')->with('error', 'Kelas tidak bisa dihapus karena sudah dipakai di ujian online.');
+        }
+
         $kela->delete();
+
         return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil dihapus.');
     }
 }

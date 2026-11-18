@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -85,6 +86,12 @@ class Ujian extends Model
     public function guru(): BelongsTo
     {
         return $this->belongsTo(Guru::class);
+    }
+
+    /** Guru yang ditugaskan sebagai pengawas (proktor). */
+    public function pengawas(): BelongsToMany
+    {
+        return $this->belongsToMany(Guru::class, 'ujian_pengawas')->withTimestamps();
     }
 
     public function soal(): HasMany

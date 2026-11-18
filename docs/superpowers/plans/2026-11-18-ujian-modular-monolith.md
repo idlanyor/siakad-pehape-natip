@@ -101,6 +101,14 @@ Setiap fase menjadi satu commit (atau lebih). Aplikasi harus tetap bisa jalan da
 - Form periode: input `semester_id` (dropdown semester SIAKAD) menggantikan teks `tahun_ajaran` + enum `semester`.
 - `ujian.kelas_id`/`mapel_id` memakai FK `restrict`. Controller hapus Kelas/Mapel di SIAKAD harus menangkap kasus ini dan menampilkan pesan, bukan error 500.
 
+**Selesai.** Catatan:
+- Halaman Vue ujian-service selain Dashboard dan Proktor ternyata tidak pernah dirender backend (kontrak field tidak cocok), jadi halaman Fase 4 ditulis baru di atas `useForm` dan markup AdminLTE.
+- Peran pengawas: tabel `ujian_pengawas`, ditugaskan admin dari halaman detail ujian. Pengawas boleh melihat dan mengawasi, tetapi tidak boleh mengubah atau menilai.
+- Soal terkunci setelah ada sesi siswa. Publikasi butuh minimal 1 soal dan kunci PG yang valid. Kembali ke draft hanya bila belum ada sesi.
+- Teks soal dirender sebagai teks biasa (bukan HTML/rich text) untuk menghindari XSS. Rich text + gambar butuh sanitasi server dan upload media, belum dikerjakan.
+- Bug SIAKAD yang ikut diperbaiki: sidebar guru dan `GuruDashboardController` masih memanggil `route('guru.ujian.index')` dan `App\Models\SoalUjian` yang sudah dihapus, sehingga semua halaman guru error 500. Menu ujian di sidebar (admin/guru/siswa) kini menunjuk modul ini.
+- Untuk Fase 8: `App\Services\ELearningNotifier` punya notifikasi `ujianBaru`, `ujianReminder`, dan `ujianDikoreksi` yang masih memakai model lama. Port ke modul (dipicu saat publikasi dan saat koreksi essay) atau hapus.
+
 ### Fase 5: Fitur siswa (Inertia)
 - Daftar ujian, mulai sesi, mengerjakan (`Exam/Take.vue`), dan hasil.
 - JSON endpoint autosave/ragu/violation/submit (keputusan 5).

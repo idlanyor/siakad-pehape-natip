@@ -2,6 +2,7 @@
 
 namespace App\Modules\Ujian\Services;
 
+use App\Models\Guru;
 use App\Modules\Ujian\Exceptions\UjianException;
 use App\Modules\Ujian\Models\JawabanSiswa;
 use App\Modules\Ujian\Models\SesiUjian;
@@ -113,6 +114,21 @@ class PenilaianService
             $nilai >= 70 => 'C',
             default => 'D',
         };
+    }
+
+    /**
+     * Jumlah jawaban essay di ujian milik guru yang sudah dikumpulkan tetapi
+     * belum dinilai (badge sidebar & dashboard guru SIAKAD).
+     */
+    public static function jumlahPerluKoreksi(Guru $guru): int
+    {
+        return JawabanSiswa::query()
+            ->whereNull('nilai')
+            ->whereHas('soal', fn ($q) => $q->where('tipe', 'essay'))
+            ->whereHas('sesi', fn ($q) => $q
+                ->whereIn('status', SesiUjian::STATUS_BERAKHIR)
+                ->whereHas('ujian', fn ($u) => $u->where('guru_id', $guru->id)))
+            ->count();
     }
 
     /**

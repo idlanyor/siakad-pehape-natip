@@ -214,12 +214,7 @@
           </ul>
         </li>
 
-        <li class="nav-item">
-          <a href="{{ route('admin.ujian.index') }}" class="nav-link {{ request()->routeIs('admin.ujian.*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-clipboard-list"></i>
-            <p>Ujian Online</p>
-          </a>
-        </li>
+        @include('layouts.partials.sidebar-ujian', ['ikon' => 'fa-clipboard-list'])
 
         <li class="nav-item {{ request()->routeIs('admin.pkl*') || request()->routeIs('admin.pkl-tempat.*') || request()->routeIs('admin.pkl-penempatan.*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ request()->routeIs('admin.pkl*') || request()->routeIs('admin.pkl-tempat.*') || request()->routeIs('admin.pkl-penempatan.*') ? 'active' : '' }}">
@@ -528,28 +523,7 @@
         @endif
 
         @if($guruPerms?->canAccess('menu_nilai'))
-        <li class="nav-item {{ request()->routeIs('guru.ujian.*') ? 'menu-open' : '' }}">
-          <a href="{{ route('guru.ujian.index') }}" class="nav-link {{ request()->routeIs('guru.ujian.*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-file-alt"></i>
-            <p>
-              Ujian Online
-              @php
-                $perluKoreksi = \App\Models\SoalUjian::whereHas('ujian', function($q) use ($guruPerms) {
-                    $q->where('guru_id', $guruPerms->id);
-                })
-                ->where('tipe', 'essay')
-                ->whereHas('jawabanSiswas', function($q) {
-                    $q->whereNotNull('jawaban_text')
-                      ->whereNull('nilai');
-                })
-                ->count();
-              @endphp
-              @if($perluKoreksi > 0)
-                <span class="badge badge-warning badge-pill right">{{ $perluKoreksi }}</span>
-              @endif
-            </p>
-          </a>
-        </li>
+        @include('layouts.partials.sidebar-ujian', ['ikon' => 'fa-file-alt'])
         @endif
 
         @endif
@@ -626,13 +600,10 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="{{ rtrim(config('services.ujian.url', ''), '/') }}/siswa/login" class="nav-link" target="_blank" rel="noopener">
+        <li class="nav-item" data-ujian-nav>
+          <a href="{{ route('ujian.dashboard') }}" class="nav-link {{ request()->routeIs('ujian.*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-file-alt"></i>
-            <p>
-              Ujian Online
-              {{-- Badge dihilangkan: ujian sudah jadi microservice terpisah, count tak bisa dihitung lokal --}}
-            </p>
+            <p>Ujian Online</p>
           </a>
         </li>
 

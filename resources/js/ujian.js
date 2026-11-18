@@ -44,23 +44,23 @@ router.on('navigate', (event) => {
  * secara manual ketika navigasi Inertia terjadi di sisi klien.
  */
 function syncSidebarActive(pathname) {
-    const links = document.querySelectorAll('.nav-sidebar a.nav-link[href]');
+    // Hanya link tujuan di menu ujian; toggle treeview (href="#") dilewati.
+    const links = [...document.querySelectorAll('[data-ujian-nav] a.nav-link[href]')]
+        .filter((link) => link.getAttribute('href') !== '#');
     let best = null;
     let bestLength = -1;
 
     links.forEach((link) => {
-        const path = new URL(link.href, window.location.origin).pathname;
-        const matches = pathname === path || pathname.startsWith(path.replace(/\/$/, '') + '/');
+        const path = new URL(link.href, window.location.origin).pathname.replace(/\/$/, '');
+        const matches = pathname === path || pathname.startsWith(`${path}/`);
         if (matches && path.length > bestLength) {
             best = link;
             bestLength = path.length;
         }
     });
 
-    if (!best || !best.closest('[data-ujian-nav]')) return;
+    if (!best) return;
 
-    document
-        .querySelectorAll('[data-ujian-nav] a.nav-link.active')
-        .forEach((link) => link.classList.remove('active'));
+    links.forEach((link) => link.classList.remove('active'));
     best.classList.add('active');
 }

@@ -101,6 +101,16 @@ return new class extends Migration
             $table->index(['waktu_mulai', 'waktu_selesai']);
         });
 
+        // Guru yang ditugaskan admin sebagai pengawas (proktor) ujian, selain guru pemilik.
+        Schema::create('ujian_pengawas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ujian_id')->constrained('ujian')->cascadeOnDelete();
+            $table->foreignId('guru_id')->constrained('gurus')->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['ujian_id', 'guru_id']);
+        });
+
         Schema::create('soal_ujian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ujian_id')->constrained('ujian')->cascadeOnDelete();
@@ -188,6 +198,7 @@ return new class extends Migration
         Schema::dropIfExists('jawaban_siswa');
         Schema::dropIfExists('sesi_ujian');
         Schema::dropIfExists('soal_ujian');
+        Schema::dropIfExists('ujian_pengawas');
         Schema::dropIfExists('ujian');
         Schema::dropIfExists('bank_soal');
         Schema::dropIfExists('fase_periode');
