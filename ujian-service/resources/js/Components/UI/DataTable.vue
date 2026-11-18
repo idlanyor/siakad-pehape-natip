@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-right">
-                    <slot name="actions" />
+                    <slot name="header-actions" />
                 </div>
             </div>
         </div>
@@ -129,7 +129,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, useSlots } from 'vue';
+
+const slots = useSlots();
 
 const props = defineProps({
     data: {
@@ -205,7 +207,7 @@ const sortKey = ref(null);
 const sortOrder = ref('asc');
 const selectedRows = ref([]);
 
-const hasActions = computed(() => !!props.$slots.actions);
+const hasActions = computed(() => !!slots.actions);
 
 const totalColumns = computed(() => {
     let count = props.columns.length;

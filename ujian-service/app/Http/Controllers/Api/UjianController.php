@@ -90,6 +90,14 @@ class UjianController extends Controller
     {
         $this->normalizeLegacyRequest($request);
 
+        $authUser = $request->input('_auth_user');
+        if (isset($authUser['role']) && !in_array($authUser['role'], ['guru', 'admin', 'superadmin'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Siswa tidak dapat membuat ujian.',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'periode_id' => 'required|exists:periode_ujian,id',
             'kelas_id' => 'required|integer',

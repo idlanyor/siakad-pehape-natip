@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Feature\Helpers\ApiTestHelper;
 use App\Models\PeriodeUjian;
@@ -31,7 +32,7 @@ class UjianTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_create_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);
@@ -47,7 +48,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_create_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->guru);
@@ -63,7 +64,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_create_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->siswa);
@@ -75,7 +76,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_required_fields_when_creating_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);
@@ -92,7 +93,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_durasi_is_positive()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);
@@ -106,7 +107,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertValidationError($response, ['durasi']);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_tanggal_selesai_after_tanggal_mulai()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);
@@ -121,7 +122,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertValidationError($response, ['tanggal_selesai']);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_all_ujian()
     {
         Ujian::factory()->count(5)->create([
@@ -137,7 +138,7 @@ class UjianTest extends TestCase
         $response->assertJsonCount(5, 'data.data');
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_only_view_own_ujian()
     {
         // Create ujian by this guru
@@ -162,7 +163,7 @@ class UjianTest extends TestCase
         $response->assertJsonCount(3, 'data.data');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_filter_ujian_by_periode()
     {
         $periode2 = PeriodeUjian::create(
@@ -186,7 +187,7 @@ class UjianTest extends TestCase
         $response->assertJsonCount(3, 'data.data');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_filter_ujian_by_status()
     {
         Ujian::factory()->count(2)->create([
@@ -208,7 +209,7 @@ class UjianTest extends TestCase
         $response->assertJsonCount(3, 'data.data');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_ujian_by_judul()
     {
         Ujian::factory()->create([
@@ -230,7 +231,7 @@ class UjianTest extends TestCase
         $response->assertJsonCount(1, 'data.data');
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_ujian_detail()
     {
         $ujian = Ujian::factory()->create([
@@ -251,7 +252,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_only_view_own_ujian_detail()
     {
         $ownUjian = Ujian::factory()->create([
@@ -277,7 +278,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_update_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -301,7 +302,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_update_own_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -322,7 +323,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_cannot_update_others_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -340,7 +341,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_update_published_ujian_that_has_started()
     {
         $ujian = Ujian::factory()->create([
@@ -360,7 +361,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_delete_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -376,7 +377,7 @@ class UjianTest extends TestCase
         $this->assertSoftDeleted('ujian', ['id' => $ujian->id]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_delete_own_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -393,7 +394,7 @@ class UjianTest extends TestCase
         $this->assertSoftDeleted('ujian', ['id' => $ujian->id]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_delete_ujian_with_active_sessions()
     {
         $ujian = Ujian::factory()->create([
@@ -401,7 +402,7 @@ class UjianTest extends TestCase
         ]);
 
         // Create active session
-        $ujian->sesiUjian()->create(
+        $ujian->sesiUjians()->create(
             ApiTestHelper::sesiUjianData($ujian->id, $this->siswa->id, [
                 'status' => 'sedang_mengerjakan',
             ])
@@ -415,7 +416,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_publish_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -438,7 +439,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_publish_ujian_without_soal()
     {
         $ujian = Ujian::factory()->create([
@@ -454,7 +455,7 @@ class UjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_unpublish_ujian()
     {
         $ujian = Ujian::factory()->create([
@@ -474,7 +475,7 @@ class UjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_404_for_non_existent_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);

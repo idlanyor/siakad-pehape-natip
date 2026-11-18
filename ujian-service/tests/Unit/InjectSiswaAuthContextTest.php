@@ -7,10 +7,12 @@ use App\Models\Siswa;
 use App\Models\UserSiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class InjectSiswaAuthContextTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_injects_auth_user_for_logged_in_siswa(): void
     {
         $siswa = Siswa::create([

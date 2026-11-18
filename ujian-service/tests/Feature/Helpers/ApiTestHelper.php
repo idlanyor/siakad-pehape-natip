@@ -265,6 +265,14 @@ class ApiTestHelper
             'semester' => 'ganjil',
             'status' => 'aktif',
             'fase_aktif' => 'pelaksanaan',
+            'fases' => [
+                [
+                    'tipe' => 'pelaksanaan',
+                    'urutan' => 1,
+                    'tgl_mulai' => $now->format('Y-m-d H:i:s'),
+                    'tgl_selesai' => $now->copy()->addDays(7)->format('Y-m-d H:i:s'),
+                ]
+            ],
         ];
 
         return array_merge($defaults, $attributes);

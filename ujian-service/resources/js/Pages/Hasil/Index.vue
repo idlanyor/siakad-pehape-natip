@@ -133,7 +133,7 @@
                         :loading="loading"
                         @search="handleSearch"
                     >
-                        <template #actions>
+                        <template #header-actions>
                             <Button
                                 variant="success"
                                 size="sm"

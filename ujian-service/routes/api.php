@@ -164,6 +164,7 @@ Route::middleware('jwt.verify')->group(function () {
 
 Route::middleware(['jwt.verify', 'exam.role:admin,superadmin'])->prefix('admin')->group(function () {
     Route::apiResource('ujian', \App\Http\Controllers\Api\UjianController::class);
+    Route::apiResource('periode-ujian', PeriodeUjianController::class);
     Route::post('ujian/{ujian}/publish', [\App\Http\Controllers\Api\UjianController::class, 'publish']);
     Route::post('ujian/{ujian}/unpublish', [\App\Http\Controllers\Api\UjianController::class, 'unpublish']);
     Route::get('ujian/{ujian}/statistik', [\App\Http\Controllers\Api\UjianController::class, 'statistik']);

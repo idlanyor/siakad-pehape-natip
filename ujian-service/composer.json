@@ -12,6 +12,7 @@
         "laravel/framework": "^11.31",
         "laravel/reverb": "^1.10",
         "laravel/tinker": "^2.9",
+        "tightenco/ziggy": "^2.6",
         "tymon/jwt-auth": "^2.3"
     },
     "require-dev": {

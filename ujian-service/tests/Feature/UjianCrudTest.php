@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use App\Models\Ujian;
 use App\Models\PeriodeUjian;
@@ -30,7 +31,7 @@ class UjianCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_create_ujian()
     {
         $response = $this->authenticatedRequest('POST', '/api/ujian', [
@@ -76,7 +77,7 @@ class UjianCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_create_ujian()
     {
         $response = $this->authenticatedRequest('POST', '/api/ujian', [
@@ -92,7 +93,7 @@ class UjianCrudTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_required_fields_when_creating_ujian()
     {
         $response = $this->authenticatedRequest('POST', '/api/ujian', [], [
@@ -115,7 +116,7 @@ class UjianCrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_view_their_ujian()
     {
         $ujian = Ujian::create([
@@ -148,7 +149,7 @@ class UjianCrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_cannot_view_other_guru_ujian()
     {
         $ujian = Ujian::create([
@@ -174,7 +175,7 @@ class UjianCrudTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_any_ujian()
     {
         $ujian = Ujian::create([
@@ -200,7 +201,7 @@ class UjianCrudTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_update_their_ujian()
     {
         $ujian = Ujian::create([
@@ -239,7 +240,7 @@ class UjianCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_update_ujian_that_has_sessions()
     {
         $ujian = Ujian::create([
@@ -283,7 +284,7 @@ class UjianCrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_delete_their_ujian()
     {
         $ujian = Ujian::create([
@@ -317,7 +318,7 @@ class UjianCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_delete_ujian_that_has_sessions()
     {
         $ujian = Ujian::create([
@@ -358,7 +359,7 @@ class UjianCrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_publish_ujian_with_sufficient_soals()
     {
         $ujian = Ujian::create([
@@ -421,7 +422,7 @@ class UjianCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_publish_ujian_without_sufficient_soals()
     {
         $ujian = Ujian::create([
@@ -451,7 +452,7 @@ class UjianCrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_unpublish_ujian()
     {
         $ujian = Ujian::create([
@@ -487,7 +488,7 @@ class UjianCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_list_ujian_with_filters()
     {
         // Create multiple ujian

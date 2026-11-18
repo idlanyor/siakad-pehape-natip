@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use App\Services\JwtTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +19,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->jwtService = app(JwtTokenService::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_generate_jwt_token_for_user()
     {
         $userData = [
@@ -39,7 +40,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertCount(3, $parts);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_verify_valid_jwt_token()
     {
         $userData = [
@@ -59,7 +60,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertEquals(10, $decoded['kelas_id']);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_invalid_jwt_token()
     {
         $invalidToken = 'invalid.token.here';
@@ -68,7 +69,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->jwtService->verifyToken($invalidToken);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_expired_jwt_token()
     {
         $userData = [
@@ -85,7 +86,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->jwtService->verifyToken($token);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_refresh_jwt_token()
     {
         $userData = [
@@ -109,7 +110,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertEquals($oldDecoded['nama'], $newDecoded['nama']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_extract_user_from_token()
     {
         $userData = [
@@ -128,7 +129,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertEquals($userData['kelas_id'], $extractedUser['kelas_id']);
     }
 
-    /** @test */
+    #[Test]
     public function jwt_middleware_allows_valid_token()
     {
         $response = $this->authenticatedRequest('GET', '/api/periode', [], [
@@ -140,7 +141,7 @@ class JwtTokenHandoffTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function jwt_middleware_rejects_missing_token()
     {
         $response = $this->json('GET', '/api/periode');
@@ -152,7 +153,7 @@ class JwtTokenHandoffTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function jwt_middleware_rejects_invalid_token()
     {
         $response = $this->withHeaders([
@@ -166,7 +167,7 @@ class JwtTokenHandoffTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_generate_service_token()
     {
         $token = $this->jwtService->generateServiceToken();
@@ -175,7 +176,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertNotEmpty($token);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_verify_service_token()
     {
         $token = $this->jwtService->generateServiceToken();
@@ -184,7 +185,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertTrue($isValid);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_invalid_service_token()
     {
         $invalidToken = 'invalid-service-token';
@@ -193,7 +194,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertFalse($isValid);
     }
 
-    /** @test */
+    #[Test]
     public function service_middleware_allows_valid_service_key()
     {
         $response = $this->serviceRequest('GET', '/api/siakad/periode');
@@ -201,7 +202,7 @@ class JwtTokenHandoffTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function service_middleware_rejects_missing_service_key()
     {
         $response = $this->json('GET', '/api/siakad/periode');
@@ -213,7 +214,7 @@ class JwtTokenHandoffTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function service_middleware_rejects_invalid_service_key()
     {
         $response = $this->withHeaders([
@@ -228,7 +229,7 @@ class JwtTokenHandoffTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function token_contains_correct_user_data_for_siswa()
     {
         $userData = [
@@ -249,7 +250,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertEquals('2024001', $decoded['nis']);
     }
 
-    /** @test */
+    #[Test]
     public function token_contains_correct_user_data_for_guru()
     {
         $userData = [
@@ -268,7 +269,7 @@ class JwtTokenHandoffTest extends TestCase
         $this->assertArrayNotHasKey('nis', $decoded);
     }
 
-    /** @test */
+    #[Test]
     public function token_contains_correct_user_data_for_admin()
     {
         $userData = [

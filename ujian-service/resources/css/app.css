@@ -2,9 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* AdminLTE Core Styles - Using from public/plugins */
-@import url('/plugins/fontawesome-free/css/all.min.css');
-@import url('/dist/css/adminlte.min.css');
+
 
 /* Custom Styles */
 body {

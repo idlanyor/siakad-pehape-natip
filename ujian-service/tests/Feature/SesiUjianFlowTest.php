@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use App\Models\Ujian;
 use App\Models\PeriodeUjian;
@@ -97,7 +98,7 @@ class SesiUjianFlowTest extends TestCase
         ];
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_view_available_ujian()
     {
         $response = $this->authenticatedRequest('GET', '/api/sesi', [], $this->siswaData);
@@ -120,7 +121,7 @@ class SesiUjianFlowTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_start_exam_session()
     {
         $response = $this->authenticatedRequest('POST', "/api/ujian/{$this->ujian->id}/sesi", [], $this->siswaData);
@@ -154,7 +155,7 @@ class SesiUjianFlowTest extends TestCase
         $this->assertEquals(3, $sesi->jawabans()->count());
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_session_for_unpublished_ujian()
     {
         $this->ujian->update(['is_published' => false]);
@@ -168,7 +169,7 @@ class SesiUjianFlowTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_session_outside_time_window()
     {
         $this->ujian->update([
@@ -185,7 +186,7 @@ class SesiUjianFlowTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_session_for_different_kelas()
     {
         $response = $this->authenticatedRequest('POST', "/api/ujian/{$this->ujian->id}/sesi", [], [
@@ -202,7 +203,7 @@ class SesiUjianFlowTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_multiple_sessions()
     {
         // Start first session
@@ -218,7 +219,7 @@ class SesiUjianFlowTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_get_session_with_soals()
     {
         // Start session
@@ -264,7 +265,7 @@ class SesiUjianFlowTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_submit_answer()
     {
         // Start session
@@ -295,7 +296,7 @@ class SesiUjianFlowTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_mark_answer_as_ragu()
     {
         // Start session
@@ -321,7 +322,7 @@ class SesiUjianFlowTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_submit_entire_exam()
     {
         // Start session
@@ -376,7 +377,7 @@ class SesiUjianFlowTest extends TestCase
         $this->assertNotNull($sesi->waktu_selesai);
     }
 
-    /** @test */
+    #[Test]
     public function exam_auto_submits_on_timeout()
     {
         // Create ujian with very short duration
@@ -427,7 +428,7 @@ class SesiUjianFlowTest extends TestCase
         $this->assertNotNull($sesi->nilai_akhir);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_view_exam_result()
     {
         // Start and complete exam
@@ -481,7 +482,7 @@ class SesiUjianFlowTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_view_result_of_ongoing_exam()
     {
         // Start exam
@@ -498,7 +499,7 @@ class SesiUjianFlowTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_access_other_student_session()
     {
         // Start session as first student
@@ -516,7 +517,7 @@ class SesiUjianFlowTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_view_student_result()
     {
         // Start and complete exam as student
@@ -534,7 +535,7 @@ class SesiUjianFlowTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function auto_grading_works_correctly()
     {
         // Start session
@@ -571,7 +572,7 @@ class SesiUjianFlowTest extends TestCase
         $this->assertEquals(0, $jawaban2->nilai);
     }
 
-    /** @test */
+    #[Test]
     public function essay_questions_are_not_auto_graded()
     {
         // Start session

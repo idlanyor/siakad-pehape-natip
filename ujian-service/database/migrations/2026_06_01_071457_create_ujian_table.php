@@ -34,6 +34,7 @@ return new class extends Migration
             $table->decimal('passing_grade', 5, 2)->default(0); // nilai minimal lulus
             $table->boolean('acak_soal')->default(false);
             $table->boolean('acak_opsi')->default(false);
+            $table->boolean('tampilkan_nilai')->default(true);
             $table->enum('status', ['draft', 'published', 'selesai'])->default('draft');
             $table->boolean('is_published')->default(false);
             $table->unsignedInteger('jumlah_peserta')->default(0);

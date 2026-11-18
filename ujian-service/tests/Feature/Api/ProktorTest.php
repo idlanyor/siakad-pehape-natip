@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Feature\Helpers\ApiTestHelper;
 use App\Models\PeriodeUjian;
@@ -48,7 +49,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_access_proktor_dashboard()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);
@@ -70,7 +71,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_access_proktor_for_own_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->guru);
@@ -88,7 +89,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guru_cannot_access_proktor_for_others_ujian()
     {
         $otherGuru = ApiTestHelper::createUser('guru');
@@ -105,7 +106,7 @@ class ProktorTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_access_proktor_dashboard()
     {
         $headers = ApiTestHelper::authHeaders($this->siswa);
@@ -116,7 +117,7 @@ class ProktorTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_active_sessions_for_ujian()
     {
         // Create multiple sessions
@@ -150,7 +151,7 @@ class ProktorTest extends TestCase
         $response->assertJsonCount(3, 'data');
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_session_with_realtime_data()
     {
         $sesi = SesiUjian::create(
@@ -183,7 +184,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_force_finish_session()
     {
         Event::fake([SesiUpdated::class]);
@@ -212,7 +213,7 @@ class ProktorTest extends TestCase
         Event::assertDispatched(SesiUpdated::class);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_force_finish_session_for_own_ujian()
     {
         $sesi = SesiUjian::create(
@@ -232,7 +233,7 @@ class ProktorTest extends TestCase
         ApiTestHelper::assertApiSuccess($response);
     }
 
-    /** @test */
+    #[Test]
     public function guru_cannot_force_finish_session_for_others_ujian()
     {
         $otherGuru = ApiTestHelper::createUser('guru');
@@ -255,7 +256,7 @@ class ProktorTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_disqualify_session()
     {
         Event::fake([SesiUpdated::class]);
@@ -285,7 +286,7 @@ class ProktorTest extends TestCase
         Event::assertDispatched(SesiUpdated::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_disqualify_reason()
     {
         $sesi = SesiUjian::create(
@@ -302,7 +303,7 @@ class ProktorTest extends TestCase
         ApiTestHelper::assertValidationError($response, ['reason']);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_send_announcement_to_all()
     {
         Event::fake([AnnouncementEvent::class]);
@@ -329,7 +330,7 @@ class ProktorTest extends TestCase
         Event::assertDispatched(AnnouncementEvent::class);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_send_announcement_to_specific_session()
     {
         Event::fake([AnnouncementEvent::class]);
@@ -352,7 +353,7 @@ class ProktorTest extends TestCase
         Event::assertDispatched(AnnouncementEvent::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_announcement_message()
     {
         $headers = ApiTestHelper::authHeaders($this->admin);
@@ -365,7 +366,7 @@ class ProktorTest extends TestCase
         ApiTestHelper::assertValidationError($response, ['message']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_recent_events()
     {
         // Create some sessions with activities
@@ -407,7 +408,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_events_by_type()
     {
         $sesi = SesiUjian::create(
@@ -432,7 +433,7 @@ class ProktorTest extends TestCase
         $response->assertJsonCount(2, 'data');
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_statistics_for_ujian()
     {
         $siswaList = ApiTestHelper::createUsers('siswa', 10);
@@ -478,7 +479,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_tracks_connection_status()
     {
         $sesi = SesiUjian::create(
@@ -504,7 +505,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_idle_connection()
     {
         $sesi = SesiUjian::create(
@@ -530,7 +531,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_offline_connection()
     {
         $sesi = SesiUjian::create(
@@ -556,7 +557,7 @@ class ProktorTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_list_of_active_ujian()
     {
         // Create multiple ujian

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ujian extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'ujian';
 
@@ -32,6 +33,11 @@ class Ujian extends Model
         'tampilkan_nilai',
         'status',
         'is_published',
+        'periode_ujian_id',
+        // Alias field lama (legacy) — dipetakan lewat mutator di bawah.
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'durasi',
     ];
 
     protected $casts = [
@@ -42,6 +48,56 @@ class Ujian extends Model
         'tampilkan_nilai' => 'boolean',
         'is_published' => 'boolean',
     ];
+
+    public function setPeriodeUjianIdAttribute($value)
+    {
+        $this->attributes['periode_id'] = $value;
+    }
+
+    public function getPeriodeUjianIdAttribute()
+    {
+        return $this->attributes['periode_id'] ?? null;
+    }
+
+    /*
+     |---------------------------------------------------------------------------
+     | Alias field legacy
+     |---------------------------------------------------------------------------
+     | Kolom kanonik di tabel `ujian` adalah waktu_mulai, waktu_selesai, dan
+     | durasi_menit. Request lama (SIAKAD) serta data factory masih memakai
+     | tanggal_mulai, tanggal_selesai, dan durasi. Alias di sini memetakan
+     | penulisan field lama ke kolom kanonik agar keduanya tetap kompatibel.
+     */
+
+    public function setTanggalMulaiAttribute($value)
+    {
+        $this->attributes['waktu_mulai'] = $value;
+    }
+
+    public function getTanggalMulaiAttribute()
+    {
+        return $this->attributes['waktu_mulai'] ?? null;
+    }
+
+    public function setTanggalSelesaiAttribute($value)
+    {
+        $this->attributes['waktu_selesai'] = $value;
+    }
+
+    public function getTanggalSelesaiAttribute()
+    {
+        return $this->attributes['waktu_selesai'] ?? null;
+    }
+
+    public function setDurasiAttribute($value)
+    {
+        $this->attributes['durasi_menit'] = $value;
+    }
+
+    public function getDurasiAttribute()
+    {
+        return $this->attributes['durasi_menit'] ?? null;
+    }
 
     /**
      * Relasi ke periode
@@ -84,6 +140,16 @@ class Ujian extends Model
     public function sesis()
     {
         return $this->hasMany(SesiUjian::class, 'ujian_id');
+    }
+
+    public function sesiUjians()
+    {
+        return $this->hasMany(SesiUjian::class, 'ujian_id');
+    }
+
+    public function soalUjians()
+    {
+        return $this->hasMany(SoalUjian::class, 'ujian_id');
     }
 
     public function getStatusColorAttribute(): string

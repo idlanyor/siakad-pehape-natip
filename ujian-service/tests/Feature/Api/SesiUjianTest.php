@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Feature\Helpers\ApiTestHelper;
 use App\Models\PeriodeUjian;
@@ -47,7 +48,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_start_ujian()
     {
         $headers = ApiTestHelper::authHeaders($this->siswa);
@@ -69,11 +70,11 @@ class SesiUjianTest extends TestCase
         $this->assertDatabaseHas('sesi_ujian', [
             'ujian_id' => $this->ujian->id,
             'siswa_id' => $this->siswa->id,
-            'status' => 'sedang_mengerjakan',
+            'status' => 'berlangsung',
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_ujian_twice()
     {
         // Start first time
@@ -88,7 +89,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_unpublished_ujian()
     {
         $draftUjian = Ujian::factory()->create([
@@ -104,7 +105,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_ujian_before_start_time()
     {
         $futureUjian = Ujian::factory()->create([
@@ -122,7 +123,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_start_ujian_after_end_time()
     {
         $pastUjian = Ujian::factory()->create([
@@ -140,7 +141,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_get_active_sesi()
     {
         $sesi = SesiUjian::create(
@@ -164,7 +165,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_access_others_sesi()
     {
         $otherSiswa = ApiTestHelper::createUser('siswa');
@@ -180,7 +181,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_submit_jawaban()
     {
         $sesi = SesiUjian::create(
@@ -207,7 +208,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_update_jawaban()
     {
         $sesi = SesiUjian::create(
@@ -243,7 +244,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_submit_jawaban_after_time_limit()
     {
         $sesi = SesiUjian::create(
@@ -265,7 +266,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_finish_ujian()
     {
         $sesi = SesiUjian::create(
@@ -305,7 +306,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function system_auto_finishes_ujian_after_time_limit()
     {
         $sesi = SesiUjian::create(
@@ -324,7 +325,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_view_hasil_after_finish()
     {
         $sesi = SesiUjian::create(
@@ -351,7 +352,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_view_hasil_before_finish()
     {
         $sesi = SesiUjian::create(
@@ -369,7 +370,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertApiError($response, 422);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_view_all_sesi_for_their_ujian()
     {
         $guruUjian = Ujian::factory()->create([
@@ -395,7 +396,7 @@ class SesiUjianTest extends TestCase
         $response->assertJsonCount(5, 'data.data');
     }
 
-    /** @test */
+    #[Test]
     public function guru_cannot_view_sesi_for_others_ujian()
     {
         $otherGuruUjian = Ujian::factory()->create([
@@ -411,7 +412,7 @@ class SesiUjianTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_force_finish_sesi()
     {
         $sesi = SesiUjian::create(
@@ -433,7 +434,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_reset_sesi()
     {
         $sesi = SesiUjian::create(
@@ -460,7 +461,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_nilai_correctly()
     {
         $sesi = SesiUjian::create(
@@ -503,7 +504,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_tracks_violation_count()
     {
         $sesi = SesiUjian::create(
@@ -529,7 +530,7 @@ class SesiUjianTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_disqualifies_after_max_violations()
     {
         $sesi = SesiUjian::create(

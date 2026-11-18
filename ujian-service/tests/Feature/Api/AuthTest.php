@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Feature\Helpers\ApiTestHelper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,7 +18,7 @@ class AuthTest extends TestCase
         Config::set('app.service_key', 'test-service-key-12345');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_authenticate_with_valid_jwt_token()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -37,7 +38,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_request_without_token()
     {
         $response = $this->getJson('/api/auth/me');
@@ -45,7 +46,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertUnauthorized($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_request_with_invalid_token()
     {
         $response = $this->withHeaders([
@@ -56,7 +57,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertUnauthorized($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_expired_token()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -74,7 +75,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertUnauthorized($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_handle_siakad_jwt_handoff()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -94,7 +95,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_token_claims()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -112,7 +113,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertUnauthorized($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_refresh_token()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -130,7 +131,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_logout()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -145,7 +146,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_access_admin_routes()
     {
         $admin = ApiTestHelper::createUser('admin');
@@ -157,7 +158,7 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function guru_can_access_guru_routes()
     {
         $guru = ApiTestHelper::createUser('guru');
@@ -169,7 +170,7 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_can_access_siswa_routes()
     {
         $siswa = ApiTestHelper::createUser('siswa');
@@ -181,7 +182,7 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_access_admin_routes()
     {
         $siswa = ApiTestHelper::createUser('siswa');
@@ -193,7 +194,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function siswa_cannot_access_guru_routes()
     {
         $siswa = ApiTestHelper::createUser('siswa');
@@ -205,7 +206,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function guru_cannot_access_admin_routes()
     {
         $guru = ApiTestHelper::createUser('guru');
@@ -217,7 +218,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertForbidden($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_service_key_for_internal_api()
     {
         $headers = ApiTestHelper::serviceHeaders();
@@ -230,7 +231,7 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_invalid_service_key()
     {
         $response = $this->withHeaders([
@@ -243,7 +244,7 @@ class AuthTest extends TestCase
         ApiTestHelper::assertUnauthorized($response);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_requests_with_same_token()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -261,7 +262,7 @@ class AuthTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function it_rate_limits_authentication_attempts()
     {
         $user = ApiTestHelper::createUser('siswa');
@@ -283,7 +284,7 @@ class AuthTest extends TestCase
         $response->assertStatus(429); // Too Many Requests
     }
 
-    /** @test */
+    #[Test]
     public function it_logs_authentication_events()
     {
         $user = ApiTestHelper::createUser('siswa');

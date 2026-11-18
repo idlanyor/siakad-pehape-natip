@@ -52,7 +52,7 @@ class PeriodeUjianController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'tahun_ajaran' => 'required|string|max:20',
+            'tahun_ajaran' => ['required', 'string', 'regex:/^\d{4}\/\d{4}$/'],
             'semester' => ['required', Rule::in(['ganjil', 'genap'])],
             'status' => ['required', Rule::in(['draft', 'aktif', 'selesai'])],
             'fases' => 'required|array|min:1',
