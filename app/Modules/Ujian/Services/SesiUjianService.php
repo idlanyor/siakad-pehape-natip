@@ -13,6 +13,7 @@ use App\Modules\Ujian\Models\Ujian;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Siklus hidup sesi ujian siswa: mulai, menjawab, selesai, timeout,
@@ -81,14 +82,16 @@ class SesiUjianService
     }
 
     /**
-     * Batas waktu sesi: durasi ujian sejak mulai, tetapi tidak melewati
-     * akhir jendela ujian.
+     * Batas waktu sesi: durasi ujian (+ tambahan proktor) sejak mulai, tetapi
+     * tidak melewati akhir jendela ujian (+ tambahan proktor).
      */
     public function batasWaktu(SesiUjian $sesi): Carbon
     {
-        $batasDurasi = $sesi->waktu_mulai->copy()->addSeconds($sesi->durasi_detik);
+        $tambahan = (int) $sesi->tambahan_detik;
+        $batasDurasi = $sesi->waktu_mulai->copy()->addSeconds($sesi->durasi_detik + $tambahan);
 
-        return $batasDurasi->min($sesi->ujian->waktu_selesai);
+        // Waktu tambahan dari proktor ikut memperpanjang jam tutup ujian untuk sesi ini.
+        return $batasDurasi->min($sesi->ujian->waktu_selesai->copy()->addSeconds($tambahan));
     }
 
     public function sisaDetik(SesiUjian $sesi): int
@@ -209,6 +212,55 @@ class SesiUjianService
     }
 
     /**
+     * Proktor menambah waktu satu sesi yang sedang berlangsung.
+     */
+    public function tambahWaktu(SesiUjian $sesi, int $menit, User $oleh, ?string $alasan = null): SesiUjian
+    {
+        if ($menit < 1 || $menit > 180) {
+            throw UjianException::menitTidakValid();
+        }
+        $this->pastikanBerlangsung($sesi);
+
+        return DB::transaction(function () use ($sesi, $menit, $oleh, $alasan) {
+            $sesi->increment('tambahan_detik', $menit * 60);
+            $this->logAksi($sesi, 'extend_time', $oleh, "+{$menit} menit".($alasan ? ": {$alasan}" : ''));
+
+            return $sesi;
+        });
+    }
+
+    /**
+     * Terbitkan token perangkat baru untuk halaman mengerjakan. Perangkat/tab
+     * sebelumnya otomatis tertolak. Bila perangkat sebelumnya masih aktif
+     * (2 menit terakhir), perpindahan dicatat agar terlihat oleh proktor.
+     */
+    public function klaimPerangkat(SesiUjian $sesi, ?string $ip = null, ?string $userAgent = null): string
+    {
+        $masihAktif = $sesi->token_perangkat !== null
+            && $sesi->last_activity_at?->greaterThan(now()->subMinutes(2));
+
+        $token = Str::random(40);
+        $sesi->forceFill(['token_perangkat' => $token, 'last_activity_at' => now()])->save();
+
+        if ($masihAktif) {
+            $sesi->proktorEvents()->create([
+                'tipe' => 'device_switch',
+                'keterangan' => 'Sesi dibuka di perangkat/tab lain; perangkat sebelumnya diputus.',
+                'detail' => array_filter(['ip' => $ip, 'user_agent' => $userAgent ? Str::limit($userAgent, 200) : null]),
+            ]);
+        }
+
+        return $token;
+    }
+
+    public function pastikanPerangkat(SesiUjian $sesi, ?string $token): void
+    {
+        if ($sesi->token_perangkat !== null && ! hash_equals($sesi->token_perangkat, (string) $token)) {
+            throw UjianException::perangkatLain();
+        }
+    }
+
+    /**
      * Kembalikan sesi ke status "belum" sehingga siswa bisa mengulang dari awal.
      * Jawaban dihapus; log event tetap disimpan untuk audit.
      */
@@ -225,6 +277,8 @@ class SesiUjianService
                 'nilai_akhir' => null,
                 'predikat' => null,
                 'jumlah_pelanggaran' => 0,
+                'tambahan_detik' => 0,
+                'token_perangkat' => null,
             ]);
             $this->logAksi($sesi, 'reset', $oleh, $alasan ?? 'Sesi direset oleh proktor.');
 

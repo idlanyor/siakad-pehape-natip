@@ -3,6 +3,7 @@
 namespace App\Modules\Ujian\Http\Controllers\Siswa;
 
 use App\Models\Siswa;
+use App\Modules\Ujian\Exceptions\UjianException;
 use App\Modules\Ujian\Http\Controllers\Controller;
 use App\Modules\Ujian\Models\SesiUjian;
 use App\Modules\Ujian\Models\Ujian;
@@ -77,7 +78,7 @@ class UjianSiswaController extends Controller
         return to_route('ujian.siswa.kerjakan', $sesi);
     }
 
-    public function kerjakan(SesiUjian $sesi): Response|RedirectResponse
+    public function kerjakan(Request $request, SesiUjian $sesi): Response|RedirectResponse
     {
         $this->authorize('kerjakan', $sesi);
 
@@ -85,12 +86,22 @@ class UjianSiswaController extends Controller
             return to_route('ujian.siswa.hasil', $sesi);
         }
 
-        return Inertia::render('Siswa/Kerjakan', $this->penyaji->pengerjaan($sesi));
+        // Membuka halaman ini mengambil alih sesi dari perangkat/tab lain.
+        $token = $this->sesiService->klaimPerangkat($sesi, $request->ip(), $request->userAgent());
+
+        return Inertia::render('Siswa/Kerjakan', [...$this->penyaji->pengerjaan($sesi), 'tokenPerangkat' => $token]);
     }
 
-    public function selesai(SesiUjian $sesi): RedirectResponse
+    public function selesai(Request $request, SesiUjian $sesi): RedirectResponse
     {
         $this->authorize('kerjakan', $sesi);
+
+        try {
+            $this->sesiService->pastikanPerangkat($sesi, $request->header('X-Sesi-Token'));
+        } catch (UjianException $e) {
+            // Bukan back(): kembali ke halaman mengerjakan berarti mengambil alih sesi lagi.
+            return to_route('ujian.siswa.index')->with('error', $e->getMessage());
+        }
 
         if ($sesi->isBerlangsung()) {
             $this->sesiService->selesaikan($sesi);

@@ -25,6 +25,7 @@ class SesiApiController extends Controller
     public function jawab(Request $request, SesiUjian $sesi): JsonResponse
     {
         $this->authorize('kerjakan', $sesi);
+        $this->sesiService->pastikanPerangkat($sesi, $request->header('X-Sesi-Token'));
         $data = $request->validate([
             'soal_id' => ['required', 'integer'],
             'pilihan' => ['nullable', 'string', 'size:1'],
@@ -41,6 +42,7 @@ class SesiApiController extends Controller
     public function pelanggaran(Request $request, SesiUjian $sesi): JsonResponse
     {
         $this->authorize('kerjakan', $sesi);
+        $this->sesiService->pastikanPerangkat($sesi, $request->header('X-Sesi-Token'));
         $data = $request->validate([
             'tipe' => ['required', Rule::in(array_keys(ProktorEvent::PELANGGARAN))],
             'detail' => ['nullable', 'array', 'max:10'],
@@ -56,23 +58,32 @@ class SesiApiController extends Controller
      * Heartbeat: memperbarui aktivitas terakhir (status online di monitor
      * proktor) dan memeriksa waktu habis.
      */
-    public function ping(SesiUjian $sesi): JsonResponse
+    public function ping(Request $request, SesiUjian $sesi): JsonResponse
     {
         $this->authorize('kerjakan', $sesi);
+        $this->sesiService->pastikanPerangkat($sesi, $request->header('X-Sesi-Token'));
 
         if (! $this->sesiService->periksaWaktu($sesi) && $sesi->isBerlangsung()) {
             $sesi->update(['last_activity_at' => now()]);
         }
 
-        return $this->status($sesi);
+        // Pengumuman proktor yang belum diterima browser ini.
+        $pengumuman = $sesi->ujian->pengumuman()
+            ->with('user:id,name')
+            ->where('id', '>', $request->integer('setelah'))
+            ->get()
+            ->map->ringkas();
+
+        return $this->status($sesi, ['pengumuman' => $pengumuman]);
     }
 
-    private function status(SesiUjian $sesi): JsonResponse
+    private function status(SesiUjian $sesi, array $tambahan = []): JsonResponse
     {
         return response()->json([
             'status' => $sesi->status,
             'sisa_detik' => $this->sesiService->sisaDetik($sesi),
             'jumlah_pelanggaran' => $sesi->jumlah_pelanggaran,
+            ...$tambahan,
         ]);
     }
 }

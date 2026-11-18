@@ -37,6 +37,8 @@ class ProktorEvent extends Model
         'disqualify' => 'Diskualifikasi',
         'reset' => 'Sesi Direset',
         'announce' => 'Pengumuman',
+        'extend_time' => 'Tambah Waktu',
+        'device_switch' => 'Pindah Perangkat',
     ];
 
     protected $table = 'proktor_event';

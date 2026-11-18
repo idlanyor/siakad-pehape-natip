@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, useForm } from '@inertiajs/vue3';
 import PageHeader from '@/Ujian/Components/PageHeader.vue';
 import { labelStatusSesi, tanggalWaktu } from '@/Ujian/lib/format';
 import { konfirmasi, mintaAlasan } from '@/Ujian/lib/konfirmasi';
@@ -10,6 +10,7 @@ const props = defineProps({
     peserta: { type: Array, required: true },
     statistik: { type: Object, required: true },
     event: { type: Array, required: true },
+    pengumuman: { type: Array, default: () => [] },
     batasPelanggaran: { type: Number, required: true },
     diperbarui: { type: String, required: true },
 });
@@ -21,7 +22,7 @@ const memuat = ref(false);
 function muatUlang() {
     if (document.hidden || memuat.value) return;
     router.reload({
-        only: ['peserta', 'statistik', 'event', 'diperbarui'],
+        only: ['peserta', 'statistik', 'event', 'pengumuman', 'diperbarui'],
         onStart: () => { memuat.value = true; },
         onFinish: () => { memuat.value = false; },
     });
@@ -69,7 +70,49 @@ const pilihanFilter = [
 ];
 
 // --- Aksi -----------------------------------------------------------------------------
-const opsi = { preserveScroll: true, only: ['peserta', 'statistik', 'event', 'diperbarui', 'flash'] };
+const opsi = { preserveScroll: true, only: ['peserta', 'statistik', 'event', 'pengumuman', 'diperbarui', 'flash'] };
+
+async function mintaMenit(judul) {
+    if (!window.Swal) {
+        const menit = Number(window.prompt(`${judul} (menit)`, '10'));
+        return menit > 0 ? { menit, alasan: '' } : null;
+    }
+    const hasil = await window.Swal.fire({
+        title: judul,
+        html: '<input id="swal-menit" type="number" min="1" max="180" value="10" class="swal2-input" placeholder="Menit">'
+            + '<input id="swal-alasan" class="swal2-input" placeholder="Alasan (opsional)">',
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Tambah waktu',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        preConfirm: () => {
+            const menit = Number(document.getElementById('swal-menit').value);
+            if (!(menit >= 1 && menit <= 180)) {
+                window.Swal.showValidationMessage('Isi 1 sampai 180 menit.');
+                return false;
+            }
+            return { menit, alasan: document.getElementById('swal-alasan').value.trim() };
+        },
+    });
+    return hasil.isConfirmed ? hasil.value : null;
+}
+
+async function tambahWaktu(p) {
+    const data = await mintaMenit(`Tambah waktu ${p.siswa.nama}`);
+    if (data) router.post(route('ujian.proktor.tambah-waktu', p.sesi.id), data, opsi);
+}
+
+async function tambahWaktuSemua() {
+    const data = await mintaMenit(`Tambah waktu semua peserta yang sedang mengerjakan (${props.statistik.berlangsung})`);
+    if (data) router.post(route('ujian.proktor.tambah-waktu-semua', props.ujian.id), data, opsi);
+}
+
+const formPengumuman = useForm({ pesan: '' });
+const kirimPengumuman = () => formPengumuman.post(route('ujian.proktor.pengumuman', props.ujian.id), {
+    ...opsi,
+    onSuccess: () => formPengumuman.reset(),
+});
 
 async function paksaSelesai(p) {
     const alasan = await mintaAlasan(`Selesaikan sesi ${p.siswa.nama}?`, {
@@ -110,6 +153,9 @@ const kartu = [
                 <i class="fas fa-sync-alt mr-1" :class="{ 'fa-spin': memuat }" />
                 diperbarui {{ detikBerlalu }} dtk lalu
             </span>
+            <button v-if="statistik.berlangsung" class="btn btn-sm btn-outline-primary mr-1" @click="tambahWaktuSemua">
+                <i class="fas fa-clock mr-1" /> Tambah waktu semua
+            </button>
             <button class="btn btn-sm btn-default" @click="muatUlang">Muat ulang</button>
         </template>
     </PageHeader>
@@ -179,6 +225,9 @@ const kartu = [
                                 <td class="text-center">{{ p.sesi?.nilai_akhir ?? '—' }}</td>
                                 <td class="text-right text-nowrap">
                                     <template v-if="p.sesi">
+                                        <button v-if="p.sesi.status === 'berlangsung'" class="btn btn-xs btn-outline-info mr-1" title="Tambah waktu" @click="tambahWaktu(p)">
+                                            <i class="fas fa-clock" />
+                                        </button>
                                         <button v-if="p.sesi.status === 'berlangsung'" class="btn btn-xs btn-outline-primary" title="Paksa selesai" @click="paksaSelesai(p)">
                                             <i class="fas fa-stop" />
                                         </button>
@@ -201,6 +250,24 @@ const kartu = [
         </div>
 
         <div class="col-xl-3">
+            <form class="card" @submit.prevent="kirimPengumuman">
+                <div class="card-header"><h3 class="card-title">Pengumuman ke peserta</h3></div>
+                <div class="card-body pb-2">
+                    <textarea v-model="formPengumuman.pesan" rows="2" maxlength="500" class="form-control form-control-sm"
+                              :class="{ 'is-invalid': formPengumuman.errors.pesan }" placeholder="Mis. Soal nomor 5 opsi C seharusnya 'Jakarta'." />
+                    <div v-if="formPengumuman.errors.pesan" class="invalid-feedback d-block">{{ formPengumuman.errors.pesan }}</div>
+                    <button class="btn btn-sm btn-primary btn-block mt-2" :disabled="formPengumuman.processing || !formPengumuman.pesan.trim()">
+                        <i class="fas fa-bullhorn mr-1" /> Kirim
+                    </button>
+                    <small class="text-muted d-block mt-1">Muncul di layar siswa dalam ±15 detik.</small>
+                </div>
+                <ul v-if="pengumuman.length" class="list-group list-group-flush small">
+                    <li v-for="p in pengumuman" :key="p.id" class="list-group-item py-1">
+                        {{ p.pesan }} <span class="text-muted">— {{ p.oleh }}, {{ tanggalWaktu(p.waktu) }}</span>
+                    </li>
+                </ul>
+            </form>
+
             <div class="card">
                 <div class="card-header"><h3 class="card-title">Kejadian terbaru</h3></div>
                 <ul class="list-group list-group-flush small" style="max-height: 32rem; overflow-y: auto">

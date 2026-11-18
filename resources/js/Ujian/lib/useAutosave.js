@@ -9,14 +9,17 @@ import axios from 'axios';
  * - Gagal jaringan: entri tetap di antrean dan dicoba lagi tiap 5 detik
  *   atau saat browser kembali online.
  * - Respons 422 (waktu habis, sesi diakhiri) diteruskan ke onDitolak.
+ * - Respons 409 (sesi diambil alih perangkat lain) menghentikan pengiriman
+ *   dan memanggil onPerangkatLain; antrean dibiarkan supaya tidak hilang.
  *
  * @param {string} url endpoint jawab
- * @param {{ onStatus: Function, onDitolak: Function }} callbacks
+ * @param {{ headers: object, onStatus: Function, onDitolak: Function, onPerangkatLain: Function }} opsi
  */
-export function useAutosave(url, { onStatus, onDitolak }) {
+export function useAutosave(url, { headers = {}, onStatus, onDitolak, onPerangkatLain }) {
     const antrean = new Map();
     const status = ref('tersimpan'); // tersimpan | menyimpan | offline
     let berjalan = null;
+    let berhenti = false; // true setelah sesi diambil alih perangkat lain
 
     function simpan(payload) {
         antrean.set(payload.soal_id, payload);
@@ -25,6 +28,7 @@ export function useAutosave(url, { onStatus, onDitolak }) {
     }
 
     function kirim() {
+        if (berhenti) return Promise.resolve(false);
         berjalan ??= proses().finally(() => { berjalan = null; });
         return berjalan;
     }
@@ -33,11 +37,17 @@ export function useAutosave(url, { onStatus, onDitolak }) {
         while (antrean.size) {
             const [soalId, payload] = antrean.entries().next().value;
             try {
-                const { data } = await axios.post(url, payload);
+                const { data } = await axios.post(url, payload, { headers });
                 // Hapus hanya bila tidak ada perubahan lebih baru selama request berjalan.
                 if (antrean.get(soalId) === payload) antrean.delete(soalId);
                 onStatus(data);
             } catch (error) {
+                if (error.response?.status === 409) {
+                    berhenti = true;
+                    status.value = 'offline';
+                    onPerangkatLain?.();
+                    return false;
+                }
                 if (error.response?.status === 422 || error.response?.status === 403) {
                     antrean.delete(soalId);
                     onDitolak(error.response.data?.message ?? 'Jawaban ditolak server.');

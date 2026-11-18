@@ -94,6 +94,11 @@ class Ujian extends Model
         return $this->belongsToMany(Guru::class, 'ujian_pengawas')->withTimestamps();
     }
 
+    public function pengumuman(): HasMany
+    {
+        return $this->hasMany(Pengumuman::class, 'ujian_id')->orderBy('id');
+    }
+
     public function soal(): HasMany
     {
         return $this->hasMany(SoalUjian::class, 'ujian_id')->orderBy('nomor');

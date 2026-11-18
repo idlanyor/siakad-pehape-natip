@@ -59,19 +59,23 @@ class SiswaUjianFlowTest extends TestCase
         $this->actingAs($user)->post(route('ujian.siswa.mulai', $this->ujian))
             ->assertRedirect(route('ujian.siswa.kerjakan', $sesi = SesiUjian::sole()));
 
+        $token = null;
         $this->actingAs($user)
             ->get(route('ujian.siswa.kerjakan', $sesi))
-            ->assertInertia(fn (Assert $p) => $p->component('Siswa/Kerjakan')
-                ->has('soal', 3)
-                ->missing('soal.0.kunci_jawaban')
-                ->where('sesi.status', 'berlangsung'));
+            ->assertInertia(function (Assert $p) use (&$token) {
+                $p->component('Siswa/Kerjakan')
+                    ->has('soal', 3)
+                    ->missing('soal.0.kunci_jawaban')
+                    ->where('sesi.status', 'berlangsung');
+                $token = $p->toArray()['props']['tokenPerangkat'];
+            });
 
-        $jawab = fn (array $data) => $this->actingAs($user)->postJson(route('ujian.siswa.jawab', $sesi), $data);
+        $jawab = fn (array $data) => $this->actingAs($user)->postJson(route('ujian.siswa.jawab', $sesi), $data, ['X-Sesi-Token' => $token]);
         $jawab(['soal_id' => $this->pg1->id, 'pilihan' => 'a'])->assertOk()->assertJson(['status' => 'berlangsung']);
         $jawab(['soal_id' => $this->pg2->id, 'pilihan' => 'C', 'ragu' => true])->assertOk();
         $jawab(['soal_id' => $this->essay->id, 'teks' => 'Uraian saya'])->assertOk();
 
-        $this->actingAs($user)->post(route('ujian.siswa.selesai', $sesi))
+        $this->actingAs($user)->post(route('ujian.siswa.selesai', $sesi), [], ['X-Sesi-Token' => $token])
             ->assertRedirect(route('ujian.siswa.hasil', $sesi));
 
         $this->actingAs($user)

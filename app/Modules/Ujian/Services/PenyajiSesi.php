@@ -4,6 +4,7 @@ namespace App\Modules\Ujian\Services;
 
 use App\Modules\Ujian\Models\JawabanSiswa;
 use App\Modules\Ujian\Models\SesiUjian;
+use App\Modules\Ujian\Support\TeksSoal;
 
 /**
  * Menyusun data sesi untuk halaman siswa (mengerjakan dan hasil).
@@ -37,6 +38,7 @@ class PenyajiSesi
             ],
             'soal' => $sesi->jawaban->map(fn (JawabanSiswa $j) => $this->soal($j))->values()->all(),
             'progres' => $this->progres($sesi),
+            'pengumuman' => $sesi->ujian->pengumuman()->with('user:id,name')->get()->map->ringkas()->all(),
         ];
     }
 
@@ -77,7 +79,7 @@ class PenyajiSesi
             'id' => $soal->id,
             'urutan' => $jawaban->urutan,
             'tipe' => $soal->tipe,
-            'pertanyaan' => $soal->pertanyaan,
+            'pertanyaan_html' => TeksSoal::html($soal->pertanyaan),
             'opsi' => $this->opsiTampil($jawaban),
             'jawaban_pilihan' => $jawaban->jawaban_pilihan,
             'jawaban_text' => $jawaban->jawaban_text,
@@ -104,7 +106,7 @@ class PenyajiSesi
         return collect($urutan)
             ->filter(fn (string $kode) => isset($opsi[$kode]))
             ->values()
-            ->map(fn (string $kode, int $i) => ['kode' => $kode, 'label' => $label[$i], 'teks' => $opsi[$kode]])
+            ->map(fn (string $kode, int $i) => ['kode' => $kode, 'label' => $label[$i], 'html' => TeksSoal::inline($opsi[$kode])])
             ->all();
     }
 

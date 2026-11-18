@@ -11,7 +11,16 @@ const props = defineProps({
     ujian: { type: Object, required: true },
     soal: { type: Array, required: true },
     progres: { type: Object, required: true },
+    pengumuman: { type: Array, default: () => [] },
+    tokenPerangkat: { type: String, required: true },
 });
+
+// Setiap request membawa token perangkat; perangkat/tab lain yang membuka sesi ini mengambil alih.
+const headers = { 'X-Sesi-Token': props.tokenPerangkat };
+const diambilAlih = ref(false);
+function perangkatLain() {
+    diambilAlih.value = true;
+}
 
 const daftar = reactive(props.soal.map((s) => ({ ...s })));
 const indeks = ref(0);
@@ -37,7 +46,11 @@ const sisaTeks = computed(() => {
 const urlHasil = route('ujian.siswa.hasil', props.sesi.id);
 
 function terimaStatus(data) {
-    batas.value = Date.now() + data.sisa_detik * 1000;
+    const batasBaru = Date.now() + data.sisa_detik * 1000;
+    if (batasBaru - batas.value > 30000) {
+        window.toastr?.info(`Waktu ujian ditambah ${Math.round((batasBaru - batas.value) / 60000)} menit.`);
+    }
+    batas.value = batasBaru;
     pelanggaran.value = data.jumlah_pelanggaran;
     status.value = data.status;
     if (data.status !== 'berlangsung') keHasil();
@@ -51,6 +64,8 @@ function keHasil() {
 
 // --- Autosave ---------------------------------------------------------------
 const autosave = useAutosave(route('ujian.siswa.jawab', props.sesi.id), {
+    headers,
+    onPerangkatLain: perangkatLain,
     onStatus: terimaStatus,
     onDitolak: (pesan) => {
         window.toastr?.error(pesan);
@@ -98,25 +113,36 @@ function keSoal(i) {
 // --- Pengawasan browser & heartbeat -----------------------------------------
 const { layarPenuh, masukLayarPenuh } = usePengawasanBrowser(async (tipe) => {
     try {
-        const { data } = await axios.post(route('ujian.siswa.pelanggaran', props.sesi.id), { tipe });
+        const { data } = await axios.post(route('ujian.siswa.pelanggaran', props.sesi.id), { tipe }, { headers });
         terimaStatus(data);
         if (data.status === 'berlangsung' && props.sesi.batas_pelanggaran > 0) {
             window.toastr?.warning(`Pelanggaran tercatat (${data.jumlah_pelanggaran}/${props.sesi.batas_pelanggaran}). Tetap di halaman ujian.`);
         }
-    } catch {
+    } catch (error) {
+        if (error.response?.status === 409) perangkatLain();
         // Gagal lapor (offline) tidak menghentikan ujian.
     }
-}, () => status.value === 'berlangsung' && !sedangSelesai.value);
+}, () => status.value === 'berlangsung' && !sedangSelesai.value && !diambilAlih.value);
+
+// --- Pengumuman proktor (dikirim lewat respons ping) ---------------------------
+const pengumuman = ref([...props.pengumuman]);
+const idTerakhir = () => pengumuman.value.at(-1)?.id ?? 0;
 
 async function ping() {
+    if (diambilAlih.value) return;
     try {
-        const { data } = await axios.post(route('ujian.siswa.ping', props.sesi.id));
+        const { data } = await axios.post(route('ujian.siswa.ping', props.sesi.id), { setelah: idTerakhir() }, { headers });
+        for (const p of data.pengumuman ?? []) {
+            pengumuman.value.push(p);
+            window.toastr?.info(p.pesan, 'Pengumuman pengawas', { timeOut: 15000 });
+        }
         terimaStatus(data);
-    } catch {
+    } catch (error) {
+        if (error.response?.status === 409) perangkatLain();
         // Offline: timer lokal tetap berjalan, coba lagi di ping berikutnya.
     }
 }
-const heartbeat = setInterval(ping, 30000);
+const heartbeat = setInterval(ping, 15000);
 
 // --- Selesai ------------------------------------------------------------------
 async function waktuHabis() {
@@ -137,17 +163,23 @@ async function selesai() {
 
     if (!(await konfirmasi(pesan, { judul: 'Kumpulkan jawaban?', tombol: 'Kumpulkan' }))) return;
 
+    await ping(); // pastikan perangkat ini masih pemegang sesi
+    if (diambilAlih.value || status.value !== 'berlangsung') return;
+
     if (!(await autosave.kosongkan())) {
         window.toastr?.error('Sebagian jawaban belum tersimpan karena koneksi terputus. Periksa internet lalu coba lagi.');
         return;
     }
     sedangSelesai.value = true;
-    router.post(route('ujian.siswa.selesai', props.sesi.id));
+    router.post(route('ujian.siswa.selesai', props.sesi.id), {}, {
+        headers,
+        onFinish: () => { sedangSelesai.value = false; },
+    });
 }
 
 // --- Siklus halaman -----------------------------------------------------------
 const peringatanTutup = (e) => {
-    if (autosave.tertunda()) {
+    if (autosave.tertunda() && !diambilAlih.value) {
         e.preventDefault();
         e.returnValue = '';
     }
@@ -170,25 +202,48 @@ const labelSimpan = {
     tersimpan: ['fa-check-circle text-success', 'Tersimpan'],
     menyimpan: ['fa-sync fa-spin text-info', 'Menyimpan…'],
     offline: ['fa-wifi text-danger', 'Offline, mencoba lagi…'],
+    diputus: ['fa-unlink text-warning', 'Diputus (perangkat lain)'],
 };
+const kunciSimpan = computed(() => (diambilAlih.value ? 'diputus' : autosave.status.value));
 </script>
 
 <template>
     <Head :title="ujian.judul" />
 
+    <div v-if="diambilAlih" class="ujian-diambil-alih">
+        <div class="card shadow-lg" style="max-width: 32rem">
+            <div class="card-body text-center">
+                <i class="fas fa-laptop-house fa-3x text-warning mb-3" />
+                <h4>Ujian dibuka di perangkat atau tab lain</h4>
+                <p class="text-muted">
+                    Hanya satu perangkat yang boleh mengerjakan. Jawaban yang sudah tersimpan tetap aman.
+                    Jika Anda ingin melanjutkan di sini, perangkat lain akan diputus dan kejadian ini terlihat oleh pengawas.
+                </p>
+                <a :href="route('ujian.siswa.kerjakan', sesi.id)" class="btn btn-primary">Lanjutkan di perangkat ini</a>
+            </div>
+        </div>
+    </div>
+
     <div class="pt-3 ujian-kerjakan">
+        <div v-if="pengumuman.length" class="alert alert-info">
+            <h6 class="mb-1"><i class="fas fa-bullhorn mr-1" /> Pengumuman pengawas</h6>
+            <div v-for="p in pengumuman.slice(-3).reverse()" :key="p.id" class="small">
+                {{ p.pesan }} <span class="text-muted">— {{ p.oleh }}</span>
+            </div>
+        </div>
         <div class="row">
             <div class="col-lg-9">
                 <div class="card">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0">Soal {{ indeks + 1 }} dari {{ daftar.length }}</h3>
                         <span class="ml-auto small">
-                            <i class="fas mr-1" :class="labelSimpan[autosave.status.value][0]" />{{ labelSimpan[autosave.status.value][1] }}
+                            <i class="fas mr-1" :class="labelSimpan[kunciSimpan][0]" />{{ labelSimpan[kunciSimpan][1] }}
                         </span>
                     </div>
 
                     <div class="card-body">
-                        <p class="lead" style="white-space: pre-line">{{ aktif.pertanyaan }}</p>
+                        <!-- HTML dirender & disaring di server (App\Modules\Ujian\Support\TeksSoal). -->
+                        <div class="lead teks-soal" v-html="aktif.pertanyaan_html" />
 
                         <div v-if="aktif.tipe === 'pilihan_ganda'" class="list-group">
                             <button v-for="o in aktif.opsi" :key="o.kode" type="button"
@@ -196,7 +251,7 @@ const labelSimpan = {
                                     :class="{ active: aktif.jawaban_pilihan === o.kode }"
                                     @click="pilih(o.kode)">
                                 <strong class="mr-3">{{ o.label }}.</strong>
-                                <span style="white-space: pre-line">{{ o.teks }}</span>
+                                <span class="teks-soal" v-html="o.html" />
                             </button>
                         </div>
 
@@ -273,5 +328,11 @@ const labelSimpan = {
 .ujian-kerjakan { user-select: none; }
 .ujian-kerjakan textarea { user-select: text; }
 .nav-soal { width: 2.5rem; }
+.teks-soal :deep(p:last-child) { margin-bottom: 0; }
+.teks-soal :deep(img) { max-height: 22rem; }
+.ujian-diambil-alih {
+    position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, .6); padding: 1rem;
+}
 .nav-soal-aktif { box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .5); }
 </style>

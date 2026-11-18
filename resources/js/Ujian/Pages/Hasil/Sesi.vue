@@ -38,12 +38,12 @@ const warnaSeverity = { critical: 'danger', high: 'warning', medium: 'info', low
                     </div>
                 </div>
                 <div class="card-body">
-                    <p style="white-space: pre-line">{{ j.pertanyaan }}</p>
+                    <div class="teks-soal mb-3" v-html="j.pertanyaan_html" />
 
                     <ul v-if="j.tipe === 'pilihan_ganda'" class="list-unstyled mb-0">
                         <li v-for="(teks, huruf) in j.opsi" :key="huruf" class="py-1 px-2 rounded"
                             :class="{ 'bg-success': huruf === j.kunci_jawaban, 'bg-danger': huruf === j.jawaban_pilihan && huruf !== j.kunci_jawaban }">
-                            <strong>{{ huruf }}.</strong> {{ teks }}
+                            <strong>{{ huruf }}.</strong> <span class="teks-soal" v-html="teks" />
                             <i v-if="huruf === j.jawaban_pilihan" class="fas fa-user-check ml-1" title="Jawaban siswa" />
                         </li>
                     </ul>
@@ -96,3 +96,8 @@ const warnaSeverity = { critical: 'danger', high: 'warning', medium: 'info', low
         </div>
     </div>
 </template>
+
+<style scoped>
+.teks-soal :deep(p:last-child) { margin-bottom: 0; }
+.teks-soal :deep(img) { max-height: 16rem; }
+</style>

@@ -67,6 +67,7 @@ class ProktorController extends Controller
             'peserta' => fn () => $this->proktor->peserta($ujian),
             'statistik' => fn () => $this->proktor->statistik($ujian),
             'event' => fn () => $this->proktor->eventTerbaru($ujian, 30),
+            'pengumuman' => fn () => $ujian->pengumuman()->with('user:id,name')->latest('id')->limit(10)->get()->map->ringkas(),
             'batasPelanggaran' => (int) config('ujian.batas_pelanggaran'),
             'diperbarui' => fn () => now()->toIso8601String(),
         ]);
@@ -100,6 +101,56 @@ class ProktorController extends Controller
         $this->sesiService->reset($sesi, $request->user(), $alasan);
 
         return back()->with('success', "Sesi {$sesi->siswa->nama} direset; siswa bisa mulai ulang.");
+    }
+
+    public function umumkan(Request $request, Ujian $ujian): RedirectResponse
+    {
+        $this->authorize('awasi', $ujian);
+        $pesan = $request->validate(['pesan' => ['required', 'string', 'max:500']])['pesan'];
+
+        $ujian->pengumuman()->create(['user_id' => $request->user()->id, 'pesan' => $pesan]);
+
+        return back()->with('success', 'Pengumuman dikirim; peserta menerimanya dalam beberapa detik.');
+    }
+
+    public function tambahWaktu(Request $request, SesiUjian $sesi): RedirectResponse
+    {
+        $this->authorize('awasi', $sesi);
+        $data = $this->validasiTambahWaktu($request);
+
+        $this->sesiService->tambahWaktu($sesi, $data['menit'], $request->user(), $data['alasan'] ?? null);
+
+        return back()->with('success', "Waktu {$sesi->siswa->nama} ditambah {$data['menit']} menit.");
+    }
+
+    /** Tambah waktu semua sesi yang sedang berlangsung, sekaligus mengumumkannya. */
+    public function tambahWaktuSemua(Request $request, Ujian $ujian): RedirectResponse
+    {
+        $this->authorize('awasi', $ujian);
+        $data = $this->validasiTambahWaktu($request);
+
+        $sesi = $ujian->sesi()->where('status', SesiUjian::STATUS_BERLANGSUNG)->get();
+        foreach ($sesi as $s) {
+            $s->setRelation('ujian', $ujian);
+            $this->sesiService->tambahWaktu($s, $data['menit'], $request->user(), $data['alasan'] ?? null);
+        }
+
+        if ($sesi->isNotEmpty()) {
+            $ujian->pengumuman()->create([
+                'user_id' => $request->user()->id,
+                'pesan' => "Waktu ujian ditambah {$data['menit']} menit.".(! empty($data['alasan']) ? " {$data['alasan']}" : ''),
+            ]);
+        }
+
+        return back()->with('success', "Waktu {$sesi->count()} peserta yang sedang mengerjakan ditambah {$data['menit']} menit.");
+    }
+
+    private function validasiTambahWaktu(Request $request): array
+    {
+        return $request->validate([
+            'menit' => ['required', 'integer', 'min:1', 'max:180'],
+            'alasan' => ['nullable', 'string', 'max:500'],
+        ]);
     }
 
     /** Admin: semua ujian. Guru: ujian miliknya atau yang ia awasi. */

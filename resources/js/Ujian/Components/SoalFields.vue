@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from 'vue';
+import axios from 'axios';
 import Field from './Field.vue';
 
 /**
@@ -7,6 +9,34 @@ import Field from './Field.vue';
  */
 const props = defineProps({ form: { type: Object, required: true } });
 const huruf = ['A', 'B', 'C', 'D', 'E'];
+
+// --- Unggah gambar: sisipkan Markdown ![gambar](url) di posisi kursor ---------
+const textarea = ref(null);
+const pilihFile = ref(null);
+const mengunggah = ref(false);
+
+async function unggah(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const data = new FormData();
+    data.append('gambar', file);
+    mengunggah.value = true;
+    try {
+        const { data: hasil } = await axios.post(route('ujian.media.store'), data);
+        const el = textarea.value;
+        const teks = props.form.pertanyaan ?? '';
+        const posisi = el ? el.selectionStart : teks.length;
+        const sisip = `\n${hasil.markdown}\n`;
+        props.form.pertanyaan = teks.slice(0, posisi) + sisip + teks.slice(posisi);
+    } catch (error) {
+        const pesan = error.response?.data?.errors?.gambar?.[0] ?? error.response?.data?.message ?? 'Gagal mengunggah gambar.';
+        window.toastr ? window.toastr.error(pesan) : window.alert(pesan);
+    } finally {
+        mengunggah.value = false;
+    }
+}
 </script>
 
 <template>
@@ -33,8 +63,15 @@ const huruf = ['A', 'B', 'C', 'D', 'E'];
         </div>
     </div>
 
-    <Field label="Pertanyaan" :error="form.errors.pertanyaan" wajib>
-        <textarea v-model="form.pertanyaan" rows="4" class="form-control" :class="{ 'is-invalid': form.errors.pertanyaan }" />
+    <Field label="Pertanyaan" :error="form.errors.pertanyaan" wajib
+           bantuan="Format: **tebal**, *miring*, `kode`, daftar (- item / 1. item), tabel Markdown. Gambar lewat tombol di atas.">
+        <div class="mb-1">
+            <button type="button" class="btn btn-xs btn-outline-secondary" :disabled="mengunggah" @click="pilihFile.click()">
+                <i class="fas mr-1" :class="mengunggah ? 'fa-spinner fa-spin' : 'fa-image'" /> Sisipkan gambar
+            </button>
+            <input ref="pilihFile" type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="d-none" @change="unggah">
+        </div>
+        <textarea ref="textarea" v-model="form.pertanyaan" rows="5" class="form-control" :class="{ 'is-invalid': form.errors.pertanyaan }" />
     </Field>
 
     <template v-if="form.tipe === 'pilihan_ganda'">

@@ -7,6 +7,7 @@ use App\Modules\Ujian\Models\JawabanSiswa;
 use App\Modules\Ujian\Models\SesiUjian;
 use App\Modules\Ujian\Models\Ujian;
 use App\Modules\Ujian\Services\PenilaianService;
+use App\Modules\Ujian\Support\TeksSoal;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -91,8 +92,8 @@ class HasilController extends Controller
                 'id' => $j->id,
                 'nomor' => $j->soal->nomor,
                 'tipe' => $j->soal->tipe,
-                'pertanyaan' => $j->soal->pertanyaan,
-                'opsi' => $j->soal->opsi(),
+                'pertanyaan_html' => TeksSoal::html($j->soal->pertanyaan),
+                'opsi' => array_map(fn ($teks) => TeksSoal::inline($teks), $j->soal->opsi()),
                 'kunci_jawaban' => $j->soal->kunci_jawaban,
                 'bobot' => (float) $j->soal->bobot_nilai,
                 'jawaban_pilihan' => $j->jawaban_pilihan,

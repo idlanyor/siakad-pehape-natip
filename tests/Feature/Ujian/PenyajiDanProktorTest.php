@@ -61,7 +61,7 @@ class PenyajiDanProktorTest extends TestCase
 
         $this->assertSame(['D', 'B', 'A', 'C'], array_column($opsi, 'kode'));
         $this->assertSame(['A', 'B', 'C', 'D'], array_column($opsi, 'label'));
-        $this->assertSame('Opsi D', $opsi[0]['teks']);
+        $this->assertSame('Opsi D', $opsi[0]['html']);
     }
 
     public function test_hasil_menyembunyikan_nilai_bila_tampilkan_nilai_mati(): void

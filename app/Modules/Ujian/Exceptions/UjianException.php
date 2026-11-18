@@ -17,13 +17,28 @@ class UjianException extends DomainException
     /**
      * Dipanggil otomatis oleh exception handler Laravel.
      */
+    public function __construct(string $message, public readonly ?string $kode = null, public readonly int $status = 422)
+    {
+        parent::__construct($message);
+    }
+
     public function render(Request $request): JsonResponse|RedirectResponse
     {
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
-            return response()->json(['message' => $this->getMessage()], 422);
+            return response()->json(['message' => $this->getMessage(), 'kode' => $this->kode], $this->status);
         }
 
         return back()->with('error', $this->getMessage());
+    }
+
+    public static function perangkatLain(): self
+    {
+        return new self('Sesi ujian ini sedang dibuka di perangkat atau tab lain.', 'perangkat_lain', 409);
+    }
+
+    public static function menitTidakValid(): self
+    {
+        return new self('Tambahan waktu harus antara 1 dan 180 menit.');
     }
 
     public static function belumDipublikasikan(): self

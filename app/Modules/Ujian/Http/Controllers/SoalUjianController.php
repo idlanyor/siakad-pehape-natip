@@ -7,6 +7,7 @@ use App\Modules\Ujian\Models\BankSoal;
 use App\Modules\Ujian\Models\SoalUjian;
 use App\Modules\Ujian\Models\Ujian;
 use App\Modules\Ujian\Services\PengelolaanUjianService;
+use App\Modules\Ujian\Support\TeksSoal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -52,6 +53,8 @@ class SoalUjianController extends Controller
                 ...$s->only(['id', 'nomor', 'tipe', 'pertanyaan', 'opsi_a', 'opsi_b', 'opsi_c', 'opsi_d', 'opsi_e',
                     'kunci_jawaban', 'bank_soal_id']),
                 'bobot' => (float) $s->bobot_nilai,
+                'pertanyaan_html' => TeksSoal::html($s->pertanyaan),
+                'opsi_html' => array_map(fn ($teks) => TeksSoal::inline($teks), $s->opsi()),
             ]),
             'bank' => $bank,
             'cari' => $request->input('cari'),

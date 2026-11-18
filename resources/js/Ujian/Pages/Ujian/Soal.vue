@@ -75,7 +75,6 @@ const ambilDariBank = () => router.post(route('ujian.soal.dari-bank', props.ujia
     { preserveScroll: true, onSuccess: () => { dipilih.value = []; } });
 
 const pilihSemua = (e) => { dipilih.value = e.target.checked ? props.bank.map((b) => b.id) : []; };
-const opsiTerisi = (s) => ['a', 'b', 'c', 'd', 'e'].filter((h) => s[`opsi_${h}`]);
 </script>
 
 <template>
@@ -122,12 +121,10 @@ const opsiTerisi = (s) => ['a', 'b', 'c', 'd', 'e'].filter((h) => s[`opsi_${h}`]
                                 </div>
                             </div>
                             <div class="flex-grow-1">
-                                <div style="white-space: pre-line">{{ s.pertanyaan }}</div>
+                                <div class="teks-soal" v-html="s.pertanyaan_html" />
                                 <ol v-if="s.tipe === 'pilihan_ganda'" type="A" class="mb-1 mt-1 pl-4 small">
-                                    <li v-for="h in opsiTerisi(s)" :key="h"
-                                        :class="{ 'text-success font-weight-bold': s.kunci_jawaban === h.toUpperCase() }">
-                                        {{ s[`opsi_${h}`] }}
-                                    </li>
+                                    <li v-for="(html, h) in s.opsi_html" :key="h"
+                                        :class="{ 'text-success font-weight-bold': s.kunci_jawaban === h }" v-html="html" />
                                 </ol>
                                 <div class="small text-muted">
                                     {{ s.tipe === 'essay' ? 'Essay' : 'Pilihan ganda' }} · bobot {{ s.bobot }}
@@ -189,3 +186,8 @@ const opsiTerisi = (s) => ['a', 'b', 'c', 'd', 'e'].filter((h) => s[`opsi_${h}`]
         </div>
     </div>
 </template>
+
+<style scoped>
+.teks-soal :deep(p:last-child) { margin-bottom: 0; }
+.teks-soal :deep(img) { max-height: 12rem; }
+</style>

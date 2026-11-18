@@ -4,6 +4,7 @@ use App\Modules\Ujian\Http\Controllers\BankSoalController;
 use App\Modules\Ujian\Http\Controllers\DashboardController;
 use App\Modules\Ujian\Http\Controllers\FaseController;
 use App\Modules\Ujian\Http\Controllers\HasilController;
+use App\Modules\Ujian\Http\Controllers\MediaSoalController;
 use App\Modules\Ujian\Http\Controllers\PeriodeController;
 use App\Modules\Ujian\Http\Controllers\ProktorController;
 use App\Modules\Ujian\Http\Controllers\Siswa\SesiApiController;
@@ -29,6 +30,9 @@ Route::post('periode/{periode}/fase', [FaseController::class, 'store'])->name('f
 Route::put('fase/{fase}', [FaseController::class, 'update'])->name('fase.update');
 Route::delete('fase/{fase}', [FaseController::class, 'destroy'])->name('fase.destroy');
 Route::post('fase/{fase}/override', [FaseController::class, 'override'])->name('fase.override');
+
+// --- Gambar soal (Markdown) ---
+Route::post('media-soal', [MediaSoalController::class, 'store'])->middleware('throttle:30,1')->name('media.store');
 
 // --- Bank soal ---
 Route::resource('bank-soal', BankSoalController::class)->except('show')
@@ -70,6 +74,9 @@ Route::prefix('proktor')->name('proktor.')->group(function () {
     Route::post('sesi/{sesi}/paksa-selesai', [ProktorController::class, 'paksaSelesai'])->name('paksa-selesai');
     Route::post('sesi/{sesi}/diskualifikasi', [ProktorController::class, 'diskualifikasi'])->name('diskualifikasi');
     Route::post('sesi/{sesi}/reset', [ProktorController::class, 'reset'])->name('reset');
+    Route::post('sesi/{sesi}/tambah-waktu', [ProktorController::class, 'tambahWaktu'])->name('tambah-waktu');
+    Route::post('ujian/{ujian}/tambah-waktu', [ProktorController::class, 'tambahWaktuSemua'])->name('tambah-waktu-semua');
+    Route::post('ujian/{ujian}/pengumuman', [ProktorController::class, 'umumkan'])->name('pengumuman');
 });
 
 // --- Hasil & koreksi ---

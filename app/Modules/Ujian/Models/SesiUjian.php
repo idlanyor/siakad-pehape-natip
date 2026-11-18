@@ -50,8 +50,13 @@ class SesiUjian extends Model
         'nilai_akhir',
         'predikat',
         'jumlah_pelanggaran',
+        'tambahan_detik',
+        'token_perangkat',
         'last_activity_at',
     ];
+
+    /** Token perangkat tidak pernah ikut terserialisasi ke props/JSON. */
+    protected $hidden = ['token_perangkat'];
 
     protected $casts = [
         'is_resmi' => 'boolean',
@@ -62,6 +67,7 @@ class SesiUjian extends Model
         'nilai_manual' => 'decimal:2',
         'nilai_akhir' => 'decimal:2',
         'jumlah_pelanggaran' => 'integer',
+        'tambahan_detik' => 'integer',
         'last_activity_at' => 'datetime',
     ];
 

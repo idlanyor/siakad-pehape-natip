@@ -147,6 +147,10 @@ return new class extends Migration
             $table->decimal('nilai_akhir', 5, 2)->nullable();
             $table->string('predikat', 2)->nullable();
             $table->unsignedInteger('jumlah_pelanggaran')->default(0);
+            // Waktu tambahan dari proktor; juga memperpanjang batas jam tutup ujian untuk sesi ini.
+            $table->unsignedInteger('tambahan_detik')->default(0);
+            // Token perangkat aktif: hanya satu perangkat/tab yang boleh mengerjakan sesi.
+            $table->string('token_perangkat', 64)->nullable();
             $table->timestamp('last_activity_at')->nullable();
             $table->timestamps();
 
@@ -175,6 +179,17 @@ return new class extends Migration
             $table->index(['sesi_ujian_id', 'urutan']);
         });
 
+        // Pengumuman proktor ke seluruh peserta ujian.
+        Schema::create('ujian_pengumuman', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ujian_id')->constrained('ujian')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('pesan');
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->index(['ujian_id', 'id']);
+        });
+
         Schema::create('proktor_event', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sesi_ujian_id')->constrained('sesi_ujian')->cascadeOnDelete();
@@ -195,6 +210,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('proktor_event');
+        Schema::dropIfExists('ujian_pengumuman');
         Schema::dropIfExists('jawaban_siswa');
         Schema::dropIfExists('sesi_ujian');
         Schema::dropIfExists('soal_ujian');

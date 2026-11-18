@@ -105,7 +105,7 @@ Setiap fase menjadi satu commit (atau lebih). Aplikasi harus tetap bisa jalan da
 - Halaman Vue ujian-service selain Dashboard dan Proktor ternyata tidak pernah dirender backend (kontrak field tidak cocok), jadi halaman Fase 4 ditulis baru di atas `useForm` dan markup AdminLTE.
 - Peran pengawas: tabel `ujian_pengawas`, ditugaskan admin dari halaman detail ujian. Pengawas boleh melihat dan mengawasi, tetapi tidak boleh mengubah atau menilai.
 - Soal terkunci setelah ada sesi siswa. Publikasi butuh minimal 1 soal dan kunci PG yang valid. Kembali ke draft hanya bila belum ada sesi.
-- Teks soal dirender sebagai teks biasa (bukan HTML/rich text) untuk menghindari XSS. Rich text + gambar butuh sanitasi server dan upload media, belum dikerjakan.
+- Teks soal awalnya teks biasa; kemudian diganti Markdown yang dirender aman di server + unggah gambar (lihat bagian Fitur lanjutan).
 - Bug SIAKAD yang ikut diperbaiki: sidebar guru dan `GuruDashboardController` masih memanggil `route('guru.ujian.index')` dan `App\Models\SoalUjian` yang sudah dihapus, sehingga semua halaman guru error 500. Menu ujian di sidebar (admin/guru/siswa) kini menunjuk modul ini.
 - Untuk Fase 8: `App\Services\ELearningNotifier` punya notifikasi `ujianBaru`, `ujianReminder`, dan `ujianDikoreksi` yang masih memakai model lama. Port ke modul (dipicu saat publikasi dan saat koreksi essay) atau hapus.
 
@@ -119,7 +119,7 @@ Setiap fase menjadi satu commit (atau lebih). Aplikasi harus tetap bisa jalan da
 - Dashboard proktor, monitoring sesi, dan aksi (reset, tambah waktu, kunci) dengan polling.
 
 **Fase 5 & 6 selesai.** Diverifikasi di Chromium headless (SQLite terpisah): alur siswa lengkap, autosave + reload, pelanggaran, koreksi essay, monitor proktor dengan polling 10 detik, diskualifikasi yang langsung mengalihkan browser siswa ke halaman hasil.
-Belum ada: pengumuman proktor ke peserta (butuh kanal ke siswa; bisa ditumpangkan di respons ping atau Reverb di Fase 7).
+Pengumuman proktor ke peserta ditambahkan setelahnya (lihat bagian Fitur lanjutan).
 
 ### Fase 7 (opsional): Realtime
 - Pasang `laravel/reverb` di SIAKAD, port event `SesiUpdated`/`ProktorEvent`, lalu ganti polling dengan Echo.
@@ -172,3 +172,17 @@ php artisan optimize
 Setelah itu: hapus env `UJIAN_SERVICE_URL`, `UJIAN_SERVICE_KEY`, `UJIAN_JWT_SECRET`, `UJIAN_JWT_TTL` dari `.env`
 (opsional, sudah tidak dibaca), hentikan proses/vhost ujian-service bila ada, dan database `ujian_db` boleh di-drop
 (isinya hanya 3 baris `periode_ujian` uji coba).
+
+## Fitur lanjutan (setelah Fase 8)
+
+- **Pengumuman proktor**: tabel `ujian_pengumuman`; dikirim dari monitor, diterima siswa lewat respons ping
+  (interval ping 15 detik) sebagai toast + kotak pengumuman.
+- **Tambah waktu**: per siswa atau semua yang sedang mengerjakan (otomatis diumumkan). Kolom
+  `sesi_ujian.tambahan_detik` memperpanjang durasi sekaligus jam tutup ujian untuk sesi itu. Dicatat di log.
+- **Satu perangkat per sesi**: `sesi_ujian.token_perangkat` diterbitkan setiap halaman mengerjakan dibuka;
+  request dari perangkat/tab lama ditolak 409 dan browser lama menampilkan overlay. Siswa tetap bisa pindah
+  perangkat; perpindahan saat perangkat lama masih aktif dicatat sebagai `device_switch` (bukan pelanggaran).
+- **Teks soal berformat + gambar**: Markdown (`App\Modules\Ujian\Support\TeksSoal`) dengan HTML mentah
+  di-escape, link tak aman dibuang, dan gambar hanya dari `/storage/ujian/soal/`. Unggah gambar lewat
+  `POST /ujian/media-soal` (JPG/PNG/GIF/WebP, maks 2 MB, nama file acak). Subscript/superscript HTML tidak
+  didukung; gunakan karakter Unicode (H₂O, x²).
