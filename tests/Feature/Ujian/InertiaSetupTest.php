@@ -20,7 +20,7 @@ class InertiaSetupTest extends TestCase
 
     public function test_tamu_diarahkan_ke_login(): void
     {
-        $this->get('/ujian-online')->assertRedirect(route('login'));
+        $this->get('/ujian')->assertRedirect(route('login'));
     }
 
     public static function roleProvider(): array
@@ -38,7 +38,7 @@ class InertiaSetupTest extends TestCase
         $user = User::factory()->create(['role' => $role]);
 
         $this->actingAs($user)
-            ->get('/ujian-online')
+            ->get('/ujian')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Dashboard')
@@ -51,7 +51,7 @@ class InertiaSetupTest extends TestCase
     {
         $user = User::factory()->create(['role' => 0]);
 
-        $html = $this->actingAs($user)->get('/ujian-online')->getContent();
+        $html = $this->actingAs($user)->get('/ujian')->getContent();
 
         $this->assertStringContainsString('main-sidebar', $html);
         $this->assertStringContainsString('data-page=', $html);
@@ -64,7 +64,7 @@ class InertiaSetupTest extends TestCase
     {
         $user = User::factory()->create(['role' => 0]);
 
-        $html = $this->actingAs($user)->get('/ujian-online')->getContent();
+        $html = $this->actingAs($user)->get('/ujian')->getContent();
 
         $this->assertStringContainsString('"ujian.dashboard"', $html);
         $this->assertStringNotContainsString('"admin.siswa.index"', $html);

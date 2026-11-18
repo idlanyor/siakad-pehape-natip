@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 | Route modul Ujian Online
 |--------------------------------------------------------------------------
 | Dimuat oleh UjianServiceProvider dengan middleware web + auth + Inertia,
-| prefix URL /ujian-online, dan prefix nama "ujian.".
+| prefix URL /ujian, dan prefix nama "ujian.".
 | Otorisasi per aksi lewat Policy di controller.
 */
 

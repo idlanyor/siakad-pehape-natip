@@ -41,7 +41,7 @@ class UjianServiceProvider extends ServiceProvider
 
         if (! $this->app->routesAreCached()) {
             Route::middleware(['web', 'auth', HandleInertiaRequests::class])
-                ->prefix('ujian-online')
+                ->prefix('ujian')
                 ->name('ujian.')
                 ->group(__DIR__.'/routes.php');
         }

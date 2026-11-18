@@ -6,6 +6,7 @@ use App\Modules\Ujian\Exceptions\UjianException;
 use App\Modules\Ujian\Models\BankSoal;
 use App\Modules\Ujian\Models\SoalUjian;
 use App\Modules\Ujian\Models\Ujian;
+use App\Services\ELearningNotifier;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -34,6 +35,7 @@ class PengelolaanUjianService
         }
 
         $ujian->update(['status' => Ujian::STATUS_PUBLISHED]);
+        ELearningNotifier::ujianBaru($ujian);
     }
 
     public function kembalikanKeDraft(Ujian $ujian): void

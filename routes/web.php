@@ -23,14 +23,15 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 // --- Fase 15: Form Kontak (Public, POST only) ---
 Route::post('/kontak', [\App\Http\Controllers\KontakController::class, 'store'])->name('kontak.store');
 
-// --- Ujian Login (Public) ---
-Route::middleware('guest')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Auth\UjianLoginController::class, 'create'])->name('ujian.login');
-    Route::get('/ujian', [\App\Http\Controllers\Auth\UjianLoginController::class, 'create'])->name('ujian.login.alias');
-    Route::post('/ujian', [\App\Http\Controllers\Auth\UjianLoginController::class, 'store'])->name('ujian.login.store');
-});
-
-Route::get('/', fn () => redirect()->route('dashboard'))->middleware('auth');
+// --- Halaman depan: login siswa dengan NIS (tamu) atau ke dashboard (sudah login) ---
+// Satu definisi untuk "/": sebelumnya ada dua, dan yang kedua menimpa yang pertama
+// sehingga halaman login NIS tidak pernah tampil.
+Route::get('/', fn () => auth()->check()
+    ? redirect()->route('dashboard')
+    : app(\App\Http\Controllers\Auth\UjianLoginController::class)->create()
+)->name('ujian.login');
+Route::post('/masuk-ujian', [\App\Http\Controllers\Auth\UjianLoginController::class, 'store'])
+    ->middleware('guest')->name('ujian.login.store');
 
 // --- Fase 12: Landing Page (Public) ---
 Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing.index');
@@ -73,9 +74,6 @@ Route::get('/dashboard', function () {
     return redirect()->route('siswa.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->get('/ujian/sso', [\App\Http\Controllers\UjianSsoController::class, 'redirect'])
-    ->name('ujian.sso');
-
 // --- PPDB: Dashboard Pendaftar (role=3) ---
 Route::middleware(['auth', 'role:3'])->prefix('pendaftar')->name('pendaftar.')->group(function () {
     Route::get('/dashboard',          [\App\Http\Controllers\PendaftarController::class, 'dashboard'])->name('dashboard');
@@ -108,11 +106,6 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/raport', [\App\Http\Controllers\Admin\NilaiController::class, 'raport'])->name('raport');
     Route::get('/raport/pdf', [\App\Http\Controllers\Admin\NilaiController::class, 'raportPdf'])->name('raport.pdf');
 
-    // --- Ujian Online ---
-    Route::get('/ujian', [\App\Http\Controllers\Admin\UjianController::class, 'index'])->name('ujian.index');
-    Route::get('/ujian/{ujian}/statistik', [\App\Http\Controllers\Admin\UjianController::class, 'statistik'])->name('ujian.statistik');
-    Route::get('/ujian/{ujian}/export/excel', [\App\Http\Controllers\Admin\HasilUjianController::class, 'exportExcel'])->name('ujian.export.excel');
-    Route::get('/ujian/{ujian}/export/pdf', [\App\Http\Controllers\Admin\HasilUjianController::class, 'exportPdf'])->name('ujian.export.pdf');
 
     Route::resource('pkl/tempat', \App\Http\Controllers\Admin\TempatPklController::class)->parameters(['tempat' => 'pklTempat'])->names([
         'index' => 'pkl-tempat.index', 'create' => 'pkl-tempat.create', 'store' => 'pkl-tempat.store',

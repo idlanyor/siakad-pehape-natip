@@ -45,21 +45,4 @@ return [
         'api_key' => env('WHATSAPP_API_KEY'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Ujian Microservice Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for integration with Ujian Online Microservice
-    |
-    */
-    'ujian' => [
-        'url' => env('UJIAN_SERVICE_URL', 'http://localhost:8001'),
-        'service_key' => env('UJIAN_SERVICE_KEY', 'default-service-key-change-in-production'),
-        'jwt_secret' => env('UJIAN_JWT_SECRET', env('JWT_SECRET')),
-        'jwt_ttl' => env('UJIAN_JWT_TTL', 3600),
-        'timeout' => env('UJIAN_SERVICE_TIMEOUT', 30),
-        'callback_url' => env('APP_URL') . '/api/ujian-service/callback',
-    ],
-
 ];

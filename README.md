@@ -27,10 +27,20 @@ Aplikasi ini memiliki 3 hak akses utama: **Admin**, **Guru**, dan **Siswa**.
 * **Informasi Keuangan**: Cek riwayat pembayaran dan tagihan SPP aktif.
 * **Absensi**: Cek rekap kehadiran mandiri.
 
+### 4. Ujian Online (CBT)
+Modul di `app/Modules/Ujian`, diakses di `/ujian` dengan login SIAKAD yang sama.
+* **Admin**: Periode & fase ujian (paksa buka/tutup), semua ujian, penugasan guru pengawas.
+* **Guru**: Bank soal per mapel, susun soal ujian (manual / dari bank), terbitkan, koreksi essay, export hasil Excel/PDF.
+* **Pengawas (proktor)**: Monitor peserta (online, progres, sisa waktu, pelanggaran), paksa selesai, diskualifikasi, reset sesi.
+* **Siswa**: Mengerjakan dengan timer, autosave, tanda ragu-ragu, soal/opsi teracak per siswa, deteksi pindah tab & copy-paste.
+  Halaman depan `/` untuk tamu adalah login siswa dengan NIS.
+
+Konfigurasi opsional di `.env`: `UJIAN_BATAS_PELANGGARAN` (default 5; `0` = tanpa diskualifikasi otomatis).
+
 ## 💻 Tech Stack
 
 * **Backend**: Laravel (PHP)
-* **Frontend**: Blade Templating, Tailwind CSS / Bootstrap
+* **Frontend**: Blade Templating, Tailwind CSS / Bootstrap (AdminLTE); modul Ujian Online memakai Inertia + Vue 3
 * **Database**: MySQL
 * **Package Manager**: Composer & NPM
 

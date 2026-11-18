@@ -67,6 +67,5 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\CheckRole::class,
         'guru.can' => \App\Http\Middleware\CheckGuruPermission::class,
         'install.guard' => \App\Http\Middleware\InstallGuard::class,
-        'service.key' => \App\Http\Middleware\ValidateServiceKey::class,
     ];
 }

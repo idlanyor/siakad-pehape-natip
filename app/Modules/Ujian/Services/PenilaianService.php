@@ -6,6 +6,7 @@ use App\Models\Guru;
 use App\Modules\Ujian\Exceptions\UjianException;
 use App\Modules\Ujian\Models\JawabanSiswa;
 use App\Modules\Ujian\Models\SesiUjian;
+use App\Services\ELearningNotifier;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -61,10 +62,18 @@ class PenilaianService
             throw UjianException::nilaiDiLuarRentang($maks);
         }
 
-        DB::transaction(function () use ($jawaban, $nilai) {
+        $sesi = $jawaban->sesi;
+        $masihAdaYangBelum = $this->perluKoreksi($sesi);
+
+        DB::transaction(function () use ($jawaban, $nilai, $sesi) {
             $jawaban->update(['nilai' => $nilai]);
-            $this->hitungNilaiSesi($jawaban->sesi);
+            $this->hitungNilaiSesi($sesi);
         });
+
+        // Beri tahu siswa sekali, saat essay terakhir yang belum dinilai selesai dikoreksi.
+        if ($masihAdaYangBelum && $sesi->isBerakhir() && ! $this->perluKoreksi($sesi)) {
+            ELearningNotifier::ujianDikoreksi($sesi->refresh());
+        }
     }
 
     public function hitungNilaiSesi(SesiUjian $sesi): void

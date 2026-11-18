@@ -4,8 +4,6 @@ namespace App\Providers;
 
 use App\Models\Notifikasi;
 use App\Models\PesanKontak;
-use App\Models\SesiUjian;
-use App\Observers\SesiUjianObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -20,7 +18,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Register observers
-        // SesiUjian::observe(SesiUjianObserver::class); // Moved to ujian-service
 
         // Paksa HTTPS di production (link, asset, form action) — lindungi
         // kredensial & data pembayaran dari sniffing di jaringan.

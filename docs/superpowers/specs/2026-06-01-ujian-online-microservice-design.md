@@ -1,7 +1,9 @@
 # Desain: Modul Ujian Online sebagai Microservice
 
 **Tanggal:** 2026-06-01
-**Status:** Dalam Implementasi (Sprint 14 IN PROGRESS)
+**Status:** DIGANTIKAN (2026-11-18). Ujian Online kembali menjadi modul di dalam SIAKAD
+(`app/Modules/Ujian`, Inertia + Vue). Lihat `docs/superpowers/plans/2026-11-18-ujian-modular-monolith.md`.
+Dokumen ini disimpan sebagai catatan sejarah.
 **Konteks:** SIAKAD (Laravel 11 monolith) — memisahkan modul Ujian Online jadi service terpisah.
 
 ---

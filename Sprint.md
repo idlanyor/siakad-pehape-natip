@@ -135,6 +135,14 @@ Portal orang tua (role=4) untuk memantau anak. Inti fitur selesai & teruji.
 
 ---
 
+## ✅ Sprint 7 — Ujian Online kembali ke monolith — SELESAI (2026-11-18)
+
+Microservice `ujian-service` (beserta JWT/SSO, sync siswa, service key, dan route stub) dibongkar; Ujian Online kini modul
+`app/Modules/Ujian` di dalam SIAKAD dengan Inertia + Vue 3, satu login, satu database, FK langsung ke tabel SIAKAD.
+Rencana dan catatan per fase: `docs/superpowers/plans/2026-11-18-ujian-modular-monolith.md`. Sprint 5–6 di bawah adalah catatan sejarah.
+
+---
+
 ## ✅ Sprint 5 — Ujian Service: Controller Ujian, Soal, Sesi — SELESAI (2026-06-02)
 
 Microservice ujian online terpisah dengan full CRUD dan flow ujian lengkap.

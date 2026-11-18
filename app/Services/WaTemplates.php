@@ -7,8 +7,6 @@ use App\Models\PembayaranSpp;
 use App\Models\PendaftarPpdb;
 use App\Models\Siswa;
 use App\Models\TagihanSpp;
-use App\Models\Ujian;
-use App\Models\SesiUjian;
 
 class WaTemplates
 {
@@ -77,49 +75,5 @@ class WaTemplates
             . "- Password: *{$password}*\n\n"
             . "Silakan login di portal sekolah dan segera ganti password Anda.\n\n"
             . "Terima kasih.";
-    }
-
-    public static function ujianBaru(Siswa $siswa, Ujian $ujian): string
-    {
-        $sekolah = setting('sekolah_nama', 'Sekolah');
-        $mapel = $ujian->jadwal->mapel->nama_mapel ?? 'Mata Pelajaran';
-        return "Yth. {$siswa->nama},\n\n"
-            . "📝 *Ujian Baru Tersedia*\n\n"
-            . "- Mata Pelajaran: *{$mapel}*\n"
-            . "- Judul: *{$ujian->judul}*\n"
-            . "- Tipe: {$ujian->tipe_label}\n"
-            . "- Waktu: {$ujian->waktu_mulai->format('d/m/Y H:i')} - {$ujian->waktu_selesai->format('H:i')}\n"
-            . "- Durasi: {$ujian->durasi_menit} menit\n\n"
-            . "Silakan login ke portal untuk mengerjakan ujian.\n\n"
-            . "Terima kasih,\n{$sekolah}";
-    }
-
-    public static function ujianReminder(Siswa $siswa, Ujian $ujian): string
-    {
-        $sekolah = setting('sekolah_nama', 'Sekolah');
-        $mapel = $ujian->jadwal->mapel->nama_mapel ?? 'Mata Pelajaran';
-        return "Yth. {$siswa->nama},\n\n"
-            . "⏰ *Reminder: Ujian Besok*\n\n"
-            . "- Mata Pelajaran: *{$mapel}*\n"
-            . "- Judul: *{$ujian->judul}*\n"
-            . "- Waktu: {$ujian->waktu_mulai->format('d/m/Y H:i')}\n"
-            . "- Durasi: {$ujian->durasi_menit} menit\n\n"
-            . "Jangan lupa persiapkan diri dan login tepat waktu.\n\n"
-            . "Terima kasih,\n{$sekolah}";
-    }
-
-    public static function ujianDikoreksi(Siswa $siswa, SesiUjian $sesi): string
-    {
-        $sekolah = setting('sekolah_nama', 'Sekolah');
-        $ujian = $sesi->ujian;
-        $mapel = $ujian->jadwal->mapel->nama_mapel ?? 'Mata Pelajaran';
-        return "Yth. {$siswa->nama},\n\n"
-            . "✅ *Hasil Ujian Sudah Keluar*\n\n"
-            . "- Mata Pelajaran: *{$mapel}*\n"
-            . "- Judul: *{$ujian->judul}*\n"
-            . "- Nilai: *" . number_format($sesi->nilai_akhir, 2) . "*\n"
-            . "- Status: *{$sesi->predikat}*\n\n"
-            . "Silakan login ke portal untuk melihat detail hasil ujian.\n\n"
-            . "Terima kasih,\n{$sekolah}";
     }
 }

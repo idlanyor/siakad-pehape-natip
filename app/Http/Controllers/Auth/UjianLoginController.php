@@ -37,14 +37,14 @@ class UjianLoginController extends Controller
             ->where('nisn', $nis)
             ->first();
 
-        if (!$siswa || !$siswa->user || (int) $siswa->user->role !== 2) {
+        if (! $siswa || ! $siswa->user || (int) $siswa->user->role !== 2) {
             RateLimiter::hit($this->throttleKey($request));
             throw ValidationException::withMessages([
                 'nis' => 'NIS atau password tidak sesuai.',
             ]);
         }
 
-        if (!Auth::attempt(['username' => $siswa->user->username, 'password' => $validated['password']], $request->boolean('remember'))) {
+        if (! Auth::attempt(['username' => $siswa->user->username, 'password' => $validated['password']], $request->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey($request));
             throw ValidationException::withMessages([
                 'nis' => 'NIS atau password tidak sesuai.',
@@ -54,12 +54,12 @@ class UjianLoginController extends Controller
         RateLimiter::clear($this->throttleKey($request));
         $request->session()->regenerate();
 
-        return redirect()->route('ujian.sso');
+        return redirect()->intended(route('ujian.siswa.index'));
     }
 
     private function ensureIsNotRateLimited(Request $request): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
             return;
         }
 
@@ -77,6 +77,6 @@ class UjianLoginController extends Controller
 
     private function throttleKey(Request $request): string
     {
-        return Str::transliterate(Str::lower($request->string('nis')) . '|ujian|' . $request->ip());
+        return Str::transliterate(Str::lower($request->string('nis')).'|ujian|'.$request->ip());
     }
 }

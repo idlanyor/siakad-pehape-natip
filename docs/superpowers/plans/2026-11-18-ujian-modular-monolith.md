@@ -1,7 +1,7 @@
 # Rencana: Ujian Online → Modul di SIAKAD (Modular Monolith + Inertia)
 
 Tanggal: 2026-11-18
-Status: draft, menunggu eksekusi
+Status: selesai (Fase 0–6 dan 8; Fase 7 dilewati, polling sudah memadai)
 
 ## Tujuan
 
@@ -139,3 +139,36 @@ Belum ada: pengumuman proktor ke peserta (butuh kanal ke siswa; bisa ditumpangka
 - **Logika di controller API besar dan bercampur dengan format respons JSON.** Ada risiko perilaku berubah diam-diam saat di-*rewrite*. Mitigasinya: tulis unit test service di fase 3 sebelum controller lama dibuang.
 - **Bentuk props berubah.** Halaman Vue yang sebelumnya fetch data sendiri lewat axios harus diubah menerima props dari Inertia.
 - **CSS AdminLTE sama untuk semua halaman**, jadi risiko konflik rendah. Tetap cek `resources/css/app.css` ujian-service untuk style khusus ujian.
+
+## Hasil Fase 8 dan langkah deploy
+
+**Dihapus:** folder `ujian-service/`; di SIAKAD: `UjianSsoController`, `Api/JwtHandoffController`,
+`Api/UjianServiceController`, `ValidateServiceKey`, `Admin/UjianController`, `Admin/HasilUjianController`,
+`HasilUjianExport` lama, `SesiUjianObserver`, view `admin/ujian`, `admin/proktor`, `guru/ujian`, `siswa/ujian`,
+`setup-integration.sh`, `ENV_CONFIGURATION.md`, `config('services.ujian')`, env `UJIAN_SERVICE_*`/`UJIAN_JWT_*`,
+dan route `/api/ujian-service/*`, `/api/jwt/*`, `/api/broadcasting/auth`.
+
+**Keamanan:** `/api/ujian-service/verify-credentials` dan `/api/ujian-service/sync/*` sebelumnya terbuka tanpa
+autentikasi (bisa dipakai menebak password siswa dan menarik data siswa). Ikut terhapus.
+
+**Bug yang ikut diperbaiki:** `GET /` didefinisikan dua kali sehingga halaman login NIS untuk tamu tidak pernah tampil.
+
+**Notifikasi:** `ELearningNotifier::ujianBaru` (saat ujian diterbitkan) dan `ujianDikoreksi` (saat essay terakhir
+dinilai) kini memakai model modul; `ujianReminder` dan template WA ujian yang tak pernah dipanggil dihapus.
+
+**Prefix:** modul dipindah dari `/ujian-online` ke `/ujian`.
+
+### Langkah deploy ke server
+
+```bash
+git pull
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan optimize:clear
+php artisan migrate --force          # membuat tabel modul ujian di database SIAKAD
+php artisan optimize
+```
+
+Setelah itu: hapus env `UJIAN_SERVICE_URL`, `UJIAN_SERVICE_KEY`, `UJIAN_JWT_SECRET`, `UJIAN_JWT_TTL` dari `.env`
+(opsional, sudah tidak dibaca), hentikan proses/vhost ujian-service bila ada, dan database `ujian_db` boleh di-drop
+(isinya hanya 3 baris `periode_ujian` uji coba).
