@@ -5,6 +5,7 @@ use App\Modules\Ujian\Http\Controllers\DashboardController;
 use App\Modules\Ujian\Http\Controllers\FaseController;
 use App\Modules\Ujian\Http\Controllers\HasilController;
 use App\Modules\Ujian\Http\Controllers\PeriodeController;
+use App\Modules\Ujian\Http\Controllers\ProktorController;
 use App\Modules\Ujian\Http\Controllers\Siswa\SesiApiController;
 use App\Modules\Ujian\Http\Controllers\Siswa\UjianSiswaController;
 use App\Modules\Ujian\Http\Controllers\SoalUjianController;
@@ -60,6 +61,15 @@ Route::prefix('saya')->name('siswa.')->group(function () {
         Route::post('sesi/{sesi}/pelanggaran', [SesiApiController::class, 'pelanggaran'])->name('pelanggaran');
         Route::post('sesi/{sesi}/ping', [SesiApiController::class, 'ping'])->name('ping');
     });
+});
+
+// --- Pengawasan (proktor) ---
+Route::prefix('proktor')->name('proktor.')->group(function () {
+    Route::get('/', [ProktorController::class, 'index'])->name('index');
+    Route::get('ujian/{ujian}', [ProktorController::class, 'monitor'])->name('monitor');
+    Route::post('sesi/{sesi}/paksa-selesai', [ProktorController::class, 'paksaSelesai'])->name('paksa-selesai');
+    Route::post('sesi/{sesi}/diskualifikasi', [ProktorController::class, 'diskualifikasi'])->name('diskualifikasi');
+    Route::post('sesi/{sesi}/reset', [ProktorController::class, 'reset'])->name('reset');
 });
 
 // --- Hasil & koreksi ---

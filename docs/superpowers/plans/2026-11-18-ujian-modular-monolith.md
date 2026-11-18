@@ -118,6 +118,9 @@ Setiap fase menjadi satu commit (atau lebih). Aplikasi harus tetap bisa jalan da
 ### Fase 6: Proktor
 - Dashboard proktor, monitoring sesi, dan aksi (reset, tambah waktu, kunci) dengan polling.
 
+**Fase 5 & 6 selesai.** Diverifikasi di Chromium headless (SQLite terpisah): alur siswa lengkap, autosave + reload, pelanggaran, koreksi essay, monitor proktor dengan polling 10 detik, diskualifikasi yang langsung mengalihkan browser siswa ke halaman hasil.
+Belum ada: pengumuman proktor ke peserta (butuh kanal ke siswa; bisa ditumpangkan di respons ping atau Reverb di Fase 7).
+
 ### Fase 7 (opsional): Realtime
 - Pasang `laravel/reverb` di SIAKAD, port event `SesiUpdated`/`ProktorEvent`, lalu ganti polling dengan Echo.
 

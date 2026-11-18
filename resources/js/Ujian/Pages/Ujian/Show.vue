@@ -76,6 +76,9 @@ const ya = (v) => (v ? 'Ya' : 'Tidak');
                     <Link v-if="izin.ubah" :href="route('ujian.soal.index', ujian.id)" class="btn btn-block btn-primary">
                         <i class="fas fa-list-ol mr-1" /> Susun soal
                     </Link>
+                    <Link v-if="izin.awasi && ujian.status !== 'draft'" :href="route('ujian.proktor.monitor', ujian.id)" class="btn btn-block btn-warning">
+                        <i class="fas fa-desktop mr-1" /> Monitor peserta
+                    </Link>
                     <Link v-if="izin.nilai" :href="route('ujian.hasil.index', ujian.id)" class="btn btn-block btn-info">
                         <i class="fas fa-chart-bar mr-1" /> Hasil & koreksi
                     </Link>

@@ -8,6 +8,7 @@
     $menu = [
         ['ujian.dashboard', 'ujian.dashboard', 'Ringkasan'],
         ['ujian.ujian.index', 'ujian.ujian.*|ujian.soal.*|ujian.hasil.*', $user->isAdmin() ? 'Semua Ujian' : 'Ujian Saya'],
+        ['ujian.proktor.index', 'ujian.proktor.*', 'Pengawasan'],
         ['ujian.bank-soal.index', 'ujian.bank-soal.*', 'Bank Soal'],
         ['ujian.periode.index', 'ujian.periode.*', 'Periode'],
     ];
