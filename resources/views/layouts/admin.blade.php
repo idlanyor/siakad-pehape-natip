@@ -93,19 +93,8 @@ toastr.options = {
   timeOut: 4000
 };
 
-// Auto-show toast dari flash session
-@if(session('success'))
-  toastr.success("{{ session('success') }}");
-@endif
-@if(session('error'))
-  toastr.error("{{ session('error') }}");
-@endif
-@if(session('warning'))
-  toastr.warning("{{ session('warning') }}");
-@endif
-@if(session('info'))
-  toastr.info("{{ session('info') }}");
-@endif
+// Flash session ditampilkan oleh layouts.partials.flash (alert), bukan toastr,
+// supaya tidak dobel.
 
 // Intercept form submit dengan confirm() → ganti dengan SweetAlert2
 document.addEventListener('submit', function(e) {
@@ -134,7 +123,7 @@ document.addEventListener('submit', function(e) {
     }
   }
 });
-
+</script>
 
 <script>
 // Toggle Dark Mode — simpan preferensi di cookie (1 tahun), terapkan tanpa reload.
