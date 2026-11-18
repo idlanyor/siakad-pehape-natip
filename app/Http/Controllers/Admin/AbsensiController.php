@@ -47,16 +47,7 @@ class AbsensiController extends Controller
     public function detail(Jadwal $jadwal)
     {
         $siswas   = Siswa::where('kelas_id', $jadwal->kelas_id)->orderBy('nama')->get();
-        $pertemuan = Absensi::where('jadwal_id', $jadwal->id)
-            ->selectRaw('tanggal')
-            ->distinct()
-            ->orderBy('tanggal')
-            ->pluck('tanggal');
-
-        $pivot = Absensi::where('jadwal_id', $jadwal->id)
-            ->get()
-            ->groupBy('siswa_id')
-            ->map(fn($rows) => $rows->pluck('status', 'tanggal'));
+        [$pertemuan, $pivot] = Absensi::rekapJadwal($jadwal);
 
         return view('admin.absensi.detail', compact('jadwal', 'siswas', 'pertemuan', 'pivot'));
     }

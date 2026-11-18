@@ -22,6 +22,8 @@ abstract class TestCase extends BaseTestCase
 
         $app = require __DIR__.'/../bootstrap/app.php';
 
+        $app->useStoragePath($this->storageSementara());
+
         $app->make(Kernel::class)->bootstrap();
 
         $this->guardAgainstProductionDatabase($app);
@@ -60,6 +62,40 @@ abstract class TestCase extends BaseTestCase
             $_ENV[$key] = $value;
             putenv("{$key}={$value}");
         }
+    }
+
+    /**
+     * Folder storage terpisah per proses test.
+     *
+     * Tanpa ini test menulis ke storage/ proyek asli: mis. test maintenance
+     * membuat storage/framework/down sungguhan (aplikasi ikut 503 bila test
+     * gagal di tengah), dan unggahan/log test bercampur dengan data asli.
+     */
+    protected function storageSementara(): string
+    {
+        static $path = null;
+
+        if ($path === null) {
+            $path = sys_get_temp_dir().'/siakad-test-storage-'.getmypid();
+            foreach (['app/public', 'framework/cache/data', 'framework/sessions', 'framework/views', 'framework/testing', 'logs'] as $dir) {
+                @mkdir("{$path}/{$dir}", 0775, true);
+            }
+            register_shutdown_function(static function () use ($path) {
+                if (! is_dir($path)) {
+                    return;
+                }
+                $it = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::CHILD_FIRST
+                );
+                foreach ($it as $f) {
+                    $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+                }
+                @rmdir($path);
+            });
+        }
+
+        return $path;
     }
 
     /**

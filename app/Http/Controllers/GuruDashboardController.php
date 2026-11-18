@@ -39,7 +39,7 @@ class GuruDashboardController extends Controller
         $jadwals = Jadwal::with(['mapel', 'kelas'])
             ->where('guru_id', $guru->id)
             ->when($semester, fn ($q) => $q->where('semester_id', $semester->id))
-            ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->urutHari()
             ->orderBy('jam_mulai')
             ->get();
 

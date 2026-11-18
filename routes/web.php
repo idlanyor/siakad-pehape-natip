@@ -85,17 +85,17 @@ Route::middleware(['auth', 'role:3'])->prefix('pendaftar')->name('pendaftar.')->
 Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
 
-    Route::resource('jurusan', \App\Http\Controllers\Admin\JurusanController::class);
-    Route::resource('kelas', \App\Http\Controllers\Admin\KelasController::class)->parameters(['kelas' => 'kela']);
-    Route::resource('mapel', \App\Http\Controllers\Admin\MapelController::class);
-    Route::resource('guru', \App\Http\Controllers\Admin\GuruController::class);
+    Route::resource('jurusan', \App\Http\Controllers\Admin\JurusanController::class)->except(['show']);
+    Route::resource('kelas', \App\Http\Controllers\Admin\KelasController::class)->except(['show'])->parameters(['kelas' => 'kela']);
+    Route::resource('mapel', \App\Http\Controllers\Admin\MapelController::class)->except(['show']);
+    Route::resource('guru', \App\Http\Controllers\Admin\GuruController::class)->except(['show']);
     Route::delete('guru-bulk', [\App\Http\Controllers\Admin\GuruController::class, 'bulkDestroy'])->name('guru.bulk-destroy');
     Route::get('guru/{guru}/permission', [\App\Http\Controllers\Admin\GuruPermissionController::class, 'edit'])->name('guru.permission.edit');
     Route::put('guru/{guru}/permission', [\App\Http\Controllers\Admin\GuruPermissionController::class, 'update'])->name('guru.permission.update');
-    Route::resource('siswa', \App\Http\Controllers\Admin\SiswaAdminController::class);
+    Route::resource('siswa', \App\Http\Controllers\Admin\SiswaAdminController::class)->except(['show']);
     Route::delete('siswa-bulk', [\App\Http\Controllers\Admin\SiswaAdminController::class, 'bulkDestroy'])->name('siswa.bulk-destroy');
 
-    Route::resource('jadwal', \App\Http\Controllers\Admin\JadwalController::class);
+    Route::resource('jadwal', \App\Http\Controllers\Admin\JadwalController::class)->except(['show']);
     Route::get('/absensi', [\App\Http\Controllers\Admin\AbsensiController::class, 'index'])->name('absensi.index');
     Route::get('/absensi/{jadwal}', [\App\Http\Controllers\Admin\AbsensiController::class, 'detail'])->name('absensi.detail');
     Route::get('/absensi/{jadwal}/export', [\App\Http\Controllers\Admin\AbsensiController::class, 'exportAbsensi'])->name('absensi.export');
@@ -107,11 +107,11 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/raport/pdf', [\App\Http\Controllers\Admin\NilaiController::class, 'raportPdf'])->name('raport.pdf');
 
 
-    Route::resource('pkl/tempat', \App\Http\Controllers\Admin\TempatPklController::class)->parameters(['tempat' => 'pklTempat'])->names([
+    Route::resource('pkl/tempat', \App\Http\Controllers\Admin\TempatPklController::class)->except(['show'])->parameters(['tempat' => 'pklTempat'])->names([
         'index' => 'pkl-tempat.index', 'create' => 'pkl-tempat.create', 'store' => 'pkl-tempat.store',
         'edit' => 'pkl-tempat.edit', 'update' => 'pkl-tempat.update', 'destroy' => 'pkl-tempat.destroy',
     ]);
-    Route::resource('pkl/penempatan', \App\Http\Controllers\Admin\PenempatanPklController::class)->parameters(['penempatan' => 'pklPenempatan'])->names([
+    Route::resource('pkl/penempatan', \App\Http\Controllers\Admin\PenempatanPklController::class)->except(['show'])->parameters(['penempatan' => 'pklPenempatan'])->names([
         'index' => 'pkl-penempatan.index', 'create' => 'pkl-penempatan.create', 'store' => 'pkl-penempatan.store',
         'edit' => 'pkl-penempatan.edit', 'update' => 'pkl-penempatan.update', 'destroy' => 'pkl-penempatan.destroy',
     ]);
@@ -119,16 +119,16 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/pkl/{penempatan}', [\App\Http\Controllers\Admin\PklController::class, 'detail'])->name('pkl.detail');
 
     // --- Kesiswaan ---
-    Route::resource('pelanggaran', \App\Http\Controllers\Admin\PelanggaranController::class);
-    Route::resource('prestasi', \App\Http\Controllers\Admin\PrestasiController::class);
-    Route::resource('ekskul', \App\Http\Controllers\Admin\EkskulController::class);
+    Route::resource('pelanggaran', \App\Http\Controllers\Admin\PelanggaranController::class)->except(['show']);
+    Route::resource('prestasi', \App\Http\Controllers\Admin\PrestasiController::class)->except(['show']);
+    Route::resource('ekskul', \App\Http\Controllers\Admin\EkskulController::class)->except(['show']);
     Route::get('ekskul/{ekskul}/anggota', [\App\Http\Controllers\Admin\EkskulController::class, 'anggota'])->name('ekskul.anggota');
     Route::post('ekskul/{ekskul}/anggota', [\App\Http\Controllers\Admin\EkskulController::class, 'anggotaStore'])->name('ekskul.anggota.store');
     Route::delete('ekskul/{ekskul}/anggota/{anggota}', [\App\Http\Controllers\Admin\EkskulController::class, 'anggotaDestroy'])->name('ekskul.anggota.destroy');
-    Route::resource('surat', \App\Http\Controllers\Admin\SuratController::class);
+    Route::resource('surat', \App\Http\Controllers\Admin\SuratController::class)->except(['show']);
     Route::get('surat/{surat}/print', [\App\Http\Controllers\Admin\SuratController::class, 'print'])->name('surat.print');
 
-    Route::resource('tahun-ajaran', \App\Http\Controllers\Admin\TahunAjaranController::class)->parameters(['tahun-ajaran' => 'tahunAjaran']);
+    Route::resource('tahun-ajaran', \App\Http\Controllers\Admin\TahunAjaranController::class)->except(['show'])->parameters(['tahun-ajaran' => 'tahunAjaran']);
     Route::post('tahun-ajaran/{tahunAjaran}/aktif', [\App\Http\Controllers\Admin\TahunAjaranController::class, 'setAktif'])->name('tahun-ajaran.aktif');
     Route::post('semester/{semester}/aktif', [\App\Http\Controllers\Admin\TahunAjaranController::class, 'setSemesterAktif'])->name('semester.aktif');
 
@@ -141,7 +141,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
 
     // --- Keuangan / SPP ---
     Route::prefix('keuangan')->name('keuangan.')->group(function () {
-        Route::resource('tarif', \App\Http\Controllers\Admin\TarifSppController::class)->parameters(['tarif' => 'tarif']);
+        Route::resource('tarif', \App\Http\Controllers\Admin\TarifSppController::class)->except(['show'])->parameters(['tarif' => 'tarif']);
         Route::get('tagihan/export', [\App\Http\Controllers\Admin\TagihanSppController::class, 'export'])->name('tagihan.export');
         Route::resource('tagihan', \App\Http\Controllers\Admin\TagihanSppController::class)->except(['edit', 'update'])->parameters(['tagihan' => 'tagihan']);
         Route::post('tagihan/{tagihan}/bayar', [\App\Http\Controllers\Admin\PembayaranSppController::class, 'store'])->name('tagihan.bayar');
@@ -156,7 +156,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
     Route::prefix('cms')->name('cms.')->group(function () {
         Route::get('/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'index'])->name('pengaturan');
         Route::put('/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'update'])->name('pengaturan.update');
-        Route::resource('halaman', \App\Http\Controllers\Admin\HalamanStatisController::class)->names([
+        Route::resource('halaman', \App\Http\Controllers\Admin\HalamanStatisController::class)->except(['show'])->names([
             'index'   => 'halaman.index',
             'create'  => 'halaman.create',
             'store'   => 'halaman.store',
@@ -168,7 +168,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
 
     // --- Fase 13: CMS Artikel & Galeri ---
     Route::prefix('cms')->name('cms.')->group(function () {
-        Route::resource('artikel', \App\Http\Controllers\Admin\ArtikelController::class);
+        Route::resource('artikel', \App\Http\Controllers\Admin\ArtikelController::class)->except(['show']);
         Route::resource('galeri', \App\Http\Controllers\Admin\GaleriController::class);
         Route::delete('galeri-item/{item}', [\App\Http\Controllers\Admin\GaleriController::class, 'destroyItem'])->name('galeri-item.destroy');
     });
@@ -188,7 +188,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
 
     // --- Fase 14: PPDB Plus (Gelombang, Persyaratan, FAQ) ---
     Route::prefix('ppdb')->name('ppdb.')->group(function () {
-        Route::resource('gelombang', \App\Http\Controllers\Admin\GelombangPpdbController::class)->names([
+        Route::resource('gelombang', \App\Http\Controllers\Admin\GelombangPpdbController::class)->except(['show'])->names([
             'index' => 'gelombang.index', 'create' => 'gelombang.create', 'store' => 'gelombang.store',
             'edit' => 'gelombang.edit', 'update' => 'gelombang.update', 'destroy' => 'gelombang.destroy',
         ]);

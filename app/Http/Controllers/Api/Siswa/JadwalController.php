@@ -18,7 +18,7 @@ class JadwalController extends Controller
         $jadwals = Jadwal::with(['mapel', 'guru', 'kelas'])
             ->where('kelas_id', $siswa->kelas_id)
             ->when($semester, fn($q) => $q->where('semester_id', $semester->id))
-            ->orderByRaw("FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->urutHari()
             ->orderBy('jam_mulai')
             ->get();
 

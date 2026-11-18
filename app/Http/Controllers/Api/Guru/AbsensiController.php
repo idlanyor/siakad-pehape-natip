@@ -17,7 +17,7 @@ class AbsensiController extends Controller
 
         $jadwals = Jadwal::with(['mapel', 'kelas'])
             ->where('guru_id', $guru->id)
-            ->orderByRaw("FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->urutHari()
             ->orderBy('jam_mulai')
             ->get()
             ->map(fn($j) => [
