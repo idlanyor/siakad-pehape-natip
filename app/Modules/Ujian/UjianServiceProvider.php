@@ -3,6 +3,7 @@
 namespace App\Modules\Ujian;
 
 use App\Modules\Ujian\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,8 +16,20 @@ use Illuminate\Support\ServiceProvider;
  */
 class UjianServiceProvider extends ServiceProvider
 {
+    /** @var array<class-string, class-string> */
+    private const POLICIES = [
+        Models\Ujian::class => Policies\UjianPolicy::class,
+        Models\SesiUjian::class => Policies\SesiUjianPolicy::class,
+        Models\BankSoal::class => Policies\BankSoalPolicy::class,
+        Models\PeriodeUjian::class => Policies\PeriodeUjianPolicy::class,
+    ];
+
     public function boot(): void
     {
+        foreach (self::POLICIES as $model => $policy) {
+            Gate::policy($model, $policy);
+        }
+
         $this->loadMigrationsFrom(database_path('migrations/ujian'));
 
         if (! $this->app->routesAreCached()) {

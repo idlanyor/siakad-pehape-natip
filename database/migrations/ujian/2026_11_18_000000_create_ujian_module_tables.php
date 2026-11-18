@@ -149,6 +149,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sesi_ujian_id')->constrained('sesi_ujian')->cascadeOnDelete();
             $table->foreignId('soal_ujian_id')->constrained('soal_ujian')->cascadeOnDelete();
+            // Urutan tampil soal untuk siswa ini (diacak sekali saat sesi dimulai bila acak_soal).
+            $table->unsignedInteger('urutan');
+            // Urutan tampil opsi, mis. "CAEBD" (diacak sekali saat sesi dimulai bila acak_opsi).
+            // Jawaban tetap disimpan dengan huruf opsi asli.
+            $table->string('urutan_opsi', 5)->nullable();
             $table->char('jawaban_pilihan', 1)->nullable(); // A–E untuk pilihan ganda
             $table->text('jawaban_text')->nullable();       // essay
             $table->boolean('is_ragu')->default(false);
@@ -157,6 +162,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['sesi_ujian_id', 'soal_ujian_id']);
+            $table->index(['sesi_ujian_id', 'urutan']);
         });
 
         Schema::create('proktor_event', function (Blueprint $table) {

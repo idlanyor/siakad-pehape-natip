@@ -83,6 +83,17 @@ Setiap fase menjadi satu commit (atau lebih). Aplikasi harus tetap bisa jalan da
 - Ekstrak logika bisnis dari `Api/SesiController` (698 baris) dan `Api/ProktorController` (849 baris) ke `SesiUjianService`, `PenilaianService`, dan `ProktorService`.
 - Buat unit test untuk penilaian, acak soal/opsi, timer/kedaluwarsa, dan pelanggaran.
 
+**Selesai.** Bug ujian-service yang diperbaiki saat ekstraksi (semua ada test-nya):
+- `acak_soal` tidak tersimpan (setter `nomor_urut` no-op). Urutan soal dan opsi kini dikunci per siswa di `jawaban_siswa.urutan` / `urutan_opsi`.
+- `acak_opsi` mereset key opsi ke 0..n (`collect()->shuffle()->toArray()`), sehingga huruf jawaban rusak, dan diacak ulang tiap reload.
+- Bobot essay ikut di penyebut tetapi nilai essay tidak pernah dijumlahkan. `nilai_otomatis`, `nilai_manual`, dan `predikat` tidak pernah diisi.
+- `submitAnswer` dengan `soal_id` milik ujian lain membuat baris jawaban baru.
+- Paksa selesai oleh proktor tidak menghitung nilai.
+- Dua endpoint pelanggaran dengan aturan berbeda (`violation` vs `recordEvent`).
+- Status `belum_mulai`/`sedang_mengerjakan` yang tidak ada di enum.
+- Otorisasi: `ujian.guru_id` dibandingkan dengan id user, dan 6 endpoint proktor hanya mengecek role.
+- Perilaku baru: batas waktu sesi tidak melewati `ujian.waktu_selesai`. Batas pelanggaran bisa dikonfigurasi lewat `UJIAN_BATAS_PELANGGARAN` (0 = nonaktif).
+
 ### Fase 4: Fitur guru/admin (Inertia)
 - Periode dan fase, bank soal, CRUD ujian dan susun soal, hasil dan koreksi esai, export Excel/PDF.
 - Port halaman `Periode/*`, `BankSoal/*`, `Ujian/*`, dan `Hasil/*` ke `resources/js/Ujian/Pages`. Ganti panggilan `axios` + JWT dengan `useForm`/`router`.

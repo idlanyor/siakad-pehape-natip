@@ -19,6 +19,7 @@ class JawabanSiswaFactory extends Factory
             'soal_ujian_id' => fn (array $attr) => SoalUjian::factory()->create([
                 'ujian_id' => SesiUjian::find($attr['sesi_ujian_id'])->ujian_id,
             ])->id,
+            'urutan' => fake()->unique()->numberBetween(1, 10000),
             'jawaban_pilihan' => 'A',
         ];
     }

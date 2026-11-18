@@ -87,7 +87,7 @@ class SesiUjian extends Model
 
     public function jawaban(): HasMany
     {
-        return $this->hasMany(JawabanSiswa::class, 'sesi_ujian_id');
+        return $this->hasMany(JawabanSiswa::class, 'sesi_ujian_id')->orderBy('urutan');
     }
 
     public function proktorEvents(): HasMany

@@ -16,6 +16,8 @@ class JawabanSiswa extends Model
     protected $fillable = [
         'sesi_ujian_id',
         'soal_ujian_id',
+        'urutan',
+        'urutan_opsi',
         'jawaban_pilihan',
         'jawaban_text',
         'is_ragu',
@@ -24,6 +26,7 @@ class JawabanSiswa extends Model
     ];
 
     protected $casts = [
+        'urutan' => 'integer',
         'is_ragu' => 'boolean',
         'is_benar' => 'boolean',
         'nilai' => 'decimal:2',
@@ -42,6 +45,12 @@ class JawabanSiswa extends Model
     public function soal(): BelongsTo
     {
         return $this->belongsTo(SoalUjian::class, 'soal_ujian_id');
+    }
+
+    public function isTerjawab(): bool
+    {
+        return $this->jawaban_pilihan !== null
+            || ($this->jawaban_text !== null && trim($this->jawaban_text) !== '');
     }
 
     /**
