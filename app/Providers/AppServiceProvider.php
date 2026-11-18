@@ -17,6 +17,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Register observers
+
         // Paksa HTTPS di production (link, asset, form action) — lindungi
         // kredensial & data pembayaran dari sniffing di jaringan.
         if ($this->app->environment('production')) {

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Siswa\JadwalController as SiswaJadwalController;
@@ -20,7 +21,31 @@ use App\Http\Controllers\Api\Guru\PklController as GuruPklController;
 use App\Http\Controllers\Api\Guru\MateriController as GuruMateriController;
 use App\Http\Controllers\Api\Guru\TugasController as GuruTugasController;
 
-// ─── Public ─────────────────────────────────────────────────────────────────
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// Health check endpoint
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now()->toIso8601String(),
+        'service' => 'SIAKAD',
+    ]);
+});
+
+// ─── Public & V1 API ────────────────────────────────────────────────────────
 
 Route::prefix('v1')->middleware([\App\Http\Middleware\ForceJsonResponse::class, 'throttle:api'])->group(function () {
 

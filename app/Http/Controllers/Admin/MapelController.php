@@ -7,20 +7,22 @@ use App\Http\Requests\Admin\MapelRequest;
 use App\Models\Guru;
 use App\Models\Jurusan;
 use App\Models\Mapel;
-use Illuminate\Http\Request;
+use App\Modules\Ujian\Models\Ujian;
 
 class MapelController extends Controller
 {
     public function index()
     {
         $mapels = Mapel::with(['jadwals', 'jurusan', 'gurus'])->get();
+
         return view('admin.mapel.index', compact('mapels'));
     }
 
     public function create()
     {
         $jurusans = Jurusan::orderBy('nama_jurusan')->get();
-        $gurus    = Guru::orderBy('nama')->get();
+        $gurus = Guru::orderBy('nama')->get();
+
         return view('admin.mapel.form', ['mapel' => null, 'jurusans' => $jurusans, 'gurus' => $gurus]);
     }
 
@@ -39,7 +41,8 @@ class MapelController extends Controller
     {
         $mapel->load('gurus');
         $jurusans = Jurusan::orderBy('nama_jurusan')->get();
-        $gurus    = Guru::orderBy('nama')->get();
+        $gurus = Guru::orderBy('nama')->get();
+
         return view('admin.mapel.form', compact('mapel', 'jurusans', 'gurus'));
     }
 
@@ -53,7 +56,13 @@ class MapelController extends Controller
 
     public function destroy(Mapel $mapel)
     {
+        // Hasil ujian online merujuk ke mata pelajaran ini (FK restrict).
+        if (Ujian::withTrashed()->where('mapel_id', $mapel->id)->exists()) {
+            return redirect()->route('admin.mapel.index')->with('error', 'Mata pelajaran tidak bisa dihapus karena sudah dipakai di ujian online.');
+        }
+
         $mapel->delete();
+
         return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran berhasil dihapus.');
     }
 }

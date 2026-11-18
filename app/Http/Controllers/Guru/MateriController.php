@@ -23,7 +23,7 @@ class MateriController extends Controller
         $jadwals = Jadwal::with(['mapel', 'kelas', 'semester.tahunAjaran'])
             ->where('guru_id', $guru->id)
             ->withCount('materis')
-            ->orderByRaw("FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->urutHari()
             ->orderBy('jam_mulai')
             ->get();
 

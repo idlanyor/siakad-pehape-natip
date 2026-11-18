@@ -1,0 +1,124 @@
+
+================================================================================
+ERROR LOGGED: 2026-06-02T02:40:51.975Z
+User ID: prasbhara0604@gmail.com
+================================================================================
+Error Name: Error
+Error Message: ripgrep exited with code 2: regex parse error:
+    nomor_urut|bobot(?!_nilai)|pembahasan
+                    ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+
+Stack Trace:
+Error: ripgrep exited with code 2: regex parse error:
+    nomor_urut|bobot(?!_nilai)|pembahasan
+                    ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+    at ChildProcess.<anonymous> (file:///home/roy/.nvm/versions/node/v25.6.1/lib/node_modules/bobshell/bundle/bob.js:2272:1451)
+    at ChildProcess.emit (node:events:508:20)
+    at maybeClose (node:internal/child_process:1084:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:304:5)
+================================================================================
+
+
+================================================================================
+ERROR LOGGED: 2026-06-02T02:40:51.979Z
+User ID: prasbhara0604@gmail.com
+================================================================================
+Error Name: Error
+Error Message: ripgrep exited with code 2: regex parse error:
+    nomor_urut|bobot(?!_nilai)|pembahasan
+                    ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+
+Stack Trace:
+Error: ripgrep exited with code 2: regex parse error:
+    nomor_urut|bobot(?!_nilai)|pembahasan
+                    ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+    at ChildProcess.<anonymous> (file:///home/roy/.nvm/versions/node/v25.6.1/lib/node_modules/bobshell/bundle/bob.js:2272:1451)
+    at ChildProcess.emit (node:events:508:20)
+    at maybeClose (node:internal/child_process:1084:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:304:5)
+================================================================================
+
+
+================================================================================
+ERROR LOGGED: 2026-06-02T02:40:59.107Z
+User ID: prasbhara0604@gmail.com
+================================================================================
+Error Name: Error
+Error Message: ripgrep exited with code 2: regex parse error:
+    \bnomor_urut\b|\bbobot\b(?!\w)|pembahasan
+                            ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+
+Stack Trace:
+Error: ripgrep exited with code 2: regex parse error:
+    \bnomor_urut\b|\bbobot\b(?!\w)|pembahasan
+                            ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+    at ChildProcess.<anonymous> (file:///home/roy/.nvm/versions/node/v25.6.1/lib/node_modules/bobshell/bundle/bob.js:2272:1451)
+    at ChildProcess.emit (node:events:508:20)
+    at maybeClose (node:internal/child_process:1084:16)
+    at Socket.<anonymous> (node:internal/child_process:456:11)
+    at Socket.emit (node:events:508:20)
+    at Pipe.<anonymous> (node:net:347:12)
+================================================================================
+
+
+================================================================================
+ERROR LOGGED: 2026-06-02T02:40:59.108Z
+User ID: prasbhara0604@gmail.com
+================================================================================
+Error Name: Error
+Error Message: ripgrep exited with code 2: regex parse error:
+    \bnomor_urut\b|\bbobot\b(?!\w)|pembahasan
+                            ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+
+Stack Trace:
+Error: ripgrep exited with code 2: regex parse error:
+    \bnomor_urut\b|\bbobot\b(?!\w)|pembahasan
+                            ^^^
+error: look-around, including look-ahead and look-behind, is not supported
+
+Consider enabling PCRE2 with the --pcre2 flag, which can handle backreferences
+and look-around.
+
+    at ChildProcess.<anonymous> (file:///home/roy/.nvm/versions/node/v25.6.1/lib/node_modules/bobshell/bundle/bob.js:2272:1451)
+    at ChildProcess.emit (node:events:508:20)
+    at maybeClose (node:internal/child_process:1084:16)
+    at Socket.<anonymous> (node:internal/child_process:456:11)
+    at Socket.emit (node:events:508:20)
+    at Pipe.<anonymous> (node:net:347:12)
+================================================================================
+

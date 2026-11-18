@@ -20,7 +20,7 @@ class AbsensiController extends Controller
 
         $jadwals = Jadwal::with(['mapel', 'kelas', 'semester.tahunAjaran'])
             ->where('guru_id', $guru->id)
-            ->orderByRaw("FIELD(hari,'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->urutHari()
             ->orderBy('jam_mulai')
             ->get();
 
@@ -109,18 +109,8 @@ class AbsensiController extends Controller
 
         $siswas = Siswa::where('kelas_id', $jadwal->kelas_id)->orderBy('nama')->get();
 
-        // Ambil semua pertemuan (tanggal unik) untuk jadwal ini
-        $pertemuan = Absensi::where('jadwal_id', $jadwal->id)
-            ->selectRaw('tanggal')
-            ->distinct()
-            ->orderBy('tanggal')
-            ->pluck('tanggal');
-
-        // Pivot: [siswa_id][tanggal] => status
-        $pivot = Absensi::where('jadwal_id', $jadwal->id)
-            ->get()
-            ->groupBy('siswa_id')
-            ->map(fn($rows) => $rows->pluck('status', 'tanggal'));
+        // Pertemuan (tanggal unik, 'Y-m-d') dan pivot [siswa_id][tanggal] => status
+        [$pertemuan, $pivot] = Absensi::rekapJadwal($jadwal);
 
         return view('guru.absensi.rekap', compact('jadwal', 'siswas', 'pertemuan', 'pivot'));
     }

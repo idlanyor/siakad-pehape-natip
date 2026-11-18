@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
         if (env('APP_ENV') === 'production') {
             $middleware->append(\App\Http\Middleware\ForceHttps::class);
         }

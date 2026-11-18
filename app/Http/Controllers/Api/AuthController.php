@@ -39,7 +39,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        // Hanya token API (Bearer) yang bisa dicabut. Request yang diautentikasi lewat
+        // session (Sanctum memberi TransientToken) tidak punya token untuk dihapus.
+        $token = $request->user()->currentAccessToken();
+        if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+            $token->delete();
+        }
 
         return response()->json(['message' => 'Berhasil logout.']);
     }

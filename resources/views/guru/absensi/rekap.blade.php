@@ -67,7 +67,7 @@
             <td class="sticky-col">{{ $i + 1 }}</td>
             <td class="sticky-col font-weight-bold" style="left:30px; white-space:nowrap">{{ $s->nama }}</td>
             @foreach($pertemuan as $tgl)
-            @php  $st = $siswaAbsensi[$tgl->format('Y-m-d')] ?? '-'; @endphp
+            @php  $st = $siswaAbsensi[$tgl] ?? '-'; @endphp
             <td class="{{ match($st) { 'Hadir'=>'status-H','Izin'=>'status-I','Sakit'=>'status-S','Alpa'=>'status-A', default=>'' } }}">
               {{ $st === '-' ? '—' : substr($st, 0, 1) }}
             </td>

@@ -127,6 +127,18 @@
       </div>
     </div>
 
+    {{-- ── Widget Ujian Tersedia ──────────────────────────────── --}}
+    @if($ujianTersedia > 0)
+    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+      <h5><i class="icon fas fa-exclamation-triangle"></i> Ujian Tersedia!</h5>
+      Kamu memiliki <strong>{{ $ujianTersedia }} ujian</strong> yang sedang berlangsung dan belum dikerjakan.
+      <a href="{{ route('ujian.siswa.index') }}" class="alert-link">Klik di sini untuk mengerjakan</a>.
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    @endif
+
     {{-- ── Jadwal Hari Ini ─────────────────────────────────── --}}
     <div class="card shadow-sm">
       <div class="card-header">

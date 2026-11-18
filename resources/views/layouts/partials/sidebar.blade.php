@@ -214,6 +214,8 @@
           </ul>
         </li>
 
+        @include('layouts.partials.sidebar-ujian', ['ikon' => 'fa-clipboard-list'])
+
         <li class="nav-item {{ request()->routeIs('admin.pkl*') || request()->routeIs('admin.pkl-tempat.*') || request()->routeIs('admin.pkl-penempatan.*') ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ request()->routeIs('admin.pkl*') || request()->routeIs('admin.pkl-tempat.*') || request()->routeIs('admin.pkl-penempatan.*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-briefcase"></i>
@@ -520,6 +522,10 @@
         </li>
         @endif
 
+        @if($guruPerms?->canAccess('menu_nilai'))
+        @include('layouts.partials.sidebar-ujian', ['ikon' => 'fa-file-alt'])
+        @endif
+
         @endif
         {{-- ===== END GURU ===== --}}
 
@@ -591,6 +597,13 @@
           <a href="{{ route('siswa.tugas.index') }}" class="nav-link {{ request()->routeIs('siswa.tugas.*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-tasks"></i>
             <p>Tugas Online</p>
+          </a>
+        </li>
+
+        <li class="nav-item" data-ujian-nav>
+          <a href="{{ route('ujian.siswa.index') }}" class="nav-link {{ request()->routeIs('ujian.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-alt"></i>
+            <p>Ujian Online</p>
           </a>
         </li>
 

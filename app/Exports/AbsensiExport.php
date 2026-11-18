@@ -24,12 +24,7 @@ class AbsensiExport implements FromArray, WithTitle, WithStyles
     {
         $siswas = Siswa::where('kelas_id', $this->jadwal->kelas_id)->orderBy('nama')->get();
 
-        $pertemuan = Absensi::where('jadwal_id', $this->jadwal->id)
-            ->distinct()->orderBy('tanggal')->pluck('tanggal');
-
-        $pivot = Absensi::where('jadwal_id', $this->jadwal->id)
-            ->get()->groupBy('siswa_id')
-            ->map(fn($rows) => $rows->pluck('status', 'tanggal'));
+        [$pertemuan, $pivot] = Absensi::rekapJadwal($this->jadwal);
 
         // Header row
         $header = array_merge(['No', 'Nama Siswa'], $pertemuan->map(fn($t) => \Carbon\Carbon::parse($t)->format('d/m'))->toArray(), ['Hadir', 'Sakit', 'Izin', 'Alpa']);
