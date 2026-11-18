@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  @hasSection('inertia')
+  <title inertia>Simakad Sekolah SMK</title>
+  @else
   <title>@yield('title', 'Simakad Sekolah SMK')</title>
+  @endif
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand:300,400,400i,700&display=fallback">
@@ -45,6 +49,7 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+    @sectionMissing('inertia')
     <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
@@ -56,11 +61,15 @@
       </div>
     </div>
     <!-- /.content-header -->
+    @endif
 
     <!-- Main content -->
     <div class="content">
       <div class="container-fluid">
+        {{-- Halaman Inertia merender header & flash sendiri (lihat resources/js/ujian.js) --}}
+        @sectionMissing('inertia')
         @include('layouts.partials.flash')
+        @endif
         @yield('content')
       </div><!-- /.container-fluid -->
     </div>
