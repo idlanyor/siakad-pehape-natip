@@ -28,3 +28,9 @@ yarn-error.log
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Folder alat bantu AI / editor lokal (bisa berisi log, sesi, dan data pribadi)
+/.agents/
+/.bob/
+/.claude/
+/.codex/

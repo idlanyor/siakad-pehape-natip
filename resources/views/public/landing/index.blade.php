@@ -1,5 +1,5 @@
 @extends('layouts.public')
-@section('title', setting('sekolah_nama', 'SMK Negeri 48'))
+@section('title', setting('sekolah_nama', 'SIAKAD SMK'))
 @section('page_title', 'Beranda')
 @section('meta_desc', setting('sekolah_tagline', ''))
 
@@ -217,7 +217,7 @@
           <span class="hero-chip reveal"><span class="dot">Sejak {{ $stats['tahun_berdiri'] }}</span> Website resmi sekolah</span>
         @endif
 
-        <h1 class="reveal" style="--d:.05s">{{ setting('sekolah_nama', 'SMK Negeri 48') }}</h1>
+        <h1 class="reveal" style="--d:.05s">{{ setting('sekolah_nama', 'SIAKAD SMK') }}</h1>
         <p class="hero-lead reveal" style="--d:.1s">
           {{ setting('sekolah_tagline', 'Berkomitmen mencetak lulusan yang kompeten, berkarakter mulia, dan siap menghadapi tantangan dunia industri.') }}
         </p>

@@ -70,8 +70,8 @@
   {{-- Header --}}
   <div class="header">
     <div class="sekolah-info">
-      <h2>SMK NEGERI 48</h2>
-      <p>Jl. Contoh No. 1, Jakarta | Telp. (021) 000-0000 | smkn48.sch.id</p>
+      <h2>{{ strtoupper(setting('sekolah_nama', 'Nama Sekolah')) }}</h2>
+      <p>{{ collect([setting('sekolah_alamat'), setting('sekolah_no_telp') ? 'Telp. ' . setting('sekolah_no_telp') : null, setting('sekolah_website') ?: setting('sekolah_email')])->filter()->implode(' | ') }}</p>
     </div>
   </div>
 

@@ -28,7 +28,7 @@ class DummyDataSeeder extends Seeder
         User::create([
             'name'     => 'Administrator',
             'username' => 'admin',
-            'email'    => 'admin@smk48.sch.id',
+            'email'    => 'admin@sekolah.example',
             'password' => Hash::make('password'),
             'role'     => 0,
         ]);
@@ -42,7 +42,7 @@ class DummyDataSeeder extends Seeder
         $userGuru1 = User::create([
             'name'     => 'Siti Delimasari, S.Kom',
             'username' => 'siti.delimasari',
-            'email'    => 'siti@smk48.sch.id',
+            'email'    => 'siti@sekolah.example',
             'password' => Hash::make('password'),
             'role'     => 1,
         ]);
@@ -57,7 +57,7 @@ class DummyDataSeeder extends Seeder
         $userGuru2 = User::create([
             'name'     => 'Rahman Manto, S.Kom',
             'username' => 'rahman.manto',
-            'email'    => 'rahman@smk48.sch.id',
+            'email'    => 'rahman@sekolah.example',
             'password' => Hash::make('password'),
             'role'     => 1,
         ]);

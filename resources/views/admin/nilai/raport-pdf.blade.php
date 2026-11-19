@@ -35,8 +35,8 @@
 {{-- Kop Surat --}}
 <div class="kop">
   <div class="kop-text">
-    <h2>SMK Negeri 48 Jakarta</h2>
-    <p>Jl. Raya Condet No. 1, Jakarta Timur &nbsp;|&nbsp; Telp. (021) 8001234 &nbsp;|&nbsp; smkn48@jakarta.sch.id</p>
+    <h2>{{ setting('sekolah_nama', 'Nama Sekolah') }}</h2>
+    <p>{{ collect([setting('sekolah_alamat'), setting('sekolah_no_telp') ? 'Telp. ' . setting('sekolah_no_telp') : null, setting('sekolah_website') ?: setting('sekolah_email')])->filter()->implode(' | ') }}</p>
   </div>
 </div>
 
@@ -136,7 +136,7 @@
 </div>
 
 <div class="footer-note">
-  Dicetak oleh sistem SIAKAD SMK Negeri 48 &nbsp;·&nbsp; {{ now()->format('d/m/Y H:i') }}
+  Dicetak oleh SIAKAD {{ setting('sekolah_nama') }} &nbsp;·&nbsp; {{ now()->format('d/m/Y H:i') }}
 </div>
 
 </body>

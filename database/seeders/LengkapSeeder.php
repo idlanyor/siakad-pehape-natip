@@ -345,13 +345,13 @@ class LengkapSeeder extends Seeder
         if (PendaftarPpdb::count() === 0) {
             $jurusans = \App\Models\Jurusan::all();
             $pendaftarData = [
-                ['Aditya Ramadhan Putra', 'aditya.r@gmail.com', '0813001', 'L', 'pending'],
-                ['Bunga Citra Lestari', 'bunga.c@gmail.com', '0813002', 'P', 'diterima'],
-                ['Candra Wijaya', 'candra.w@gmail.com', '0813003', 'L', 'diterima'],
-                ['Dina Maulida', 'dina.m@gmail.com', '0813004', 'P', 'ditolak'],
-                ['Eka Prasetyo', 'eka.p@gmail.com', '0813005', 'L', 'verifikasi'],
-                ['Fauzi Hakim', 'fauzi.h@gmail.com', '0813006', 'L', 'pending'],
-                ['Gita Pertiwi', 'gita.p@gmail.com', '0813007', 'P', 'diterima'],
+                ['Aditya Ramadhan Putra', 'aditya.r@example.com', '0813001', 'L', 'pending'],
+                ['Bunga Citra Lestari', 'bunga.c@example.com', '0813002', 'P', 'diterima'],
+                ['Candra Wijaya', 'candra.w@example.com', '0813003', 'L', 'diterima'],
+                ['Dina Maulida', 'dina.m@example.com', '0813004', 'P', 'ditolak'],
+                ['Eka Prasetyo', 'eka.p@example.com', '0813005', 'L', 'verifikasi'],
+                ['Fauzi Hakim', 'fauzi.h@example.com', '0813006', 'L', 'pending'],
+                ['Gita Pertiwi', 'gita.p@example.com', '0813007', 'P', 'diterima'],
             ];
             foreach ($pendaftarData as $i => [$nama, $email, $hp, $jk, $status]) {
                 $jurusan = $jurusans->get($i % max(1, $jurusans->count()));

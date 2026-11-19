@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +11,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        $this->call(DummyDataSeeder::class);
         $this->call(PengaturanSeeder::class);
         $this->call(StrukturOrganisasiSeeder::class);
+
+        // Data demo membuat akun dengan password "password". Jangan pernah di produksi:
+        // pasang lewat installer web (/install) yang membuat satu admin dengan password pilihan sendiri.
+        if (app()->isProduction()) {
+            $this->command?->warn('APP_ENV=production: data & akun demo dilewati.');
+
+            return;
+        }
+
+        $this->call(DummyDataSeeder::class);
         $this->call(LengkapSeeder::class);
     }
 }

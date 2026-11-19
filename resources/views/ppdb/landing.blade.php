@@ -131,7 +131,7 @@
         </span>
         <h1 class="reveal" style="--d:.05s">Penerimaan Peserta Didik Baru <em>{{ setting('ppdb_tahun_ajaran') }}</em></h1>
         <p class="lead reveal" style="--d:.1s">
-          Mulai perjalananmu di {{ setting('sekolah_nama', 'SMK Negeri 48') }}. Daftar online, unggah berkas dari rumah, dan pantau hasil seleksi kapan saja.
+          Mulai perjalananmu di {{ setting('sekolah_nama', 'SIAKAD SMK') }}. Daftar online, unggah berkas dari rumah, dan pantau hasil seleksi kapan saja.
         </p>
         <div class="d-flex flex-wrap gap-2 reveal" style="--d:.15s">
           @if($gelombangAktif)

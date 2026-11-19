@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', setting('sekolah_nama', 'SMK Negeri 48')) — @yield('page_title', 'Website Resmi')</title>
+  <title>@yield('title', setting('sekolah_nama', 'SIAKAD SMK')) — @yield('page_title', 'Website Resmi')</title>
   <meta name="description" content="@yield('meta_desc', setting('sekolah_tagline', ''))">
   <meta name="theme-color" content="#0b3a5e">
 
@@ -204,7 +204,7 @@
           <span class="brand-mark" aria-hidden="true"><i class="fas fa-graduation-cap"></i></span>
         @endif
         <span class="min-w-0">
-          <span class="brand-name">{{ setting('sekolah_nama', 'SMK Negeri 48') }}</span>
+          <span class="brand-name">{{ setting('sekolah_nama', 'SIAKAD SMK') }}</span>
           <span class="brand-sub">{{ setting('sekolah_tagline', 'Unggul, Berkarakter, Berbudaya') }}</span>
         </span>
       </a>
@@ -267,7 +267,7 @@
             <span class="brand-mark" aria-hidden="true"><i class="fas fa-graduation-cap"></i></span>
           @endif
           <span>
-            <span class="brand-name">{{ setting('sekolah_nama', 'SMK Negeri 48') }}</span>
+            <span class="brand-name">{{ setting('sekolah_nama', 'SIAKAD SMK') }}</span>
             @if(setting('sekolah_npsn'))<span class="d-block small" style="color:var(--accent)">NPSN {{ setting('sekolah_npsn') }}</span>@endif
           </span>
         </div>
@@ -314,7 +314,7 @@
     </div>
 
     <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between gap-2">
-      <span>&copy; {{ date('Y') }} {{ setting('sekolah_nama', 'SMK Negeri 48') }}. Hak cipta dilindungi.</span>
+      <span>&copy; {{ date('Y') }} {{ setting('sekolah_nama', 'SIAKAD SMK') }}. Hak cipta dilindungi.</span>
       <span>Didukung Sistem Informasi Akademik</span>
     </div>
   </div>
