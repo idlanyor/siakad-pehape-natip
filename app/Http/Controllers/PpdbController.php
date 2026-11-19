@@ -18,11 +18,11 @@ class PpdbController extends Controller
      */
     public function landing()
     {
-        $gelombangAktif  = GelombangPpdb::buka()->first();
-        $gelombangSemua  = GelombangPpdb::aktif()->orderBy('tanggal_buka')->get();
+        $gelombangAktif = GelombangPpdb::buka()->first();
+        $gelombangSemua = GelombangPpdb::aktif()->orderBy('tanggal_buka')->get();
         $persyaratanList = PersyaratanPpdb::aktif()->get();
-        $faqList         = FaqPpdb::aktif()->get();
-        $jurusans        = Jurusan::where('is_aktif_ppdb', true)->orderBy('nama_jurusan')->get();
+        $faqList = FaqPpdb::aktif()->get();
+        $jurusans = Jurusan::where('is_aktif_ppdb', true)->orderBy('nama_jurusan')->get();
 
         return view('ppdb.landing', compact(
             'gelombangAktif', 'gelombangSemua', 'persyaratanList', 'faqList', 'jurusans'
@@ -48,29 +48,29 @@ class PpdbController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama'                 => 'required|string|max:255',
-            'jenis_kelamin'        => 'required|in:L,P',
-            'tempat_lahir'         => 'required|string|max:100',
-            'tanggal_lahir'        => 'required|date|before:today',
-            'nisn'                 => 'nullable|string|max:20',
-            'alamat'               => 'required|string',
-            'email'                => 'nullable|email|max:255',
-            'no_hp'                => 'required|string|max:20',
-            'asal_sekolah'         => 'required|string|max:255',
-            'nama_ayah'            => 'nullable|string|max:255',
-            'nama_ibu'             => 'nullable|string|max:255',
-            'no_hp_ortu'           => 'nullable|string|max:20',
-            'pekerjaan_ortu'       => 'nullable|string|max:100',
-            'jurusan_pilihan_id'   => 'required|exists:jurusans,id',
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'jenis_kelamin' => 'required|in:L,P',
+            'tempat_lahir' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date|before:today',
+            'nisn' => 'nullable|string|max:20',
+            'alamat' => 'required|string',
+            'email' => 'nullable|email|max:255',
+            'no_hp' => 'required|string|max:20',
+            'asal_sekolah' => 'required|string|max:255',
+            'nama_ayah' => 'nullable|string|max:255',
+            'nama_ibu' => 'nullable|string|max:255',
+            'no_hp_ortu' => 'nullable|string|max:20',
+            'pekerjaan_ortu' => 'nullable|string|max:100',
+            'jurusan_pilihan_id' => 'required|exists:jurusans,id',
             'jurusan_pilihan_2_id' => 'nullable|exists:jurusans,id|different:jurusan_pilihan_id',
-            'nilai_rata_rata'      => 'nullable|numeric|min:0|max:100',
+            'nilai_rata_rata' => 'nullable|numeric|min:0|max:100',
         ]);
 
         // Ambil gelombang yang sedang buka
         $gelombang = GelombangPpdb::buka()->first();
 
-        if (!$gelombang) {
+        if (! $gelombang) {
             return back()->withInput()
                 ->with('error', 'Saat ini tidak ada gelombang pendaftaran yang dibuka. Silakan cek jadwal PPDB.');
         }
@@ -82,17 +82,23 @@ class PpdbController extends Controller
                 ->with('error', 'Kuota pendaftaran gelombang ini sudah penuh. Tunggu gelombang berikutnya.');
         }
 
-        $data                   = $request->all();
+        // Hanya field yang tervalidasi: $request->all() sebelumnya ikut menyimpan
+        // isian sisipan seperti status, user_id, atau kelas_diterima_id.
+        $data = $validated;
         $data['no_pendaftaran'] = PendaftarPpdb::generateNoPendaftaran($gelombang->tahun_ajaran);
-        $data['status']         = 'pending';
-        $data['gelombang_id']   = $gelombang->id;
-        $data['gelombang']      = $gelombang->id;
-        $data['tahun_ajaran']   = $gelombang->tahun_ajaran;
+        $data['status'] = 'pending';
+        $data['gelombang_id'] = $gelombang->id;
+        $data['gelombang'] = $gelombang->id;
+        $data['tahun_ajaran'] = $gelombang->tahun_ajaran;
 
         $pendaftar = PendaftarPpdb::create($data);
 
         // Buat akun login untuk pendaftar (role=3)
         [$username, $password] = $this->buatAkunPendaftar($pendaftar);
+
+        // Tandai sesi ini sebagai pemilik pendaftaran agar boleh membuka halaman
+        // sukses & bukti cetak tanpa login.
+        $request->session()->push('ppdb_akses', $pendaftar->id);
 
         return redirect()->route('ppdb.sukses', $pendaftar)
             ->with('akun_username', $username)
@@ -106,29 +112,26 @@ class PpdbController extends Controller
     private function buatAkunPendaftar(PendaftarPpdb $pendaftar): array
     {
         // Generate username: ppdb + 5 digit id
-        $base     = 'ppdb' . str_pad($pendaftar->id, 5, '0', STR_PAD_LEFT);
+        $base = 'ppdb'.str_pad($pendaftar->id, 5, '0', STR_PAD_LEFT);
         $username = $base;
-        $suffix   = 1;
+        $suffix = 1;
         while (User::where('username', $username)->exists()) {
-            $username = $base . $suffix++;
+            $username = $base.$suffix++;
         }
 
-        // Password: NISN jika ada, fallback ke 8 char random
-        $password = $pendaftar->nisn
-            ? $pendaftar->nisn
-            : substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 8);
+        $password = PendaftarPpdb::buatPasswordAwal();
 
         $user = User::create([
-            'name'     => $pendaftar->nama,
+            'name' => $pendaftar->nama,
             'username' => $username,
-            'email'    => $pendaftar->email,
+            'email' => $pendaftar->email,
             'password' => Hash::make($password),
-            'role'     => 3,
+            'role' => 3,
         ]);
 
         $pendaftar->update([
-            'user_id'             => $user->id,
-            'akun_username'       => $username,
+            'user_id' => $user->id,
+            'akun_username' => $username,
             'akun_password_plain' => $password,
         ]);
 
@@ -138,11 +141,13 @@ class PpdbController extends Controller
     /**
      * Halaman sukses setelah mendaftar.
      */
-    public function sukses(PendaftarPpdb $pendaftar)
+    public function sukses(Request $request, PendaftarPpdb $pendaftar)
     {
-        // Ambil dari session (baru daftar) atau dari model (akses ulang)
+        $this->pastikanBolehAkses($request, $pendaftar);
+
+        // Password hanya ditampilkan sekali, tepat setelah mendaftar (flash session).
         $akunUsername = session('akun_username', $pendaftar->akun_username);
-        $akunPassword = session('akun_password', $pendaftar->akun_password_plain);
+        $akunPassword = session('akun_password');
 
         return view('ppdb.sukses', compact('pendaftar', 'akunUsername', 'akunPassword'));
     }
@@ -150,8 +155,10 @@ class PpdbController extends Controller
     /**
      * Cetak bukti pendaftaran (print-friendly, tanpa layout).
      */
-    public function cetakBukti(PendaftarPpdb $pendaftar)
+    public function cetakBukti(Request $request, PendaftarPpdb $pendaftar)
     {
+        $this->pastikanBolehAkses($request, $pendaftar);
+
         return view('ppdb.cetak', compact('pendaftar'));
     }
 
@@ -170,8 +177,8 @@ class PpdbController extends Controller
     {
         $request->validate([
             'no_pendaftaran' => 'nullable|string',
-            'nisn'           => 'nullable|string',
-            'tanggal_lahir'  => 'nullable|date',
+            'nisn' => 'nullable|string',
+            'tanggal_lahir' => 'nullable|date',
         ]);
 
         $pendaftar = null;
@@ -184,14 +191,14 @@ class PpdbController extends Controller
         }
 
         // Cara 2: via NISN + tanggal lahir
-        if (!$pendaftar && $request->filled('nisn') && $request->filled('tanggal_lahir')) {
+        if (! $pendaftar && $request->filled('nisn') && $request->filled('tanggal_lahir')) {
             $pendaftar = PendaftarPpdb::with(['jurusanPilihan', 'kelasDiterima'])
                 ->where('nisn', $request->nisn)
                 ->whereDate('tanggal_lahir', $request->tanggal_lahir)
                 ->first();
         }
 
-        if (!$pendaftar) {
+        if (! $pendaftar) {
             return back()->withInput()
                 ->with('error', 'Data tidak ditemukan. Periksa kembali nomor pendaftaran atau NISN dan tanggal lahir.');
         }
@@ -205,6 +212,22 @@ class PpdbController extends Controller
     public function syarat()
     {
         $persyaratanList = PersyaratanPpdb::aktif()->get();
+
         return view('ppdb.syarat', compact('persyaratanList'));
+    }
+
+    /**
+     * Halaman sukses & bukti cetak memuat data akun pendaftar. ID-nya berurutan,
+     * jadi hanya boleh dibuka oleh sesi yang mendaftar, pendaftar itu sendiri,
+     * atau admin. Selain itu 404 agar keberadaan ID tidak terbocorkan.
+     */
+    private function pastikanBolehAkses(Request $request, PendaftarPpdb $pendaftar): void
+    {
+        $user = $request->user();
+
+        $boleh = in_array($pendaftar->id, $request->session()->get('ppdb_akses', []), true)
+            || ($user && ((int) $user->role === 0 || $user->id === $pendaftar->user_id));
+
+        abort_unless($boleh, 404);
     }
 }

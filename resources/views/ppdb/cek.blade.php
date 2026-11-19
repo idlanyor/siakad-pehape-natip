@@ -37,7 +37,7 @@
         @isset($pendaftar)
           @php
             $pesan = [
-              'diterima'   => ['note-ok', 'fa-circle-check', 'Selamat, kamu diterima!', 'Masuk dengan username <strong>' . e($pendaftar->akun_username) . '</strong>. Password awal adalah NISN kamu; segera ganti setelah login pertama.'],
+              'diterima'   => ['note-ok', 'fa-circle-check', 'Selamat, kamu diterima!', 'Masuk dengan username <strong>' . e($pendaftar->akun_username) . '</strong> dan password yang kamu terima saat mendaftar (tercantum di bukti pendaftaran). Segera ganti password setelah login pertama.'],
               'pending'    => ['note-info', 'fa-clock', 'Pendaftaran sedang dalam antrean', 'Pastikan berkas sudah diunggah di portal pendaftar, lalu tunggu informasi selanjutnya.'],
               'verifikasi' => ['note-info', 'fa-clipboard-check', 'Berkas sedang diverifikasi', 'Panitia sedang memeriksa berkasmu. Harap menunggu hasil seleksi.'],
               'ditolak'    => ['note-danger', 'fa-circle-xmark', 'Pendaftaran belum lolos seleksi', 'Terima kasih sudah mendaftar. Hubungi panitia bila ada pertanyaan.'],

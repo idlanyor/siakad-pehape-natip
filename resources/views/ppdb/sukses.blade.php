@@ -45,7 +45,13 @@
             <div class="cred mb-4">
               <div class="d-flex gap-2 align-items-start mb-3" style="color:#78350f">
                 <i class="fas fa-key mt-1"></i>
-                <div><strong class="d-block">Akun portal pendaftar</strong><span class="small">Catat sekarang. Password tidak akan ditampilkan lagi setelah halaman ini ditutup.</span></div>
+                <div><strong class="d-block">Akun portal pendaftar</strong><span class="small">
+                  @if($akunPassword)
+                    Catat sekarang. Password hanya ditampilkan sekali di halaman ini, dan juga tercantum di bukti pendaftaran.
+                  @else
+                    Password sudah ditampilkan saat mendaftar dan tercantum di bukti pendaftaran yang kamu cetak.
+                  @endif
+                </span></div>
               </div>
               <div class="cred-row">
                 <div><span class="d-block">Username</span><code>{{ $akunUsername }}</code></div>

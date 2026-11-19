@@ -40,6 +40,10 @@
           </div>
         @endif
 
+        @if(session('error'))
+          <div class="note note-danger mb-4" role="alert"><i class="fas fa-circle-exclamation"></i><span>{{ session('error') }}</span></div>
+        @endif
+
         @if($errors->any())
           <div class="note note-danger mb-4" role="alert">
             <i class="fas fa-circle-exclamation"></i>
