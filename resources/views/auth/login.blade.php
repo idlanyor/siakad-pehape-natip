@@ -253,6 +253,9 @@
     <div class="divider">atau</div>
 
     <div class="back-link">
+      <a href="{{ route('ujian.login') }}" class="d-block mb-2">
+        <i class="fas fa-laptop-code me-1"></i>Siswa ujian online? Masuk dengan NIS
+      </a>
       <a href="{{ route('landing.index') }}">
         <i class="fas fa-arrow-left me-1"></i>Kembali ke Website Sekolah
       </a>

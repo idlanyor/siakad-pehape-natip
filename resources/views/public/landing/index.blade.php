@@ -1,7 +1,7 @@
 @extends('layouts.public')
 @section('title', setting('sekolah_nama', 'SMK Negeri 48'))
 @section('page_title', 'Beranda')
-@section('meta_desc', setting('sekolah_tagline'))
+@section('meta_desc', setting('sekolah_tagline', ''))
 
 @push('styles')
 <style>

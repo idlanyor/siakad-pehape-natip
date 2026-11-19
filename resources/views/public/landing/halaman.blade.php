@@ -1,7 +1,7 @@
 @extends('layouts.public')
 @section('title', $halaman->judul)
 @section('page_title', $halaman->judul)
-@section('meta_desc', $halaman->meta_desc)
+@section('meta_desc', $halaman->meta_desc ?? '')
 
 @section('content')
 <div style="background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:120px 0 60px">
