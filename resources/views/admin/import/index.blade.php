@@ -22,6 +22,18 @@
           @endif
         </p>
       </div>
+      @if(!empty($r['akun_token']))
+      <div class="callout callout-warning mb-3">
+        <h5 class="mb-1"><i class="fas fa-key mr-1"></i> Unduh daftar akun sekarang</h5>
+        <p class="mb-2" style="font-size:.9rem">
+          {{ $r['akun_count'] }} akun baru dibuat dengan password acak. Unduh daftarnya untuk dibagikan ke masing-masing pemilik akun.
+          File hanya bisa diunduh <strong>satu kali</strong> dan berlaku 30 menit. Simpan baik-baik dan minta pengguna mengganti password setelah login pertama.
+        </p>
+        <a href="{{ route('admin.import.akun', $r['akun_token']) }}" class="btn btn-warning btn-sm">
+          <i class="fas fa-download mr-1"></i> Unduh daftar akun (.xlsx)
+        </a>
+      </div>
+      @endif
       @if(count($r['skipped']) > 0)
       <div class="card card-outline card-warning mb-3">
         <div class="card-header py-2">
@@ -77,24 +89,24 @@
                     @if($key === 'guru')
                       <p class="mb-1" style="font-size:.85rem">Kolom yang dibutuhkan:</p>
                       <table class="table table-sm table-bordered" style="font-size:.8rem">
-                        <tr><td class="font-weight-bold">NIP</td><td>Nomor Induk Pegawai (jadi password & username default)</td></tr>
+                        <tr><td class="font-weight-bold">NIP</td><td>Nomor Induk Pegawai (jadi username)</td></tr>
                         <tr><td class="font-weight-bold">Nama Lengkap</td><td>Wajib diisi</td></tr>
                         <tr><td class="font-weight-bold">Bidang Studi</td><td>Opsional</td></tr>
                         <tr><td class="font-weight-bold">No HP</td><td>Opsional</td></tr>
                         <tr><td class="font-weight-bold">Email</td><td>Opsional</td></tr>
                       </table>
-                      <small class="text-muted">NIP sudah ada? → baris dilewati. Password default = NIP.</small>
+                      <small class="text-muted">NIP sudah ada? → baris dilewati. Password dibuat acak dan bisa diunduh setelah impor.</small>
                     @elseif($key === 'siswa')
                       <p class="mb-1" style="font-size:.85rem">Kolom yang dibutuhkan:</p>
                       <table class="table table-sm table-bordered" style="font-size:.8rem">
-                        <tr><td class="font-weight-bold">NISN</td><td>Nomor Induk Siswa Nasional (jadi password & username default)</td></tr>
+                        <tr><td class="font-weight-bold">NISN</td><td>Wajib, Nomor Induk Siswa Nasional (jadi username)</td></tr>
                         <tr><td class="font-weight-bold">Nama Lengkap</td><td>Wajib diisi</td></tr>
-                        <tr><td class="font-weight-bold">Kelas</td><td>Nama kelas (contoh: XII TKJ 1)</td></tr>
+                        <tr><td class="font-weight-bold">Kelas</td><td>Wajib, nama kelas persis seperti di data kelas (contoh: XII TKJ 1)</td></tr>
                         <tr><td class="font-weight-bold">No HP</td><td>Opsional</td></tr>
-                        <tr><td class="font-weight-bold">Tanggal Lahir</td><td>Format YYYY-MM-DD, opsional</td></tr>
+                        <tr><td class="font-weight-bold">Tanggal Lahir</td><td>Wajib, format YYYY-MM-DD (atau tanggal Excel)</td></tr>
                         <tr><td class="font-weight-bold">Email</td><td>Opsional</td></tr>
                       </table>
-                      <small class="text-muted">Kelas tidak cocok? → siswa tetap dibuat tanpa kelas.</small>
+                      <small class="text-muted">Kelas kosong/tidak ditemukan? → baris dilewati (nama kelas harus sama persis). Password dibuat acak dan bisa diunduh setelah impor.</small>
                     @elseif($key === 'mapel')
                       <p class="mb-1" style="font-size:.85rem">Kolom yang dibutuhkan:</p>
                       <table class="table table-sm table-bordered" style="font-size:.8rem">
