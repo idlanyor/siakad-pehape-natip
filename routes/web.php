@@ -23,18 +23,15 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 // --- Fase 15: Form Kontak (Public, POST only) ---
 Route::post('/kontak', [\App\Http\Controllers\KontakController::class, 'store'])->name('kontak.store');
 
-// --- Halaman depan: login siswa dengan NIS (tamu) atau ke dashboard (sudah login) ---
-// Satu definisi untuk "/": sebelumnya ada dua, dan yang kedua menimpa yang pertama
-// sehingga halaman login NIS tidak pernah tampil.
-Route::get('/', fn () => auth()->check()
-    ? redirect()->route('dashboard')
-    : app(\App\Http\Controllers\Auth\UjianLoginController::class)->create()
-)->name('ujian.login');
-Route::post('/masuk-ujian', [\App\Http\Controllers\Auth\UjianLoginController::class, 'store'])
-    ->middleware('guest')->name('ujian.login.store');
+// --- Login siswa untuk ujian online (NIS) ---
+Route::middleware('guest')->group(function () {
+    Route::get('/masuk-ujian', [\App\Http\Controllers\Auth\UjianLoginController::class, 'create'])->name('ujian.login');
+    Route::post('/masuk-ujian', [\App\Http\Controllers\Auth\UjianLoginController::class, 'store'])->name('ujian.login.store');
+});
 
 // --- Fase 12: Landing Page (Public) ---
-Route::get('/landing', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing.index');
+Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing.index');
+Route::redirect('/landing', '/', 301);
 Route::get('/tentang', [\App\Http\Controllers\LandingController::class, 'tentang'])->name('landing.tentang');
 Route::get('/program', [\App\Http\Controllers\LandingController::class, 'program'])->name('landing.program');
 Route::get('/organisasi', [\App\Http\Controllers\LandingController::class, 'organisasi'])->name('landing.organisasi');

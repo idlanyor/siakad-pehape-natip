@@ -41,11 +41,20 @@ class IntegrasiSiakadTest extends TestCase
     {
         $this->siswa->user->update(['password' => Hash::make('rahasia123')]);
 
-        $this->get('/')->assertOk()->assertSee(route('ujian.login.store'), false);
+        $this->get(route('ujian.login'))->assertOk()->assertSee(route('ujian.login.store'), false);
 
         $this->post(route('ujian.login.store'), ['nis' => $this->siswa->nisn, 'password' => 'rahasia123'])
             ->assertRedirect(route('ujian.siswa.index'));
         $this->assertAuthenticatedAs($this->siswa->user);
+    }
+
+    /** Regresi: "/" sempat diubah menjadi login NIS; seharusnya landing page sekolah. */
+    public function test_halaman_depan_adalah_landing_dan_login_tertaut(): void
+    {
+        $this->get('/')->assertOk()->assertViewIs('public.landing.index');
+        $this->get('/landing')->assertRedirect('/');
+        $this->get(route('login'))->assertSee(route('ujian.login'), false);
+        $this->actingAs($this->siswa->user)->get(route('ujian.login'))->assertRedirect();
     }
 
     public function test_modul_berada_di_prefix_ujian(): void
