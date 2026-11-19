@@ -1,119 +1,122 @@
-# SIAKAD (Sistem Informasi Akademik)
+# SIAKAD — Sistem Informasi Akademik Sekolah
 
-Sistem Informasi Akademik berbasis web yang dikembangkan menggunakan framework Laravel. Sistem ini dirancang untuk mengelola berbagai proses akademik sekolah mulai dari Penerimaan Peserta Didik Baru (PPDB), manajemen pembelajaran, hingga administrasi keuangan (SPP).
+Aplikasi web open source untuk mengelola sekolah (khususnya SMK) dalam satu tempat: website sekolah, PPDB online, akademik, keuangan SPP, kesiswaan, PKL, hingga **ujian online (CBT)**. Dibangun dengan Laravel 12.
 
-## 🌟 Fitur Utama
+[![Tests](https://github.com/idlanyor/siakad-pehape-natip/actions/workflows/tests.yml/badge.svg)](https://github.com/idlanyor/siakad-pehape-natip/actions/workflows/tests.yml)
+[![Lisensi: MIT](https://img.shields.io/badge/lisensi-MIT-blue.svg)](LICENSE)
 
-Aplikasi ini memiliki 3 hak akses utama: **Admin**, **Guru**, dan **Siswa**.
+## Fitur
 
-### 1. Modul Admin
-* **Dashboard & Statistik**: Ringkasan data akademik dan keuangan.
-* **Manajemen Pengguna**: Kelola data Admin, Guru, dan Siswa.
-* **Manajemen Master Data**: Kelola Jurusan, Mata Pelajaran (Mapel), dan Kelas.
-* **PPDB (Penerimaan Peserta Didik Baru)**: Kelola pendaftaran, seleksi, dan pengumuman siswa baru.
-* **Keuangan**: Manajemen tagihan SPP dan pencatatan pembayaran SPP.
-* **Integrasi WhatsApp**: Log notifikasi WA (Pesan gateway untuk tagihan/pengumuman).
-* **Pengumuman**: Broadcast informasi ke guru dan siswa.
+**Website publik**
+- Beranda, profil sekolah, program keahlian, struktur organisasi, berita, galeri, prestasi — semua dikelola dari CMS.
+- Portal **PPDB**: jadwal gelombang & kuota, formulir online, cek status, cetak bukti pendaftaran.
 
-### 2. Modul Guru
-* **Manajemen Kelas & Mapel**: Mengelola mata pelajaran yang diampu.
-* **Materi & Tugas**: Upload materi pelajaran dan memberikan tugas ke siswa.
-* **Absensi**: Input dan rekap kehadiran siswa.
-* **Penilaian**: Manajemen nilai tugas dan evaluasi.
+**Peran pengguna**
 
-### 3. Modul Siswa
-* **Dashboard Akademik**: Lihat jadwal dan informasi sekolah.
-* **Akses Pembelajaran**: Download materi dan kumpul tugas.
-* **Informasi Keuangan**: Cek riwayat pembayaran dan tagihan SPP aktif.
-* **Absensi**: Cek rekap kehadiran mandiri.
+| Peran | Yang bisa dilakukan |
+|---|---|
+| **Admin** | Data master (tahun ajaran, jurusan, kelas, mapel, guru, siswa), jadwal, impor Excel, PPDB, SPP & laporan keuangan, kesiswaan (ekskul, pelanggaran, surat keterangan), PKL, rapor, CMS, pengumuman, audit log, mode maintenance, backup |
+| **Guru** | Absensi, materi & tugas, penilaian, ekskul binaan, pembimbing PKL, ujian online |
+| **Siswa** | Jadwal, materi, tugas, nilai, absensi, tagihan SPP, jurnal PKL, ujian online |
+| **Orang tua** | Pantau absensi, nilai, dan tagihan SPP anak |
+| **Pendaftar PPDB** | Unggah berkas dan pantau status pendaftaran |
 
-### 4. Ujian Online (CBT)
-Modul di `app/Modules/Ujian`, diakses di `/ujian` dengan login SIAKAD yang sama.
-* **Admin**: Periode & fase ujian (paksa buka/tutup), semua ujian, penugasan guru pengawas.
-* **Guru**: Bank soal per mapel, susun soal ujian (manual / dari bank), terbitkan, koreksi essay, export hasil Excel/PDF.
-* **Pengawas (proktor)**: Monitor peserta (online, progres, sisa waktu, pelanggaran), paksa selesai, diskualifikasi, reset sesi.
-* **Siswa**: Mengerjakan dengan timer, autosave, tanda ragu-ragu, soal/opsi teracak per siswa, deteksi pindah tab & copy-paste.
-  Halaman depan `/` untuk tamu adalah login siswa dengan NIS.
+**Ujian Online (CBT)** — modul `app/Modules/Ujian`, di `/ujian`
+- Guru: bank soal per mapel, soal pilihan ganda & essay (format teks dan gambar), acak soal/opsi per siswa, koreksi essay, ekspor Excel/PDF.
+- Pengawas: pantau peserta secara langsung, tambah waktu, kirim pengumuman, paksa selesai, diskualifikasi, reset sesi.
+- Siswa: masuk dengan NIS di `/masuk-ujian`, timer mengikuti server, jawaban tersimpan otomatis (tahan putus koneksi), deteksi pindah tab, satu perangkat per sesi.
 
-Konfigurasi opsional di `.env`: `UJIAN_BATAS_PELANGGARAN` (default 5; `0` = tanpa diskualifikasi otomatis).
+**Lainnya**: verifikasi dua langkah (2FA), notifikasi WhatsApp, pembayaran SPP via Midtrans, API untuk aplikasi mobile (Laravel Sanctum).
 
-## 💻 Tech Stack
+## Teknologi
 
-* **Backend**: Laravel (PHP)
-* **Frontend**: Blade Templating, Tailwind CSS / Bootstrap (AdminLTE); modul Ujian Online memakai Inertia + Vue 3
-* **Database**: MySQL
-* **Package Manager**: Composer & NPM
+- **Backend**: Laravel 12, PHP 8.4
+- **Frontend**: Blade + Bootstrap/AdminLTE; modul Ujian memakai Inertia + Vue 3 (Vite)
+- **Database**: MySQL/MariaDB (produksi) atau SQLite (coba cepat & test)
 
-## 📋 Persyaratan Sistem
+## Persyaratan
 
-Sebelum menjalankan aplikasi, pastikan sistem Anda telah terinstal:
-* PHP >= 8.1
-* Composer >= 2.0
-* Node.js & NPM
-* MySQL / MariaDB
-* Ekstensi PHP: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+- PHP **8.4** atau lebih baru, dengan ekstensi: bcmath, ctype, fileinfo, gd, intl, mbstring, openssl, pdo (mysql/sqlite), tokenizer, xml, zip
+- Composer 2
+- Node.js 20+ dan npm
+- MySQL 8 / MariaDB 10.6+ (atau SQLite)
 
-## 🚀 Panduan Instalasi
+## Instalasi
 
-Ikuti langkah-langkah berikut untuk menjalankan aplikasi di *local environment*:
+```bash
+git clone https://github.com/idlanyor/siakad-pehape-natip.git siakad
+cd siakad
 
-1. **Clone repositori**
+composer install
+npm ci && npm run build
+
+cp .env.example .env
+php artisan key:generate
+php artisan storage:link
+```
+
+Lalu pilih salah satu:
+
+### A. Untuk sekolah (produksi)
+
+1. Atur database di `.env` (`DB_CONNECTION=mysql`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`), serta `APP_ENV=production`, `APP_DEBUG=false`, dan `APP_URL`.
+2. Buka `https://domain-sekolah/install` dan ikuti installer: tes koneksi database, migrasi, lalu buat akun admin dengan password pilihan sendiri.
+3. Masuk sebagai admin, lengkapi **Pengaturan** (nama sekolah, logo, alamat, kontak) — data ini dipakai di website, rapor, surat, dan bukti PPDB.
+4. Jalankan scheduler dan queue worker di server:
+   ```cron
+   * * * * * cd /path/ke/siakad && php artisan schedule:run >> /dev/null 2>&1
+   ```
    ```bash
-   git clone <repo-url>
-   cd siakad-pehape-natip
+   php artisan queue:work --tries=3
    ```
+   Scheduler menjalankan pengingat SPP (08.00) dan backup harian (02.00).
 
-2. **Install dependensi PHP dan Node.js**
-   ```bash
-   composer install
-   npm install
-   ```
+### B. Untuk mencoba / pengembangan (dengan data demo)
 
-3. **Konfigurasi Environment**
-   Salin file `.env.example` menjadi `.env`.
-   ```bash
-   cp .env.example .env
-   ```
-   Sesuaikan konfigurasi database pada file `.env`:
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=nama_database_anda
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
+```bash
+touch database/database.sqlite   # .env bawaan memakai SQLite
+php artisan migrate --seed
+php artisan serve
+```
 
-4. **Generate Application Key**
-   ```bash
-   php artisan key:generate
-   ```
+Buka `http://localhost:8000`. Data demo membuat akun seperti `admin` / `password`.
+**Jangan menjalankan seeder demo di server produksi** — `db:seed` otomatis melewati akun demo bila `APP_ENV=production`.
 
-5. **Migrasi Database dan Seeding**
-   ```bash
-   php artisan migrate --seed
-   ```
+## Konfigurasi opsional (`.env`)
 
-6. **Compile Aset Frontend**
-   ```bash
-   npm run build
-   # atau gunakan 'npm run dev' untuk development
-   ```
+| Variabel | Fungsi |
+|---|---|
+| `WHATSAPP_ENABLED`, `WHATSAPP_API_URL`, `WHATSAPP_API_KEY` | Notifikasi & pengingat SPP lewat gateway WhatsApp |
+| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION` | Pembayaran SPP online |
+| `MAIL_*` | Email (lupa password, notifikasi) |
+| `UJIAN_BATAS_PELANGGARAN` | Jumlah pelanggaran sebelum siswa didiskualifikasi otomatis (default 5, `0` = nonaktif) |
 
-7. **Jalankan Local Server**
-   ```bash
-   php artisan serve
-   ```
-   Aplikasi dapat diakses melalui `http://localhost:8000`.
+## Pembaruan
 
-## 📁 Struktur Dokumen Penting
+```bash
+git pull
+composer install --no-dev -o
+npm ci && npm run build
+php artisan migrate --force
+php artisan optimize:clear && php artisan optimize
+```
 
-Selain `README.md`, perhatikan juga dokumen manajemen proyek berikut:
-* `ROADMAP.md` - Peta jalan pengembangan fitur jangka panjang.
-* `PROGRESS.md` - Laporan progres pengerjaan harian/mingguan.
-* `Sprint.md` - Catatan task management dan sprint saat ini.
+## Pengembangan
 
-## 🔒 Keamanan & Perhatian
+```bash
+php artisan test         # seluruh test (SQLite in-memory)
+vendor/bin/pint --dirty  # format file PHP yang diubah
+npm run dev              # Vite dev server
+```
 
-* Pastikan file `.env` tidak pernah di-commit ke repositori publik.
-* Ubah kredensial default dari seeder segera setelah aplikasi di-deploy ke production.
+Test `SmokeSemuaHalamanTest` membuka setiap halaman untuk setiap peran dan gagal bila ada error 500 — jalankan sebelum mengirim PR.
+
+> Jika config/route sudah di-cache (`php artisan optimize`), bersihkan dulu dengan `php artisan optimize:clear` sebelum menjalankan test.
+
+## Kontribusi
+
+Kontribusi sangat diterima — lihat [CONTRIBUTING.md](CONTRIBUTING.md). Menemukan celah keamanan? Laporkan secara privat sesuai [SECURITY.md](SECURITY.md), jangan lewat issue publik.
+
+## Lisensi
+
+[MIT](LICENSE) © 2026 idlanyor

@@ -1,40 +1,21 @@
-PERJANJIAN LISENSI PERANGKAT LUNAK (PROPRIETARY)
-SIAKAD SMK — Sistem Informasi Akademik
+MIT License
 
-Hak Cipta (c) 2026 idlanyor. Seluruh hak dilindungi.
+Copyright (c) 2026 idlanyor
 
-PEMBERITAHUAN: Perangkat lunak ini bersifat proprietary (berpemilik) dan
-dilindungi oleh hukum hak cipta. Perangkat lunak ini BUKAN open source.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-1. PEMBERIAN LISENSI
-   Dengan membeli lisensi yang sah, Pembeli diberikan hak non-eksklusif dan
-   tidak dapat dipindahtangankan untuk memasang dan menggunakan satu (1)
-   salinan perangkat lunak ini untuk satu (1) institusi/sekolah, kecuali
-   disepakati lain secara tertulis dengan Pemberi Lisensi.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-2. BATASAN
-   Tanpa izin tertulis dari Pemberi Lisensi, Pembeli DILARANG untuk:
-   a. Menjual kembali, menyewakan, atau mendistribusikan ulang perangkat lunak;
-   b. Menghapus atau mengubah pemberitahuan hak cipta;
-   c. Mendistribusikan kode sumber kepada pihak ketiga;
-   d. Menggunakan satu lisensi untuk banyak institusi (kecuali lisensi multi-tenant).
-
-3. KEPEMILIKAN
-   Seluruh hak kekayaan intelektual atas perangkat lunak tetap menjadi milik
-   Pemberi Lisensi. Lisensi ini tidak mengalihkan kepemilikan.
-
-4. DUKUNGAN & PEMBARUAN
-   Ketentuan dukungan teknis dan pembaruan diatur dalam perjanjian pembelian
-   yang terpisah.
-
-5. PENYANGKALAN JAMINAN
-   PERANGKAT LUNAK DISEDIAKAN "SEBAGAIMANA ADANYA" TANPA JAMINAN APA PUN.
-   PEMBERI LISENSI TIDAK BERTANGGUNG JAWAB ATAS KERUGIAN APA PUN YANG TIMBUL
-   DARI PENGGUNAAN PERANGKAT LUNAK INI.
-
-6. PENGAKHIRAN
-   Lisensi ini berakhir secara otomatis jika Pembeli melanggar ketentuan mana
-   pun di dalamnya. Setelah pengakhiran, Pembeli wajib menghentikan penggunaan
-   dan menghapus seluruh salinan perangkat lunak.
-
-Untuk pembelian lisensi resmi atau pertanyaan, hubungi pemegang hak cipta.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
