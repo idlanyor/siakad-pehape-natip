@@ -134,6 +134,7 @@ Route::middleware(['auth', 'role:0'])->prefix('admin')->name('admin.')->group(fu
         Route::get('/', [\App\Http\Controllers\Admin\ImportController::class, 'index'])->name('index');
         Route::get('/template/{type}', [\App\Http\Controllers\Admin\ImportController::class, 'template'])->name('template');
         Route::post('/', [\App\Http\Controllers\Admin\ImportController::class, 'store'])->name('store');
+        Route::get('/akun/{token}', [\App\Http\Controllers\Admin\ImportController::class, 'unduhAkun'])->name('akun');
     });
 
     // --- Keuangan / SPP ---

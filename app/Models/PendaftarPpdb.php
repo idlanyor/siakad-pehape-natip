@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PasswordAwal;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
@@ -44,20 +45,10 @@ class PendaftarPpdb extends Model
 
     const STATUS_LIST = ['pending', 'verifikasi', 'diterima', 'ditolak'];
 
-    /**
-     * Password awal akun pendaftar/siswa: acak dan tidak bisa ditebak.
-     * Sebelumnya memakai NISN, yang bukan rahasia dan bisa dicari lewat cek status.
-     * Tanpa karakter yang mirip (l/1/I, o/0/O) agar mudah disalin dari bukti cetak.
-     */
-    public static function buatPasswordAwal(int $panjang = 10): string
+    /** Password awal akun pendaftar/siswa: acak, bukan NISN. Lihat {@see PasswordAwal}. */
+    public static function buatPasswordAwal(): string
     {
-        $abjad = 'abcdefghjkmnpqrstuvwxyz23456789';
-        $hasil = '';
-        for ($i = 0; $i < $panjang; $i++) {
-            $hasil .= $abjad[random_int(0, strlen($abjad) - 1)];
-        }
-
-        return $hasil;
+        return PasswordAwal::buat();
     }
 
     const STATUS_LABELS = [
