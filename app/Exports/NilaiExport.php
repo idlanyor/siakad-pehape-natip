@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Enumerable;
 use App\Models\Jadwal;
 use App\Models\Nilai;
 use App\Models\Siswa;
@@ -32,7 +33,7 @@ class NilaiExport implements FromCollection, WithHeadings, WithTitle, WithStyles
         ];
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         $siswas = Siswa::where('kelas_id', $this->jadwal->kelas_id)->orderBy('nama')->get();
         $nilais = Nilai::where('jadwal_id', $this->jadwal->id)->get()->keyBy('siswa_id');

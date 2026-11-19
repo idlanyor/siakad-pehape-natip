@@ -14,7 +14,7 @@ class MapelImport implements ToCollection, WithHeadingRow
     public int $updated  = 0;
     public array $skipped = [];
 
-    public function collection(Collection $rows)
+    public function collection(Collection $rows): void
     {
         foreach ($rows as $i => $row) {
             $baris = $i + 2;

@@ -14,7 +14,7 @@ class GuruImport implements ToCollection, WithHeadingRow
     public int $imported = 0;
     public array $skipped = [];
 
-    public function collection(Collection $rows)
+    public function collection(Collection $rows): void
     {
         foreach ($rows as $i => $row) {
             $baris = $i + 2; // +2 karena heading row

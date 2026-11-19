@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Enumerable;
 use App\Models\TagihanSpp;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -22,7 +23,7 @@ class SppExport implements FromCollection, WithHeadings, WithTitle, WithStyles, 
         return ['No', 'Nama Siswa', 'Kelas', 'Bulan', 'Nominal', 'Dibayar', 'Sisa', 'Status'];
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return $this->tagihans->values()->map(function ($t, $i) {
             return [
