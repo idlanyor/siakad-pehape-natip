@@ -7,6 +7,8 @@ Aplikasi web open source untuk mengelola sekolah (khususnya SMK) dalam satu temp
 
 ## Fitur
 
+Ringkasan di bawah; daftar lengkap per peran ada di [feature.md](feature.md).
+
 **Website publik**
 - Beranda, profil sekolah, program keahlian, struktur organisasi, berita, galeri, prestasi — semua dikelola dari CMS.
 - Portal **PPDB**: jadwal gelombang & kuota, formulir online, cek status, cetak bukti pendaftaran.
