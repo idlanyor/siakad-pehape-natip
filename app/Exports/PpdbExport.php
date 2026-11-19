@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Enumerable;
 use App\Models\PendaftarPpdb;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -30,7 +31,7 @@ class PpdbExport implements FromCollection, WithHeadings, WithTitle, WithStyles,
         ];
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         $query = PendaftarPpdb::with(['jurusanPilihan', 'jurusanPilihan2', 'kelasDiterima', 'gelombangPpdb']);
 
