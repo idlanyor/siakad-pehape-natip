@@ -79,12 +79,12 @@
   <div class="container">
     {{-- KOP SURAT --}}
     <div class="kop">
-      <img src="{{ asset('dist/img/halal.jpeg') }}" alt="Logo" class="kop-logo">
+      @if(setting_url('logo'))<img src="{{ setting_url('logo') }}" alt="Logo" class="kop-logo">@endif
       <div class="kop-text">
         <p style="font-size:10pt;">PEMERINTAH DAERAH</p>
         <h2>DINAS PENDIDIKAN DAN KEBUDAYAAN</h2>
-        <h1>SMK NEGERI 48</h1>
-        <p>Jl. Contoh No. 48, Kota, Provinsi &bull; Telp. (021) 1234567 &bull; smk48.sch.id</p>
+        <h1>{{ strtoupper(setting('sekolah_nama', 'Nama Sekolah')) }}</h1>
+        <p>{{ collect([setting('sekolah_alamat'), setting('sekolah_no_telp') ? 'Telp. ' . setting('sekolah_no_telp') : null, setting('sekolah_website') ?: setting('sekolah_email')])->filter()->implode(' • ') }}</p>
       </div>
     </div>
 
@@ -96,7 +96,7 @@
 
     {{-- PEMBUKA --}}
     <div class="pembuka">
-      Yang bertanda tangan di bawah ini, Kepala SMK Negeri 48, dengan ini menerangkan bahwa:
+      Yang bertanda tangan di bawah ini, Kepala {{ setting('sekolah_nama', 'sekolah ini') }}, dengan ini menerangkan bahwa:
     </div>
 
     {{-- DATA SISWA --}}
@@ -122,13 +122,13 @@
     {{-- ISI SURAT --}}
     <div class="isi">
       @if($surat->jenis_surat === 'aktif')
-        adalah benar siswa aktif di SMK Negeri 48 pada tahun pelajaran yang sedang berjalan.
+        adalah benar siswa aktif di {{ setting('sekolah_nama', 'sekolah ini') }} pada tahun pelajaran yang sedang berjalan.
         Surat keterangan ini diberikan untuk keperluan yang bersangkutan dan dapat dipergunakan sebagaimana mestinya.
       @elseif($surat->jenis_surat === 'pindah')
-        adalah benar terdaftar sebagai siswa di SMK Negeri 48 dan yang bersangkutan telah mengajukan permohonan pindah sekolah.
+        adalah benar terdaftar sebagai siswa di {{ setting('sekolah_nama', 'sekolah ini') }} dan yang bersangkutan telah mengajukan permohonan pindah sekolah.
         Surat keterangan ini diberikan untuk keperluan perpindahan ke sekolah yang dituju.
       @else
-        telah menyelesaikan seluruh program pendidikan di SMK Negeri 48 dan dinyatakan <strong>LULUS</strong>.
+        telah menyelesaikan seluruh program pendidikan di {{ setting('sekolah_nama', 'sekolah ini') }} dan dinyatakan <strong>LULUS</strong>.
         Surat keterangan ini diberikan sebagai bukti kelulusan sementara menunggu penerbitan ijazah resmi.
       @endif
 

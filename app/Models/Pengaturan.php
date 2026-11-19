@@ -26,12 +26,12 @@ class Pengaturan extends Model
 
     const DEFAULTS = [
         // Sekolah
-        ['key' => 'sekolah_nama',     'label' => 'Nama Sekolah',       'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'SMK Negeri 48 Jakarta'],
+        ['key' => 'sekolah_nama',     'label' => 'Nama Sekolah',       'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'SMK Contoh'],
         ['key' => 'sekolah_tagline',  'label' => 'Tagline',            'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'Unggul, Berkarakter, dan Berdaya Saing Global'],
         ['key' => 'sekolah_alamat',   'label' => 'Alamat',             'grup' => 'sekolah', 'tipe' => 'textarea', 'value' => 'Jl. Raya Condet No. 1, Jakarta Timur, DKI Jakarta 13760'],
         ['key' => 'sekolah_no_telp',  'label' => 'No. Telepon',        'grup' => 'sekolah', 'tipe' => 'text',     'value' => '(021) 8001234'],
-        ['key' => 'sekolah_email',    'label' => 'Email',              'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'info@smkn48.sch.id'],
-        ['key' => 'sekolah_website',  'label' => 'Website',            'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'https://smkn48.sch.id'],
+        ['key' => 'sekolah_email',    'label' => 'Email',              'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'info@sekolah.example'],
+        ['key' => 'sekolah_website',  'label' => 'Website',            'grup' => 'sekolah', 'tipe' => 'text',     'value' => 'https://sekolah.example'],
         ['key' => 'sekolah_tahun_berdiri', 'label' => 'Tahun Berdiri', 'grup' => 'sekolah', 'tipe' => 'text',    'value' => '1975'],
         ['key' => 'sekolah_npsn',     'label' => 'NPSN',               'grup' => 'sekolah', 'tipe' => 'text',     'value' => '20100001'],
         ['key' => 'maps_embed',       'label' => 'Google Maps Embed URL', 'grup' => 'sekolah', 'tipe' => 'text',  'value' => ''],
@@ -49,7 +49,7 @@ class Pengaturan extends Model
         ['key' => 'nama_kepsek',      'label' => 'Nama Kepala Sekolah','grup' => 'kepsek',  'tipe' => 'text',     'value' => ''],
         ['key' => 'nip_kepsek',       'label' => 'NIP Kepala Sekolah', 'grup' => 'kepsek',  'tipe' => 'text',     'value' => ''],
         ['key' => 'foto_kepsek',      'label' => 'Foto Kepala Sekolah','grup' => 'kepsek',  'tipe' => 'image',    'value' => null],
-        ['key' => 'sambutan_kepsek',  'label' => 'Sambutan',           'grup' => 'kepsek',  'tipe' => 'richtext', 'value' => '<p>Selamat datang di website resmi SMK Negeri 48 Jakarta.</p>'],
+        ['key' => 'sambutan_kepsek',  'label' => 'Sambutan',           'grup' => 'kepsek',  'tipe' => 'richtext', 'value' => '<p>Selamat datang di website resmi sekolah kami.</p>'],
         // PPDB
         ['key' => 'ppdb_aktif',       'label' => 'PPDB Aktif',         'grup' => 'ppdb',    'tipe' => 'boolean',  'value' => '0'],
         ['key' => 'ppdb_tahun_ajaran','label' => 'Tahun Ajaran PPDB',  'grup' => 'ppdb',    'tipe' => 'text',     'value' => '2026/2027'],

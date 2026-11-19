@@ -1,9 +1,17 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "idlanyor/siakad",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Sistem Informasi Akademik sekolah open source: website, PPDB, akademik, SPP, dan ujian online.",
+    "keywords": [
+        "siakad",
+        "sekolah",
+        "smk",
+        "ppdb",
+        "cbt",
+        "ujian-online",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.4",

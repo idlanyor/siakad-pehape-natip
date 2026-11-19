@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class PendaftarPpdb extends Model
 {
-    use \App\Traits\Auditable;
+    use Auditable;
 
     /** Jangan pernah catat kredensial di audit log. */
     public array $auditExclude = ['akun_password_plain', 'akun_username'];
@@ -27,9 +28,9 @@ class PendaftarPpdb extends Model
     ];
 
     protected $casts = [
-        'tanggal_lahir'       => 'date',
-        'nilai_rata_rata'     => 'float',
-        'diproses_at'         => 'datetime',
+        'tanggal_lahir' => 'date',
+        'nilai_rata_rata' => 'float',
+        'diproses_at' => 'datetime',
         'akun_password_plain' => 'encrypted',
     ];
 
@@ -43,26 +44,42 @@ class PendaftarPpdb extends Model
 
     const STATUS_LIST = ['pending', 'verifikasi', 'diterima', 'ditolak'];
 
+    /**
+     * Password awal akun pendaftar/siswa: acak dan tidak bisa ditebak.
+     * Sebelumnya memakai NISN, yang bukan rahasia dan bisa dicari lewat cek status.
+     * Tanpa karakter yang mirip (l/1/I, o/0/O) agar mudah disalin dari bukti cetak.
+     */
+    public static function buatPasswordAwal(int $panjang = 10): string
+    {
+        $abjad = 'abcdefghjkmnpqrstuvwxyz23456789';
+        $hasil = '';
+        for ($i = 0; $i < $panjang; $i++) {
+            $hasil .= $abjad[random_int(0, strlen($abjad) - 1)];
+        }
+
+        return $hasil;
+    }
+
     const STATUS_LABELS = [
-        'pending'     => 'Menunggu',
-        'verifikasi'  => 'Verifikasi',
-        'diterima'    => 'Diterima',
-        'ditolak'     => 'Ditolak',
+        'pending' => 'Menunggu',
+        'verifikasi' => 'Verifikasi',
+        'diterima' => 'Diterima',
+        'ditolak' => 'Ditolak',
     ];
 
     const STATUS_COLORS = [
-        'pending'     => 'secondary',
-        'verifikasi'  => 'info',
-        'diterima'    => 'success',
-        'ditolak'     => 'danger',
+        'pending' => 'secondary',
+        'verifikasi' => 'info',
+        'diterima' => 'success',
+        'ditolak' => 'danger',
     ];
 
     const DOKUMEN_FIELDS = [
-        'foto'       => 'Foto (3x4)',
+        'foto' => 'Foto (3x4)',
         'dok_ijazah' => 'Ijazah / SKL',
-        'dok_rapor'  => 'Rapor SMP/MTs',
-        'dok_kk'     => 'Kartu Keluarga',
-        'dok_akta'   => 'Akta Kelahiran',
+        'dok_rapor' => 'Rapor SMP/MTs',
+        'dok_kk' => 'Kartu Keluarga',
+        'dok_akta' => 'Akta Kelahiran',
     ];
 
     // ─── Relasi ────────────────────────────────────────────────────────────────
@@ -121,7 +138,7 @@ class PendaftarPpdb extends Model
      */
     public static function generateNoPendaftaran(?string $tahunAjaran = null): string
     {
-        $tahun = substr($tahunAjaran ?? date('Y') . '/' . (date('Y') + 1), 0, 4);
+        $tahun = substr($tahunAjaran ?? date('Y').'/'.(date('Y') + 1), 0, 4);
 
         $last = static::where('no_pendaftaran', 'LIKE', "PPDB-{$tahun}-%")
             ->orderBy('no_pendaftaran', 'desc')
@@ -134,13 +151,13 @@ class PendaftarPpdb extends Model
             $next = 1;
         }
 
-        return sprintf("PPDB-%s-%05d", $tahun, $next);
+        return sprintf('PPDB-%s-%05d', $tahun, $next);
     }
 
     /**
      * Terima pendaftar: buat User + Siswa, update status.
      *
-     * @param  int|null $kelasId  Kelas tujuan
+     * @param  int|null  $kelasId  Kelas tujuan
      * @return array{user: User, siswa: Siswa}
      */
     public function terima(?int $kelasId = null): array
@@ -152,48 +169,46 @@ class PendaftarPpdb extends Model
 
         // Jika sudah punya akun pendaftar (role=3), upgrade role-nya ke siswa (role=2)
         if ($this->user_id && $existingUser = User::find($this->user_id)) {
-            $user     = $existingUser;
+            $user = $existingUser;
             $username = $user->username;
             $password = $this->akun_password_plain; // password sudah tersimpan saat daftar
 
             $user->update(['role' => 2]);
         } else {
             // Fallback: buat user baru (untuk data lama sebelum fitur pendaftar login)
-            $base     = 'siswa' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+            $base = 'siswa'.str_pad($this->id, 4, '0', STR_PAD_LEFT);
             $username = $base;
-            $suffix   = 1;
+            $suffix = 1;
             while (User::where('username', $username)->exists()) {
-                $username = $base . $suffix++;
+                $username = $base.$suffix++;
             }
 
-            $password = $this->nisn
-                ? $this->nisn
-                : substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 8);
+            $password = self::buatPasswordAwal();
 
             $user = User::create([
-                'name'     => $this->nama,
+                'name' => $this->nama,
                 'username' => $username,
-                'email'    => $this->email,
+                'email' => $this->email,
                 'password' => Hash::make($password),
-                'role'     => 2,
+                'role' => 2,
             ]);
         }
 
         $siswa = Siswa::create([
-            'user_id'       => $user->id,
-            'nama'          => $this->nama,
-            'nisn'          => $this->nisn,
+            'user_id' => $user->id,
+            'nama' => $this->nama,
+            'nisn' => $this->nisn,
             'tanggal_lahir' => $this->tanggal_lahir,
-            'jurusan_id'    => $this->jurusan_pilihan_id,
-            'kelas_id'      => $kelasId ?? $this->kelas_diterima_id,
+            'jurusan_id' => $this->jurusan_pilihan_id,
+            'kelas_id' => $kelasId ?? $this->kelas_diterima_id,
         ]);
 
         $this->update([
-            'status'              => 'diterima',
-            'kelas_diterima_id'   => $kelasId ?? $this->kelas_diterima_id,
-            'diproses_oleh'       => auth()->id(),
-            'diproses_at'         => now(),
-            'akun_username'       => $username,
+            'status' => 'diterima',
+            'kelas_diterima_id' => $kelasId ?? $this->kelas_diterima_id,
+            'diproses_oleh' => auth()->id(),
+            'diproses_at' => now(),
+            'akun_username' => $username,
             'akun_password_plain' => $password,
         ]);
 
@@ -206,10 +221,10 @@ class PendaftarPpdb extends Model
     public function tolak(?string $catatan = null): void
     {
         $this->update([
-            'status'        => 'ditolak',
+            'status' => 'ditolak',
             'catatan_admin' => $catatan,
             'diproses_oleh' => auth()->id(),
-            'diproses_at'   => now(),
+            'diproses_at' => now(),
         ]);
     }
 
