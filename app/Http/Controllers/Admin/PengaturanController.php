@@ -12,18 +12,28 @@ class PengaturanController extends Controller
     public function index()
     {
         $settings = Pengaturan::orderBy('grup')->orderBy('id')->get()->groupBy('grup');
-        $grupan   = Pengaturan::GRUPAN;
+        $grupan = Pengaturan::GRUPAN;
 
         return view('admin.cms.pengaturan', compact('settings', 'grupan'));
     }
 
     public function update(Request $request)
     {
+        // File untuk pengaturan bertipe gambar harus benar-benar gambar. Sebelumnya
+        // tidak divalidasi sehingga file apa pun (mis. .php/.html/.svg) tersimpan
+        // ke disk public yang bisa diakses lewat web.
+        $aturanGambar = Pengaturan::where('tipe', 'image')->pluck('key')
+            ->mapWithKeys(fn ($key) => [$key => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp,ico', 'max:2048']])
+            ->all();
+        $request->validate($aturanGambar);
+
         $inputs = $request->except(['_token', '_method']);
 
         foreach ($inputs as $key => $value) {
             $setting = Pengaturan::where('key', $key)->first();
-            if (! $setting) continue;
+            if (! $setting) {
+                continue;
+            }
 
             // Handle file upload (image type)
             if ($setting->tipe === 'image' && $request->hasFile($key)) {
