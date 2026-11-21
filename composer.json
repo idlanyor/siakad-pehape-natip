@@ -25,7 +25,7 @@
         "mews/purifier": "^3.4",
         "midtrans/midtrans-php": "^2.6",
         "pragmarx/google2fa-qrcode": "^4.0",
-        "spatie/laravel-backup": "^9.3",
+        "spatie/laravel-backup": "^10.4",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
